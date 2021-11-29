@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/cmtop.dir/cmtop.c.o CMakeFiles/cmtop.dir/screen.c.o CMakeFiles/cmtop.dir/tty.c.o CMakeFiles/cmtop.dir/error.c.o CMakeFiles/cmtop.dir/mtxline.c.o CMakeFiles/cmtop.dir/proc.c.o  -o cmtop -lprocps 

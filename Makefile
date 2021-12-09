@@ -123,6 +123,49 @@ cmtop/fast:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/build
 .PHONY : cmtop/fast
 
+#=============================================================================
+# Target rules for targets named testing
+
+# Build rule for target.
+testing: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 testing
+.PHONY : testing
+
+# fast build rule for target.
+testing/fast:
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/build
+.PHONY : testing/fast
+
+bst.o: bst.c.o
+
+.PHONY : bst.o
+
+# target to build an object file
+bst.c.o:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/bst.c.o
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/bst.c.o
+.PHONY : bst.c.o
+
+bst.i: bst.c.i
+
+.PHONY : bst.i
+
+# target to preprocess a source file
+bst.c.i:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/bst.c.i
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/bst.c.i
+.PHONY : bst.c.i
+
+bst.s: bst.c.s
+
+.PHONY : bst.s
+
+# target to generate assembly for a file
+bst.c.s:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/bst.c.s
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/bst.c.s
+.PHONY : bst.c.s
+
 cmtop.o: cmtop.c.o
 
 .PHONY : cmtop.o
@@ -258,6 +301,33 @@ screen.c.s:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/screen.c.s
 .PHONY : screen.c.s
 
+testing.o: testing.c.o
+
+.PHONY : testing.o
+
+# target to build an object file
+testing.c.o:
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/testing.c.o
+.PHONY : testing.c.o
+
+testing.i: testing.c.i
+
+.PHONY : testing.i
+
+# target to preprocess a source file
+testing.c.i:
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/testing.c.i
+.PHONY : testing.c.i
+
+testing.s: testing.c.s
+
+.PHONY : testing.s
+
+# target to generate assembly for a file
+testing.c.s:
+	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/testing.c.s
+.PHONY : testing.c.s
+
 tty.o: tty.c.o
 
 .PHONY : tty.o
@@ -292,8 +362,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... cmtop"
 	@echo "... edit_cache"
+	@echo "... cmtop"
+	@echo "... testing"
+	@echo "... bst.o"
+	@echo "... bst.i"
+	@echo "... bst.s"
 	@echo "... cmtop.o"
 	@echo "... cmtop.i"
 	@echo "... cmtop.s"
@@ -309,6 +383,9 @@ help:
 	@echo "... screen.o"
 	@echo "... screen.i"
 	@echo "... screen.s"
+	@echo "... testing.o"
+	@echo "... testing.i"
+	@echo "... testing.s"
 	@echo "... tty.o"
 	@echo "... tty.i"
 	@echo "... tty.s"

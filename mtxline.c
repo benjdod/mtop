@@ -18,10 +18,22 @@ int mtx_init_lines(size_t n, size_t length) {
 		l.length = min_length + rand() % (max_length - min_length);
 		l.offset = 0 - l.length - (rand() % (offset_delta));
 		l.speed = 1;
-		lines.lines[i] = l;
+		lines.lines[i] = mtx_make_line(length, 1);
 	}
 
 	return 0;
+}
+
+mtxline_t mtx_make_line(uint16_t length, uint16_t speed) {
+	mtxline_t l;
+
+	size_t offset_delta = 20;
+	size_t min_length = 5;
+	size_t max_length = length - 5;
+
+	l.length = min_length + rand() % (max_length - min_length);
+	l.offset = 0 - l.length - (rand() % (offset_delta));
+	l.speed = speed;
 }
 
 size_t mtx_query_row(uint16_t row, char *buffer, size_t buffer_limit) {

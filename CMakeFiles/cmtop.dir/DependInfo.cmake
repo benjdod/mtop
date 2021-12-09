@@ -4,6 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
+  "/home/bjd/projects/cmatrix-top/bst.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/bst.c.o"
   "/home/bjd/projects/cmatrix-top/cmtop.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/cmtop.c.o"
   "/home/bjd/projects/cmatrix-top/error.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/error.c.o"
   "/home/bjd/projects/cmatrix-top/mtxline.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/mtxline.c.o"

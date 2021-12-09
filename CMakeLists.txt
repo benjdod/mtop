@@ -10,7 +10,16 @@ add_executable(cmtop
 	error.c
 	mtxline.c
 	proc.c	
+	bst.c
 )
+
+add_executable(testing
+	testing.c
+	bst.c 
+)
+
+SET(GCC_COMPILE_FLAGS "-ggdb")
+SET(CMAKE_C_FLAGS "${GCC_COMPILE_FLAGS}")
 
 target_link_libraries(cmtop
 	-lprocps	

@@ -6,6 +6,16 @@
 
 #IncludeRegexTransform: 
 
+/home/bjd/projects/cmatrix-top/bst.c
+bst.h
+/home/bjd/projects/cmatrix-top/bst.h
+
+/home/bjd/projects/cmatrix-top/bst.h
+stdlib.h
+-
+stdint.h
+-
+
 /home/bjd/projects/cmatrix-top/cmtop.c
 stdio.h
 -
@@ -17,6 +27,8 @@ mtxline.h
 /home/bjd/projects/cmatrix-top/mtxline.h
 proc.h
 /home/bjd/projects/cmatrix-top/proc.h
+bst.h
+/home/bjd/projects/cmatrix-top/bst.h
 
 /home/bjd/projects/cmatrix-top/common.h
 stdlib.h

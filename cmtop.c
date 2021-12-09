@@ -3,6 +3,7 @@
 #include "tty.h"
 #include "mtxline.h"
 #include "proc.h"
+#include "bst.h"
 
 int cmtop() {
 	screen_init();
@@ -29,12 +30,23 @@ int cmtop() {
 	screen_exit();
 }
 
-int main() {
-	procinfo_t buf[1024];
+int get_proc() {
+procinfo_t buf[1024];
 	size_t n = proc_getall(buf, 1024);
 	for (size_t i = 0; i < n; i++) {
 		procinfo_t p = buf[i];
 		printf("(%s) - %s\t%d\n", p.user, p.cmd, p.pid);
 		proc_freeinfo(p);
 	}
+}
+
+int test_bst() {
+	bst_t tree = bst_init();
+
+	bst_insert(&tree, 5);
+	return 0;
+}
+
+int main() {
+	return test_bst();
 }

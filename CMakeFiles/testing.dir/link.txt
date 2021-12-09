@@ -1,0 +1,1 @@
+/usr/bin/cc -ggdb   CMakeFiles/testing.dir/testing.c.o CMakeFiles/testing.dir/bst.c.o  -o testing 

@@ -1,3 +1,4 @@
 /home/bjd/projects/cmatrix-top/CMakeFiles/rebuild_cache.dir
-/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir
 /home/bjd/projects/cmatrix-top/CMakeFiles/edit_cache.dir
+/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir
+/home/bjd/projects/cmatrix-top/CMakeFiles/testing.dir

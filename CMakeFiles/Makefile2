@@ -97,43 +97,6 @@ clean: CMakeFiles/cmtop.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/testing.dir
-
-# All Build rule for target.
-CMakeFiles/testing.dir/all:
-	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/depend
-	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=9,10,11 "Built target testing"
-.PHONY : CMakeFiles/testing.dir/all
-
-# Include target in all.
-all: CMakeFiles/testing.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/testing.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 3
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/testing.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 0
-.PHONY : CMakeFiles/testing.dir/rule
-
-# Convenience name for target.
-testing: CMakeFiles/testing.dir/rule
-
-.PHONY : testing
-
-# clean rule for target.
-CMakeFiles/testing.dir/clean:
-	$(MAKE) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/clean
-.PHONY : CMakeFiles/testing.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/testing.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Special targets to cleanup operation of make.
 
 # Special rule to run CMake to check the build system integrity.

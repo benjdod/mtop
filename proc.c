@@ -1,10 +1,15 @@
-#include "proc.h"
 #include "common.h"
 #include "error.h"
+#include "procbst.h"
+#include "proc.h"
 
 #define PROCINFO_BUFSZ 8192
 
 const char* null_cmd = "\0";
+
+#define TIMEDELTA_UPDATE(TD, NEWTIME) {(TD).last = (TD).current; (TD).current = NEWTIME; (TD).delta = (TD).current - (TD).last;}
+
+#define PROCINFO_FOUND 0x00001
 
 /*
 procinfo_t get_procinfo(pid_t pid) {
@@ -127,163 +132,23 @@ procinfo_t get_procinfo(pid_t pid) {
 }
 */
 
-/*
- * We need a way to insert and remove processes from a store with order guaranteed. 
- * This binary search tree will give us what we need for now.
- */
-
-typedef struct {
-	pitree_t *left, *right, *parent;
-	procinfo_t value;
-} pitree_t;
-
-typedef struct {
-	pitree_t 
-		*tree,
-		*current;
-} pitree_cursor_t;
-
-#define PITREE_COMPARE(A,B) ((int) (B).pid - (A).pid)
-
-static pitree_t* pitree_node(procinfo_t info, pitree_t* left, pitree_t* right, pitree_t* parent) {
-	pitree_t *pt = (pitree_t*) malloc(sizeof(pitree_t));
-	pt->value = info;
-	pt->left = left;
-	pt->right = right;
-	pt->parent = parent;
-	return pt;
-}
-
-static pitree_t pitree_free(pitree_t* tree) {
-	free(tree);
-}
-
-static void pitree_insert(pitree_t* tree, procinfo_t info) {
-	pitree_t 
-		*current = tree,
-		**next = NULL;
-
-	*next = tree;
-
-	while (*next != NULL) {
-
-		current = *next;
-
-		if (PITREE_COMPARE(info, current->value) > 0) {
-			next = &current->right;
-		} else {
-			next = &current->left;
-		}
-	}
-
-	*next = pitree_node(info, NULL, NULL, current);
-}
-
-static procinfo_t* pitree_has(pitree_t* tree, procinfo_t info) {
-
-	pitree_t* current = tree;
-
-	while (current != NULL) {
-		int compare = PITREE_COMPARE(info, current->value);
-		if (compare == 0) {
-			return &current->value;
-		} else {
-			current = (compare > 0)
-				? current->left
-				: current->right;
-		}
-	}
-	return NULL;
-}
-
-static pitree_t* pitree_remove(pitree_t* tree, procinfo_t info) {
-
-	pitree_t *current = tree, *parent = NULL, **parent_ptr = NULL;
-
-	while (current != NULL) {
-		int compare = PITREE_COMPARE(info, current->value);
-		if (compare == 0) {
-			break;
-		} else {
-			parent = current;
-			parent_ptr = (compare > 0)
-				? &current->left
-				: &current->right;
-			current = *parent_ptr;
-		}
-	}
-
-	if (current == NULL) return tree;
-
-	if (current->left != NULL && current->right != NULL) {	// 2 subtrees
-		pitree_t *succ = NULL;
-
-		// get successor
-		succ = current->right;
-		while (succ->left != NULL) succ = succ->left; 
-
-		current->value = succ->value;
-		pitree_remove(current->right, succ->value);
-
-	} else if (current->left != NULL || current->right != NULL ) {		// 1 subtree
-		pitree_t* target = (current->left != NULL) ? current->left : current->right;
-		*parent_ptr = target;
-		target->parent = parent;
-	} else {	// no subtress
-		*parent_ptr = NULL;
-	}
-
-	pitree_free(current);
-
-	return tree;
-}
-
-static pitree_cursor_t pitree_cursor_init(pitree_t *tree) {
-	pitree_cursor_t c;
-	c.tree = tree;
-	return c;
-}
-
-static const procinfo_t* pitree_cursor_first(pitree_cursor_t cursor) {
-	if (cursor.current == NULL) cursor.current = cursor.tree;
-	while (cursor.current->parent != NULL) cursor.current = cursor.current->parent;
-	while (cursor.current->left != NULL) cursor.current = cursor.current->left;
-	return &cursor.current->value;
-}
-
-static const procinfo_t* pitree_cursor_last(pitree_cursor_t cursor) {
-	if (cursor.current == NULL) cursor.current = cursor.tree;
-	while (cursor.current->parent != NULL) cursor.current = cursor.current->parent;
-	while(cursor.current->right != NULL) cursor.current = cursor.current->right;
-	return &cursor.current->value;
-}
-
-static const procinfo_t* pitree_cursor_next(pitree_cursor_t cursor) {
-	if (cursor.current == NULL) return pitree_cursor_first(cursor);
-	else {
-		if (cursor.current->right != NULL) {
-			cursor.current = cursor.current->right;
-			while (cursor.current->left != NULL) cursor.current = cursor.current->left;
-		} else {
-			if (cursor.current->parent->right == cursor.current) {
-				return NULL;
-			}
-			cursor.current = cursor.current->parent;
-		}
-
-		return &cursor.current->value;
-	}
-}
-
 procs_info_t procs_init() {
 
 	procs_info_t pi;
 
-	pi.proc_bufsize = 512;
-	pi.procs = (procinfo_t*) malloc(pi.proc_bufsize * sizeof(procinfo_t));
 	pi.num_procs = 0;
-	pi.refresh_rate = 1000 * 100;	// in usec
+	pi.procs = procbst_init();
 	pi.cpuinfo = (sys_cpuinfo_t) {0,0};
+	pi.refresh_rate = 1000 * 100;
+
+
+	proc_collection_itf i;
+
+	i.get = &procbst_find;
+	i.add = &procbst_insert;
+	i.remove = &procbst_remove;
+
+	pi.procs_itf = i;
 
 	return pi;
 }
@@ -320,6 +185,29 @@ int read_cpuinfo(sys_cpuinfo_t *info_ptr) {
 #undef CPUINFO_BUFSZ
 }
 
+
+void proc_updateinfo(procinfo_t* pi_ptr, proc_t proc) {
+
+	// update all the non-constant fields 
+	// (everything except pid, user, cmd, stuff like that)...
+
+	pi_ptr->priority 	= proc.priority;
+	pi_ptr->nice 		= proc.nice;
+	pi_ptr->virt_mem	= 0;
+	pi_ptr->res_mem		= 0;
+	pi_ptr->shr_mem		= 0;
+	pi_ptr->state		= proc.state;
+	pi_ptr->cpu_pct		= 0;
+	pi_ptr->mem_pct		= 0;
+	pi_ptr->start_time	= proc.start_time;
+
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.stime, proc.stime);
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.utime, proc.utime);
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.ttime, proc.stime + proc.utime);
+
+	return;
+}
+
 size_t procs_update(procs_info_t *info) {
 
 	PROCTAB* processes = openproc(
@@ -330,47 +218,23 @@ size_t procs_update(procs_info_t *info) {
 			PROC_FILLCOM
 		);
 
-
-/*
-	for (size_t i = 0; i < info->num_procs; i++) {
-		proc_freeinfo(info->procs[i]);
-	}
-	info->num_procs = 0;
-	memset(info->procs, '\0', sizeof(info->proc_bufsize * sizeof(procinfo_t)));
-	*/
-
 	while (1) {
 		proc_t proc;
 		memset(&proc, 0, sizeof(proc));
 
 		if (
-			readproc(processes, &proc) == NULL || 
-			info->num_procs == info->proc_bufsize
+			readproc(processes, &proc) == NULL 
 		) break;
 
-		/*
-		TODO: filter by pid so that we don't have to constantly
-		allocate and reallocate space for the processes.
-		*/
-
-		pid_t current_pid = PROC_PIDOF(proc);
 		procinfo_t* proc_ptr = NULL;
 
-		// filter for procs that are alredy present.
-		// if so, just update them instead of reading again
-		for (size_t i = 0; i < info->num_procs; i++) {
-			if (info->procs[i].pid == current_pid) {
-				proc_ptr = info->procs + i;
-			}
-		}
-
-		if (proc_ptr != NULL) {
+		if ((proc_ptr = info->procs_itf.get(&info->procs, PROC_PIDOF(proc))) != NULL) {
 			proc_updateinfo(proc_ptr, proc);
 		} else {
-			info->procs[info->num_procs++] = proc_getinfo(proc);
+			info->procs_itf.add(&info->procs, proc_getinfo(proc));
 		}
-	}
 
+	}
 
 	closeproc(processes);
 
@@ -420,27 +284,6 @@ procinfo_t proc_getinfo(proc_t proc) {
 	return p;
 }
 
-void proc_updateinfo(procinfo_t* pi_ptr, proc_t proc) {
-
-	// update all the non-constant fields 
-	// (everything except pid, user, cmd, stuff like that)...
-
-	pi_ptr->priority 	= proc.priority;
-	pi_ptr->nice 		= proc.nice;
-	pi_ptr->virt_mem	= 0;
-	pi_ptr->res_mem		= 0;
-	pi_ptr->shr_mem		= 0;
-	pi_ptr->state		= proc.state;
-	pi_ptr->cpu_pct		= 0;
-	pi_ptr->mem_pct		= 0;
-	pi_ptr->start_time	= proc.start_time;
-
-	TIMEDELTA_UPDATE(pi_ptr->cpuavg.stime, proc.stime);
-	TIMEDELTA_UPDATE(pi_ptr->cpuavg.utime, proc.utime);
-	TIMEDELTA_UPDATE(pi_ptr->cpuavg.ttime, proc.stime + proc.utime);
-
-	return;
-}
 
 void proc_freeinfo(procinfo_t p_info) {
 	free(p_info.user);

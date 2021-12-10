@@ -5,7 +5,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/cmtop.dir/error.c.o"
   "CMakeFiles/cmtop.dir/mtxline.c.o"
   "CMakeFiles/cmtop.dir/proc.c.o"
-  "CMakeFiles/cmtop.dir/bst.c.o"
+  "CMakeFiles/cmtop.dir/procbst.c.o"
   "cmtop.pdb"
   "cmtop"
 )

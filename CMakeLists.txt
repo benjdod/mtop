@@ -10,12 +10,7 @@ add_executable(cmtop
 	error.c
 	mtxline.c
 	proc.c	
-	bst.c
-)
-
-add_executable(testing
-	testing.c
-	bst.c 
+	procbst.c
 )
 
 SET(GCC_COMPILE_FLAGS "-ggdb")

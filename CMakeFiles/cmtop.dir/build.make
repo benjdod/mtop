@@ -201,28 +201,28 @@ CMakeFiles/cmtop.dir/proc.c.o.provides: CMakeFiles/cmtop.dir/proc.c.o.requires
 CMakeFiles/cmtop.dir/proc.c.o.provides.build: CMakeFiles/cmtop.dir/proc.c.o
 
 
-CMakeFiles/cmtop.dir/bst.c.o: CMakeFiles/cmtop.dir/flags.make
-CMakeFiles/cmtop.dir/bst.c.o: bst.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/cmtop.dir/bst.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/bst.c.o   -c /home/bjd/projects/cmatrix-top/bst.c
+CMakeFiles/cmtop.dir/procbst.c.o: CMakeFiles/cmtop.dir/flags.make
+CMakeFiles/cmtop.dir/procbst.c.o: procbst.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/cmtop.dir/procbst.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/procbst.c.o   -c /home/bjd/projects/cmatrix-top/procbst.c
 
-CMakeFiles/cmtop.dir/bst.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/bst.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/bst.c > CMakeFiles/cmtop.dir/bst.c.i
+CMakeFiles/cmtop.dir/procbst.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/procbst.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/procbst.c > CMakeFiles/cmtop.dir/procbst.c.i
 
-CMakeFiles/cmtop.dir/bst.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/bst.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/bst.c -o CMakeFiles/cmtop.dir/bst.c.s
+CMakeFiles/cmtop.dir/procbst.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/procbst.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/procbst.c -o CMakeFiles/cmtop.dir/procbst.c.s
 
-CMakeFiles/cmtop.dir/bst.c.o.requires:
+CMakeFiles/cmtop.dir/procbst.c.o.requires:
 
-.PHONY : CMakeFiles/cmtop.dir/bst.c.o.requires
+.PHONY : CMakeFiles/cmtop.dir/procbst.c.o.requires
 
-CMakeFiles/cmtop.dir/bst.c.o.provides: CMakeFiles/cmtop.dir/bst.c.o.requires
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/bst.c.o.provides.build
-.PHONY : CMakeFiles/cmtop.dir/bst.c.o.provides
+CMakeFiles/cmtop.dir/procbst.c.o.provides: CMakeFiles/cmtop.dir/procbst.c.o.requires
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procbst.c.o.provides.build
+.PHONY : CMakeFiles/cmtop.dir/procbst.c.o.provides
 
-CMakeFiles/cmtop.dir/bst.c.o.provides.build: CMakeFiles/cmtop.dir/bst.c.o
+CMakeFiles/cmtop.dir/procbst.c.o.provides.build: CMakeFiles/cmtop.dir/procbst.c.o
 
 
 # Object files for target cmtop
@@ -233,7 +233,7 @@ cmtop_OBJECTS = \
 "CMakeFiles/cmtop.dir/error.c.o" \
 "CMakeFiles/cmtop.dir/mtxline.c.o" \
 "CMakeFiles/cmtop.dir/proc.c.o" \
-"CMakeFiles/cmtop.dir/bst.c.o"
+"CMakeFiles/cmtop.dir/procbst.c.o"
 
 # External object files for target cmtop
 cmtop_EXTERNAL_OBJECTS =
@@ -244,7 +244,7 @@ cmtop: CMakeFiles/cmtop.dir/tty.c.o
 cmtop: CMakeFiles/cmtop.dir/error.c.o
 cmtop: CMakeFiles/cmtop.dir/mtxline.c.o
 cmtop: CMakeFiles/cmtop.dir/proc.c.o
-cmtop: CMakeFiles/cmtop.dir/bst.c.o
+cmtop: CMakeFiles/cmtop.dir/procbst.c.o
 cmtop: CMakeFiles/cmtop.dir/build.make
 cmtop: CMakeFiles/cmtop.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable cmtop"
@@ -261,7 +261,7 @@ CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/tty.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/error.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/mtxline.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/proc.c.o.requires
-CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/bst.c.o.requires
+CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/procbst.c.o.requires
 
 .PHONY : CMakeFiles/cmtop.dir/requires
 

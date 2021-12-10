@@ -15,6 +15,7 @@ typedef struct {
 } mtxlines_t;
 
 int mtx_init_lines(size_t n, size_t length);
+mtxline_t mtx_make_line(uint16_t length, uint16_t speed);
 size_t mtx_query_row(uint16_t, char *, size_t);
 void mtx_step_lines();
 

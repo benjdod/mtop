@@ -6,16 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/bjd/projects/cmatrix-top/bst.c
-bst.h
-/home/bjd/projects/cmatrix-top/bst.h
-
-/home/bjd/projects/cmatrix-top/bst.h
-stdlib.h
--
-stdint.h
--
-
 /home/bjd/projects/cmatrix-top/cmtop.c
 stdio.h
 -
@@ -27,8 +17,6 @@ mtxline.h
 /home/bjd/projects/cmatrix-top/mtxline.h
 proc.h
 /home/bjd/projects/cmatrix-top/proc.h
-bst.h
-/home/bjd/projects/cmatrix-top/bst.h
 
 /home/bjd/projects/cmatrix-top/common.h
 stdlib.h
@@ -75,14 +63,36 @@ proc.h
 /home/bjd/projects/cmatrix-top/proc.h
 
 /home/bjd/projects/cmatrix-top/proc.c
-proc.h
-/home/bjd/projects/cmatrix-top/proc.h
 common.h
 /home/bjd/projects/cmatrix-top/common.h
 error.h
 /home/bjd/projects/cmatrix-top/error.h
+procbst.h
+/home/bjd/projects/cmatrix-top/procbst.h
+proc.h
+/home/bjd/projects/cmatrix-top/proc.h
 
 /home/bjd/projects/cmatrix-top/proc.h
+common.h
+/home/bjd/projects/cmatrix-top/common.h
+proctypes.h
+/home/bjd/projects/cmatrix-top/proctypes.h
+procbst.h
+/home/bjd/projects/cmatrix-top/procbst.h
+
+/home/bjd/projects/cmatrix-top/procbst.c
+procbst.h
+/home/bjd/projects/cmatrix-top/procbst.h
+
+/home/bjd/projects/cmatrix-top/procbst.h
+stdlib.h
+-
+stdint.h
+-
+proctypes.h
+/home/bjd/projects/cmatrix-top/proctypes.h
+
+/home/bjd/projects/cmatrix-top/proctypes.h
 common.h
 /home/bjd/projects/cmatrix-top/common.h
 

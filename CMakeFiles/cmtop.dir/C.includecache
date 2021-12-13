@@ -37,6 +37,8 @@ string.h
 -
 proc/readproc.h
 -
+time.h
+-
 
 /home/bjd/projects/cmatrix-top/error.c
 common.h
@@ -65,6 +67,8 @@ proc.h
 /home/bjd/projects/cmatrix-top/proc.c
 common.h
 /home/bjd/projects/cmatrix-top/common.h
+xutil.h
+/home/bjd/projects/cmatrix-top/xutil.h
 error.h
 /home/bjd/projects/cmatrix-top/error.h
 procbst.h
@@ -129,4 +133,12 @@ error.h
 /home/bjd/projects/cmatrix-top/error.h
 
 /home/bjd/projects/cmatrix-top/tty.h
+
+/home/bjd/projects/cmatrix-top/xutil.c
+xutil.h
+/home/bjd/projects/cmatrix-top/xutil.h
+
+/home/bjd/projects/cmatrix-top/xutil.h
+common.h
+/home/bjd/projects/cmatrix-top/common.h
 

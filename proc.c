@@ -1,13 +1,17 @@
 #include "common.h"
+#include "xutil.h"
 #include "error.h"
 #include "procbst.h"
 #include "proc.h"
 
 #define PROCINFO_BUFSZ 8192
+#define CPU_PERIOD_EPS 1E-6
+#define I_EPS(val, eps) (((val) < (eps)) ? 0 : (val))
+#define F_EPS(val, eps) (((val) < (eps)) ? 0.0F : (val))
 
 const char* null_cmd = "\0";
 
-#define TIMEDELTA_UPDATE(TD, NEWTIME) {(TD).last = (TD).current; (TD).current = NEWTIME; (TD).delta = (TD).current - (TD).last;}
+static long jiffy = 1;
 
 #define PROCINFO_FOUND 0x00001
 
@@ -132,23 +136,24 @@ procinfo_t get_procinfo(pid_t pid) {
 }
 */
 
+static inline ptime_t adjust_time(ptime_t time) {
+	// this function probably won't do anything if the 
+	// jiffy value is set to hundredths of a second 
+	// (likely on modern linux kernels...)
+	return time * 100 / jiffy;
+}
+
 procs_info_t procs_init() {
 
 	procs_info_t pi;
 
 	pi.num_procs = 0;
 	pi.procs = procbst_init();
-	pi.cpuinfo = (sys_cpuinfo_t) {0,0};
 	pi.refresh_rate = 1000 * 100;
+	memset(&pi.cpuinfo, 0, sizeof(sys_cpuinfo_t));
 
-
-	proc_collection_itf i;
-
-	i.get = &procbst_find;
-	i.add = &procbst_insert;
-	i.remove = &procbst_remove;
-
-	pi.procs_itf = i;
+	jiffy = sysconf(_SC_CLK_TCK);
+	printf("got jiffy %ld\n", jiffy);
 
 	return pi;
 }
@@ -157,11 +162,11 @@ int read_cpuinfo(sys_cpuinfo_t *info_ptr) {
 
 #define CPUINFO_BUFSZ 256
 
-	FILE* statfile = fopen("/proc/stat", "r");
+
 
 	char buf[CPUINFO_BUFSZ];
 	memset(buf, '\0', CPUINFO_BUFSZ);
-	fgets(buf, CPUINFO_BUFSZ - 1, statfile);
+	x_readfile("/proc/stat", buf, CPUINFO_BUFSZ);
 
 	// XXX: there is likely a better way to do this.
 
@@ -169,24 +174,48 @@ int read_cpuinfo(sys_cpuinfo_t *info_ptr) {
 
 	while (*valstart == ' ') valstart++;
 
-	unsigned long long user, nice, system, idle;
-	sscanf(valstart, "%llu %llu %llu %llu", 
+	ptime_t 
+		user = 0, 
+		nice = 0, 
+		system = 0, 
+		idle = 0, 
+		iowait = 0, 
+		irq = 0, 
+		softirq = 0, 
+		steal = 0, 
+		guest = 0, 
+		guest_nice = 0;
+		
+	sscanf(valstart, "%llu %llu %llu %llu %llu %llu %llu %llu %llu %llu", 
 		&user,
 		&nice,
 		&system,
-		&idle
+		&idle,
+		&iowait,
+		&irq,
+		&softirq, 
+		&steal,
+		&guest,
+		&guest_nice
 	);
 
-	TIMEDELTA_UPDATE(info_ptr->user, user);
-	TIMEDELTA_UPDATE(info_ptr->nice, nice);
-	TIMEDELTA_UPDATE(info_ptr->system, system);
-	TIMEDELTA_UPDATE(info_ptr->idle, idle);
+	TIMEDELTA_COND_UPDATE(info_ptr->user, user);
+	TIMEDELTA_COND_UPDATE(info_ptr->nice, nice);
+	TIMEDELTA_COND_UPDATE(info_ptr->system, system);
+	TIMEDELTA_COND_UPDATE(info_ptr->idle, idle);
+	TIMEDELTA_COND_UPDATE(info_ptr->iowait, iowait);
+	TIMEDELTA_COND_UPDATE(info_ptr->irq, irq);
+	TIMEDELTA_COND_UPDATE(info_ptr->softirq, softirq);
+	TIMEDELTA_COND_UPDATE(info_ptr->steal, steal);
+	TIMEDELTA_COND_UPDATE(info_ptr->guest, guest);
+	TIMEDELTA_COND_UPDATE(info_ptr->guest_nice, guest_nice);
+	TIMEDELTA_COND_UPDATE(info_ptr->total, user + nice + system + idle);
 
 #undef CPUINFO_BUFSZ
 }
 
 
-void proc_updateinfo(procinfo_t* pi_ptr, proc_t proc) {
+void proc_updateinfo(procinfo_t* pi_ptr, proc_t proc, ptime_t period) {
 
 	// update all the non-constant fields 
 	// (everything except pid, user, cmd, stuff like that)...
@@ -201,14 +230,33 @@ void proc_updateinfo(procinfo_t* pi_ptr, proc_t proc) {
 	pi_ptr->mem_pct		= 0;
 	pi_ptr->start_time	= proc.start_time;
 
-	TIMEDELTA_UPDATE(pi_ptr->cpuavg.stime, proc.stime);
-	TIMEDELTA_UPDATE(pi_ptr->cpuavg.utime, proc.utime);
-	TIMEDELTA_UPDATE(pi_ptr->cpuavg.ttime, proc.stime + proc.utime);
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.stime, adjust_time(proc.stime));
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.utime, adjust_time(proc.utime));
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.cutime, adjust_time(proc.cutime));
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.cstime, adjust_time(proc.cstime));
+	TIMEDELTA_UPDATE(pi_ptr->cpuavg.ttime, adjust_time(proc.stime + proc.utime));
+
+	// from htop:
+	// float percent_cpu = (period < 1E-6) ? 0.0F : ((lp->utime + lp->stime - lasttimes) / period * 100.0);
+
+
+	timedelta_t cputotal = pi_ptr->cpuavg.ttime;
+	ptime_t cputotal_delta = cputotal.delta;
+
+	if (period > CPU_PERIOD_EPS) {
+		float percent_cpu = cputotal.delta * 100.0F / period;
+		pi_ptr->cpu_pct = percent_cpu;
+	}
+
+	printf("proc %d (%s): ", pi_ptr->pid, pi_ptr->cmd);
+	printf("period: %llu \tproc period: %llu\tcpu_pct: %f\n", period, cputotal.delta, pi_ptr->cpu_pct);
 
 	return;
 }
 
 size_t procs_update(procs_info_t *info) {
+
+	read_cpuinfo(&info->cpuinfo);
 
 	PROCTAB* processes = openproc(
 			PROC_FILLMEM | 
@@ -228,10 +276,12 @@ size_t procs_update(procs_info_t *info) {
 
 		procinfo_t* proc_ptr = NULL;
 
-		if ((proc_ptr = info->procs_itf.get(&info->procs, PROC_PIDOF(proc))) != NULL) {
-			proc_updateinfo(proc_ptr, proc);
+		ptime_t period = info->cpuinfo.total.delta;
+
+		if ((proc_ptr = procbst_find(&info->procs, PROC_PIDOF(proc))) != NULL) {
+			proc_updateinfo(proc_ptr, proc, period);
 		} else {
-			info->procs_itf.add(&info->procs, proc_getinfo(proc));
+			procbst_insert(&info->procs, proc_getinfo(proc, period));
 		}
 
 	}
@@ -241,7 +291,19 @@ size_t procs_update(procs_info_t *info) {
 	return info->num_procs;
 }
 
-procinfo_t proc_getinfo(proc_t proc) {
+static char* strip_pathinfo(char* cmd_path) {
+	char* current = cmd_path;
+
+	size_t last_fslash = 0;
+
+	for (size_t i = 0; *current != '\0'; i++, current++) {
+		if (*current == '/') last_fslash = i;
+	}
+
+	return (char*) (cmd_path + last_fslash);
+}
+
+procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	procinfo_t p;
 
@@ -257,29 +319,21 @@ procinfo_t proc_getinfo(proc_t proc) {
 	size_t userlen = strlen(user_ptr);
 	p.user 		= (char*) malloc((userlen + 1) * sizeof(char));
 	p.user[userlen] = '\0';
-	strncpy(p.user, user_ptr, userlen);
+	x_strncpy(p.user, user_ptr, userlen);
 
 	const char *cmd_ptr;
 
 	if (proc.cmdline != NULL) {
-		cmd_ptr = *(proc.cmdline + 0);
-		
-		// parse out those pesky filesystem things
-		// e.g. './hello.o' -> 'hello'
-		char period_delim = '.';
-		while (*cmd_ptr == '/' || *cmd_ptr == ' ' || *cmd_ptr == '-' || *cmd_ptr == period_delim) {
-			if (*cmd_ptr == period_delim) period_delim = ' ';
-			cmd_ptr++;
-		}
+		cmd_ptr = strip_pathinfo(proc.cmd);
 
 		size_t cmd_len = strlen(cmd_ptr);
 		p.cmd = malloc((cmd_len + 1) * sizeof(char));
-		strncpy(p.cmd, cmd_ptr, cmd_len);
+		x_strncpy(p.cmd, cmd_ptr, cmd_len);
 	} else {
 		p.cmd = null_cmd;
 	}
 
-	proc_updateinfo(&p, proc);
+	proc_updateinfo(&p, proc, period);
 
 	return p;
 }

@@ -29,6 +29,7 @@ CMakeFiles/cmtop.dir/proc.c.o
  /home/bjd/projects/cmatrix-top/proc.h
  /home/bjd/projects/cmatrix-top/procbst.h
  /home/bjd/projects/cmatrix-top/proctypes.h
+ /home/bjd/projects/cmatrix-top/xutil.h
 CMakeFiles/cmtop.dir/procbst.c.o
  /home/bjd/projects/cmatrix-top/common.h
  /home/bjd/projects/cmatrix-top/procbst.c
@@ -44,3 +45,7 @@ CMakeFiles/cmtop.dir/tty.c.o
  /home/bjd/projects/cmatrix-top/error.h
  /home/bjd/projects/cmatrix-top/tty.c
  /home/bjd/projects/cmatrix-top/tty.h
+CMakeFiles/cmtop.dir/xutil.c.o
+ /home/bjd/projects/cmatrix-top/common.h
+ /home/bjd/projects/cmatrix-top/xutil.c
+ /home/bjd/projects/cmatrix-top/xutil.h

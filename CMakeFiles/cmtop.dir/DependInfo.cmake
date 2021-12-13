@@ -11,6 +11,7 @@ set(CMAKE_DEPENDS_CHECK_C
   "/home/bjd/projects/cmatrix-top/procbst.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/procbst.c.o"
   "/home/bjd/projects/cmatrix-top/screen.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/screen.c.o"
   "/home/bjd/projects/cmatrix-top/tty.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/tty.c.o"
+  "/home/bjd/projects/cmatrix-top/xutil.c" "/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir/xutil.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

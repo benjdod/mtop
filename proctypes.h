@@ -3,17 +3,32 @@
 
 #include "common.h"
 
+typedef unsigned long long ptime_t;
+
 typedef struct {
-	unsigned long long 
+	ptime_t 
 		last,
 		current,
 		delta;
 } timedelta_t;
 
+/** Updates a timedelta struct given a new time value. */
+#define TIMEDELTA_UPDATE(TD, NEWTIME) { \
+	(TD).last = (TD).current; \
+	(TD).current = (NEWTIME); \
+	(TD).delta = (TD).current - (TD).last;\
+	}
+		//(TD).current = ((NEWTIME) > (TD).current) ? (NEWTIME) : (TD).current; \
+	//(TD).delta = ((NEWTIME) > (TD).current) ? (TD).current - (TD).last : 0;\
+
+#define TIMEDELTA_COND_UPDATE(TD, NEWTIME) {if ((NEWTIME) > 0) TIMEDELTA_UPDATE((TD), (NEWTIME))}
+
 typedef struct {
 	timedelta_t 
 		utime,
 		stime,
+		cutime, 
+		cstime,
 		ttime;
 } proc_cpuavg_t;
 
@@ -31,8 +46,9 @@ typedef struct {
 		shr_mem,
 		start_time;
 	char state;
-	float cpu_pct;
-	float mem_pct;
+	float 
+		cpu_pct,
+		mem_pct;
 	proc_cpuavg_t cpuavg;
 } procinfo_t;
 

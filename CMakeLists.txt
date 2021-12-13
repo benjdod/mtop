@@ -11,6 +11,7 @@ add_executable(cmtop
 	mtxline.c
 	proc.c	
 	procbst.c
+	xutil.c
 )
 
 SET(GCC_COMPILE_FLAGS "-ggdb")

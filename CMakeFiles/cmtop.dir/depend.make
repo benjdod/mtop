@@ -28,6 +28,7 @@ CMakeFiles/cmtop.dir/proc.c.o: proc.c
 CMakeFiles/cmtop.dir/proc.c.o: proc.h
 CMakeFiles/cmtop.dir/proc.c.o: procbst.h
 CMakeFiles/cmtop.dir/proc.c.o: proctypes.h
+CMakeFiles/cmtop.dir/proc.c.o: xutil.h
 
 CMakeFiles/cmtop.dir/procbst.c.o: common.h
 CMakeFiles/cmtop.dir/procbst.c.o: procbst.c
@@ -43,4 +44,8 @@ CMakeFiles/cmtop.dir/screen.c.o: tty.h
 CMakeFiles/cmtop.dir/tty.c.o: error.h
 CMakeFiles/cmtop.dir/tty.c.o: tty.c
 CMakeFiles/cmtop.dir/tty.c.o: tty.h
+
+CMakeFiles/cmtop.dir/xutil.c.o: common.h
+CMakeFiles/cmtop.dir/xutil.c.o: xutil.c
+CMakeFiles/cmtop.dir/xutil.c.o: xutil.h
 

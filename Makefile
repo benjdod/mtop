@@ -312,6 +312,33 @@ tty.c.s:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/tty.c.s
 .PHONY : tty.c.s
 
+xutil.o: xutil.c.o
+
+.PHONY : xutil.o
+
+# target to build an object file
+xutil.c.o:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/xutil.c.o
+.PHONY : xutil.c.o
+
+xutil.i: xutil.c.i
+
+.PHONY : xutil.i
+
+# target to preprocess a source file
+xutil.c.i:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/xutil.c.i
+.PHONY : xutil.c.i
+
+xutil.s: xutil.c.s
+
+.PHONY : xutil.s
+
+# target to generate assembly for a file
+xutil.c.s:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/xutil.c.s
+.PHONY : xutil.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -342,6 +369,9 @@ help:
 	@echo "... tty.o"
 	@echo "... tty.i"
 	@echo "... tty.s"
+	@echo "... xutil.o"
+	@echo "... xutil.i"
+	@echo "... xutil.s"
 .PHONY : help
 
 

@@ -9,7 +9,7 @@
 #define I_EPS(val, eps) (((val) < (eps)) ? 0 : (val))
 #define F_EPS(val, eps) (((val) < (eps)) ? 0.0F : (val))
 
-const char* null_cmd = "\0";
+char* null_cmd = "\0";
 
 static long jiffy = 1;
 
@@ -143,6 +143,18 @@ static inline ptime_t adjust_time(ptime_t time) {
 	return time * 100 / jiffy;
 }
 
+static char* strip_pathinfo(char* cmd_path) {
+	char* current = cmd_path;
+
+	size_t last_fslash = 0;
+
+	for (size_t i = 0; *current != '\0'; i++, current++) {
+		if (*current == '/') last_fslash = i;
+	}
+
+	return (char*) (cmd_path + last_fslash);
+}
+
 procs_info_t procs_init() {
 
 	procs_info_t pi;
@@ -254,6 +266,10 @@ void proc_updateinfo(procinfo_t* pi_ptr, proc_t proc, ptime_t period) {
 	return;
 }
 
+static void proc_touch(procinfo_t* p) {
+	p->flags |= PROCINFO_FOUND;
+}
+
 size_t procs_update(procs_info_t *info) {
 
 	read_cpuinfo(&info->cpuinfo);
@@ -266,13 +282,10 @@ size_t procs_update(procs_info_t *info) {
 			PROC_FILLCOM
 		);
 
-	while (1) {
-		proc_t proc;
-		memset(&proc, 0, sizeof(proc));
+	proc_t proc;
+	memset(&proc, 0, sizeof(proc));
 
-		if (
-			readproc(processes, &proc) == NULL 
-		) break;
+	while (readproc(processes, &proc) != NULL)  {
 
 		procinfo_t* proc_ptr = NULL;
 
@@ -280,10 +293,26 @@ size_t procs_update(procs_info_t *info) {
 
 		if ((proc_ptr = procbst_find(&info->procs, PROC_PIDOF(proc))) != NULL) {
 			proc_updateinfo(proc_ptr, proc, period);
+			proc_touch(proc_ptr);
 		} else {
-			procbst_insert(&info->procs, proc_getinfo(proc, period));
+			procinfo_t* new_node = procbst_insert(&info->procs, proc_getinfo(proc, period));
+			proc_touch(new_node);
 		}
 
+
+		memset(&proc, 0, sizeof(proc));
+	}
+
+	procbst_cursor_t cur = procbst_cursor_init(&info->procs);
+
+	procbst_cursor_next(&cur);
+
+
+	while (cur.current != NULL) {
+		if (!(cur.current->value.flags & PROCINFO_FOUND))
+			procbst_dynamic_remove(&cur);
+		else 
+			procbst_cursor_next(&cur);
 	}
 
 	closeproc(processes);
@@ -291,23 +320,12 @@ size_t procs_update(procs_info_t *info) {
 	return info->num_procs;
 }
 
-static char* strip_pathinfo(char* cmd_path) {
-	char* current = cmd_path;
-
-	size_t last_fslash = 0;
-
-	for (size_t i = 0; *current != '\0'; i++, current++) {
-		if (*current == '/') last_fslash = i;
-	}
-
-	return (char*) (cmd_path + last_fslash);
-}
 
 procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	procinfo_t p;
 
-	p.flags = 0 & ~(PROCINFO_FOUND);
+	p.flags = 0;
 
 	// reference defn of proc_t:
 	// https://github.com/thlorenz/procps/blob/master/deps/procps/proc/readproc.h
@@ -337,7 +355,6 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	return p;
 }
-
 
 void proc_freeinfo(procinfo_t p_info) {
 	free(p_info.user);

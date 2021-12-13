@@ -71,5 +71,5 @@ int get_proc() {
 
 
 int main() {
-	return cmtop();
+	return get_proc();
 }

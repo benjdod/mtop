@@ -28,12 +28,12 @@ procbst_t procbst_init() {
     return b;
 }
 
-void procbst_insert(procbst_t* tree, bst_value_t value) {
+procinfo_t* procbst_insert(procbst_t* tree, bst_value_t value) {
 
     if (tree->head == NULL) {
         tree->head = node_make(value, NULL, NULL, NULL);
         tree->num_elts = 1;
-        return;
+        return &(tree->head->value);
     }
 
     procbst_node_t* current = tree->head;
@@ -52,6 +52,8 @@ void procbst_insert(procbst_t* tree, bst_value_t value) {
 
     *leafptr = node_make(value, NULL, NULL, previous);
     tree->num_elts++;
+
+    return &(*leafptr)->value;
 }     
 
 procbst_node_t* node_findchild(procbst_node_t* node, bst_value_t value) {
@@ -188,30 +190,42 @@ void procbst_postorder(procbst_t* tree, void (*on_value)(bst_value_t)) {
     node_postorder(tree->head, on_value);
 }
 
+procbst_cursor_t procbst_cursor_init(procbst_t* tree) {
+    procbst_cursor_t c;
+    c.tree = tree;
+    c.current = NULL;
+    return c;
+}
+
 const procinfo_t* procbst_cursor_first(procbst_cursor_t* cursor) {
     if (cursor->tree == NULL) return NULL;
 
 	if (cursor->current == NULL) cursor->current = cursor->tree->head;
+
+    // climb up to the root
 	while (cursor->current->parent != NULL) cursor->current = cursor->current->parent;
+
+    // descend to first elt
 	while (cursor->current->left != NULL) cursor->current = cursor->current->left;
 	return &cursor->current->value;
 }
 
 const procinfo_t* procbst_cursor_next(procbst_cursor_t* cursor) {
-	if (cursor->current == NULL) return procbst_cursor_first(cursor);
-	else {
-		if (cursor->current->right != NULL) {
-			cursor->current = cursor->current->right;
-			while (cursor->current->left != NULL) cursor->current = cursor->current->left;
-		} else {
-			if (cursor->current->parent->right == cursor->current) {
-				return NULL;
-			}
-			cursor->current = cursor->current->parent;
-		}
 
-		return &cursor->current->value;
-	}
+	if (cursor->current == NULL) return procbst_cursor_first(cursor);
+
+    if (cursor->current->right != NULL) {
+        cursor->current = cursor->current->right;
+        while (cursor->current->left != NULL) {cursor->current = cursor->current->left;}
+    } else {
+        if (cursor->current->parent->right == cursor->current) {
+            cursor->current = NULL;
+            return NULL;
+        }
+        cursor->current = cursor->current->parent;
+    }
+
+    return &cursor->current->value;
 }
 
 
@@ -220,6 +234,12 @@ const procinfo_t* procbst_cursor_last(procbst_cursor_t* cursor) {
 	while (cursor->current->parent != NULL) cursor->current = cursor->current->parent;
 	while(cursor->current->right != NULL) cursor->current = cursor->current->right;
 	return &cursor->current->value;
+}
+
+void procbst_dynamic_remove(procbst_cursor_t* cursor) {
+    pid_t pid = cursor->current->value.pid;
+    procbst_cursor_next(cursor);
+    procbst_remove(cursor->tree, pid);
 }
 
 void procbst_destroy(procbst_t *tree) {

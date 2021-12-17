@@ -14,4 +14,9 @@
 
 #define _COMMON_H
 
+/* FLAGS */
+
+#define CMTOP_PROC_DRAW
+#define CMTOP_DRAW_COLOR
+
 #endif

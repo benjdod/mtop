@@ -150,6 +150,33 @@ cmtop.c.s:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/cmtop.c.s
 .PHONY : cmtop.c.s
 
+draw.o: draw.c.o
+
+.PHONY : draw.o
+
+# target to build an object file
+draw.c.o:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/draw.c.o
+.PHONY : draw.c.o
+
+draw.i: draw.c.i
+
+.PHONY : draw.i
+
+# target to preprocess a source file
+draw.c.i:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/draw.c.i
+.PHONY : draw.c.i
+
+draw.s: draw.c.s
+
+.PHONY : draw.s
+
+# target to generate assembly for a file
+draw.c.s:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/draw.c.s
+.PHONY : draw.c.s
+
 error.o: error.c.o
 
 .PHONY : error.o
@@ -258,6 +285,33 @@ procbst.c.s:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procbst.c.s
 .PHONY : procbst.c.s
 
+procdraw.o: procdraw.c.o
+
+.PHONY : procdraw.o
+
+# target to build an object file
+procdraw.c.o:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.o
+.PHONY : procdraw.c.o
+
+procdraw.i: procdraw.c.i
+
+.PHONY : procdraw.i
+
+# target to preprocess a source file
+procdraw.c.i:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.i
+.PHONY : procdraw.c.i
+
+procdraw.s: procdraw.c.s
+
+.PHONY : procdraw.s
+
+# target to generate assembly for a file
+procdraw.c.s:
+	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.s
+.PHONY : procdraw.c.s
+
 screen.o: screen.c.o
 
 .PHONY : screen.o
@@ -351,6 +405,9 @@ help:
 	@echo "... cmtop.o"
 	@echo "... cmtop.i"
 	@echo "... cmtop.s"
+	@echo "... draw.o"
+	@echo "... draw.i"
+	@echo "... draw.s"
 	@echo "... error.o"
 	@echo "... error.i"
 	@echo "... error.s"
@@ -363,6 +420,9 @@ help:
 	@echo "... procbst.o"
 	@echo "... procbst.i"
 	@echo "... procbst.s"
+	@echo "... procdraw.o"
+	@echo "... procdraw.i"
+	@echo "... procdraw.s"
 	@echo "... screen.o"
 	@echo "... screen.i"
 	@echo "... screen.s"

@@ -153,11 +153,11 @@ void procbst_remove(procbst_t* tree, pid_t pid) {
 
 
 
-static void node_inorder(procbst_node_t* node, void (*on_value)(bst_value_t)) {
+static void node_inorder(procbst_node_t* node, void (*on_value)(bst_value_t*)) {
     if (node == NULL) return;
 
     node_inorder(node->left, on_value);
-    on_value(node->value);
+    on_value(&node->value);
     node_inorder(node->right, on_value);
 }
 
@@ -178,7 +178,7 @@ static void node_postorder(procbst_node_t* node, void (*on_value)(bst_value_t)) 
 }
 
 
-void procbst_inorder(procbst_t* tree, void (*on_value)(bst_value_t)) {
+void procbst_inorder(procbst_t* tree, void (*on_value)(bst_value_t*)) {
     node_inorder(tree->head, on_value);
 }
 

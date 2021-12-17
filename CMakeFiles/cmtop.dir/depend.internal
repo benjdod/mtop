@@ -4,12 +4,21 @@
 CMakeFiles/cmtop.dir/cmtop.c.o
  /home/bjd/projects/cmatrix-top/cmtop.c
  /home/bjd/projects/cmatrix-top/common.h
- /home/bjd/projects/cmatrix-top/mtxline.h
+ /home/bjd/projects/cmatrix-top/draw.h
  /home/bjd/projects/cmatrix-top/proc.h
  /home/bjd/projects/cmatrix-top/procbst.h
+ /home/bjd/projects/cmatrix-top/procdraw.h
  /home/bjd/projects/cmatrix-top/proctypes.h
  /home/bjd/projects/cmatrix-top/screen.h
  /home/bjd/projects/cmatrix-top/tty.h
+CMakeFiles/cmtop.dir/draw.c.o
+ /home/bjd/projects/cmatrix-top/common.h
+ /home/bjd/projects/cmatrix-top/draw.c
+ /home/bjd/projects/cmatrix-top/draw.h
+ /home/bjd/projects/cmatrix-top/proc.h
+ /home/bjd/projects/cmatrix-top/procbst.h
+ /home/bjd/projects/cmatrix-top/procdraw.h
+ /home/bjd/projects/cmatrix-top/proctypes.h
 CMakeFiles/cmtop.dir/error.c.o
  /home/bjd/projects/cmatrix-top/common.h
  /home/bjd/projects/cmatrix-top/error.c
@@ -34,6 +43,11 @@ CMakeFiles/cmtop.dir/procbst.c.o
  /home/bjd/projects/cmatrix-top/common.h
  /home/bjd/projects/cmatrix-top/procbst.c
  /home/bjd/projects/cmatrix-top/procbst.h
+ /home/bjd/projects/cmatrix-top/proctypes.h
+CMakeFiles/cmtop.dir/procdraw.c.o
+ /home/bjd/projects/cmatrix-top/common.h
+ /home/bjd/projects/cmatrix-top/procdraw.c
+ /home/bjd/projects/cmatrix-top/procdraw.h
  /home/bjd/projects/cmatrix-top/proctypes.h
 CMakeFiles/cmtop.dir/screen.c.o
  /home/bjd/projects/cmatrix-top/common.h

@@ -31,6 +31,9 @@ int tty_writed(int);
 
 /* writes a single character to the tty display */
 int tty_writec(char);
+
+/* fill display with n repetitions of c */
+int tty_fill(char, int);
 int tty_clear();
 
 #endif

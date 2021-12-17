@@ -145,6 +145,12 @@ int tty_writed(int d) {
 	return tty_writes(s);
 }
 
+int tty_fill(char c, int n) {
+	char buf[n];
+	memset(buf, c, n);
+	return write(STDOUT_FILENO, buf, n);
+}
+
 int tty_writesn(const char *str, int nbytes) {
 
 	return write(STDOUT_FILENO,str,nbytes);

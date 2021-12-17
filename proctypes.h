@@ -5,12 +5,27 @@
 
 typedef unsigned long long ptime_t;
 
-typedef struct {
+typedef struct timedelta_t_ {
 	ptime_t 
 		last,
 		current,
 		delta;
 } timedelta_t;
+
+#ifdef CMTOP_PROC_DRAW
+#define DRAWDATA_CACHE_LENGTH 8192
+
+// ..offset...###length#####...padding.....
+// |---|---|---|---|---|---|---|---|---|---
+
+typedef struct drawdata_t_ {
+	int offset;
+	size_t
+		length,
+		padding;
+	char cache[DRAWDATA_CACHE_LENGTH];
+} drawdata_t;
+#endif
 
 /** Updates a timedelta struct given a new time value. */
 #define TIMEDELTA_UPDATE(TD, NEWTIME) { \
@@ -23,7 +38,7 @@ typedef struct {
 
 #define TIMEDELTA_COND_UPDATE(TD, NEWTIME) {if ((NEWTIME) > 0) TIMEDELTA_UPDATE((TD), (NEWTIME))}
 
-typedef struct {
+typedef struct proc_cpuavg_t_ {
 	timedelta_t 
 		utime,
 		stime,
@@ -32,8 +47,11 @@ typedef struct {
 		ttime;
 } proc_cpuavg_t;
 
-typedef struct {
+typedef struct procinfo_t_ {
 	uint16_t flags;
+#ifdef CMTOP_PROC_DRAW
+	drawdata_t drawdata;
+#endif
 	pid_t pid;
 	char 
 		*user, 

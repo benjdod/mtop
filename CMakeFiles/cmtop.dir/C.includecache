@@ -9,14 +9,20 @@
 /home/bjd/projects/cmatrix-top/cmtop.c
 stdio.h
 -
+common.h
+/home/bjd/projects/cmatrix-top/common.h
+signal.h
+-
 screen.h
 /home/bjd/projects/cmatrix-top/screen.h
 tty.h
 /home/bjd/projects/cmatrix-top/tty.h
-mtxline.h
-/home/bjd/projects/cmatrix-top/mtxline.h
 proc.h
 /home/bjd/projects/cmatrix-top/proc.h
+procdraw.h
+/home/bjd/projects/cmatrix-top/procdraw.h
+draw.h
+/home/bjd/projects/cmatrix-top/draw.h
 
 /home/bjd/projects/cmatrix-top/common.h
 stdlib.h
@@ -39,6 +45,18 @@ proc/readproc.h
 -
 time.h
 -
+
+/home/bjd/projects/cmatrix-top/draw.c
+draw.h
+/home/bjd/projects/cmatrix-top/draw.h
+proc.h
+/home/bjd/projects/cmatrix-top/proc.h
+procdraw.h
+/home/bjd/projects/cmatrix-top/procdraw.h
+
+/home/bjd/projects/cmatrix-top/draw.h
+proc.h
+/home/bjd/projects/cmatrix-top/proc.h
 
 /home/bjd/projects/cmatrix-top/error.c
 common.h
@@ -93,6 +111,16 @@ stdlib.h
 -
 stdint.h
 -
+proctypes.h
+/home/bjd/projects/cmatrix-top/proctypes.h
+
+/home/bjd/projects/cmatrix-top/procdraw.c
+procdraw.h
+/home/bjd/projects/cmatrix-top/procdraw.h
+
+/home/bjd/projects/cmatrix-top/procdraw.h
+common.h
+/home/bjd/projects/cmatrix-top/common.h
 proctypes.h
 /home/bjd/projects/cmatrix-top/proctypes.h
 

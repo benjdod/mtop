@@ -11,6 +11,8 @@ add_executable(cmtop
 	mtxline.c
 	proc.c	
 	procbst.c
+	procdraw.c
+	draw.c
 	xutil.c
 )
 

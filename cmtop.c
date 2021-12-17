@@ -1,43 +1,98 @@
 #include <stdio.h>
+#include "common.h"
+#include <signal.h>
 #include "screen.h"
 #include "tty.h"
-#include "mtxline.h"
 #include "proc.h"
+#include "procdraw.h"
+#include "draw.h"
+
+procs_info_t info;
+screensize_t ssz;
+
+void update_procs() {
+	procs_update(&info);
+	procbst_inorder(&info.procs, &pd_updatecache);
+}
+
+void fill_procs() {
+	info = procs_init();
+	update_procs();
+}
+
+void randomize_drawvalues() {
+	procbst_cursor_t cur = procbst_cursor_init(&info.procs);
+	procbst_cursor_next(&cur);
+	cur.current->value.drawdata.offset = 5;
+
+	while (cur.current != NULL) {
+		cur.current->value.drawdata.offset = rand() % 25;
+		cur.current->value.drawdata.padding = 15 + (rand() % 10);
+		procbst_cursor_next(&cur);
+	}
+}
+
+void advance_offset(procinfo_t* p) {
+	p->drawdata.offset += 1;
+}
+
+void sigwinch_handler() {
+	ssz = get_screensize();
+}
+
+void graceful_exit() {
+	screen_exit();
+	printf("program encountered a segmentation fault, exiting.\n");
+	exit(0);
+}
 
 int cmtop() {
+
+	signal(SIGWINCH, &sigwinch_handler);
+	signal(SIGSEGV, &graceful_exit);
+
+	fill_procs();
+	randomize_drawvalues();
+
 	screen_init();
 
-	screensize_t ssz = get_screensize();
+	ssz = get_screensize();
 	screen_hidecursor();
 
-	mtx_init_lines(ssz.cols, ssz.rows);
+	char wbuf[ssz.cols];
 
-	char *buf = malloc(ssz.cols * ssz.rows * sizeof(char));
+#ifdef CMTOP_DRAW_COLOR
+	tty_writes("\e[32;1m");
+#endif
 
 	while (1) {
-		if (tty_readc()) break;
-//		tty_clear();
+
+		update_procs();
+		
+		//tty_clear();
 		screen_setcursor((rowcol_t) {0,0});
-		for (size_t i = 0; i < ssz.rows; i++) {
-			mtx_query_row(i, buf + i * ssz.cols, ssz.cols);
+		for (int i = 0; i < ssz.rows; i++) {
+			memset(wbuf, ' ', ssz.cols);
+			size_t written = draw_queryrow(&info, wbuf, (size_t) ssz.cols, i, 0, 2);
+			tty_writesn(wbuf, written);
+			tty_fill(' ', (ssz.cols - written));
+			//tty_writed(written);
+
+			//tty_writesn("\r\n", 2);
 		}
-		tty_writesn(buf, ssz.rows * ssz.cols);
-		mtx_step_lines();
-		usleep(100 * 1000);
+		if (tty_readc()) break;
+		procbst_inorder(&info.procs, &advance_offset);
+		usleep(100*1000);
 	}
 
 	screen_exit();
-}
-
-void print_procinfo(procinfo_t p) {
-	printf("(%s) - %s\t%d\t%c\t", p.user, p.cmd, p.pid, p.state);
-	printf("time: %llu\n", p.cpuavg.ttime.current);
 }
 
 void print_timedelta(timedelta_t td, const char *title) {
 	if (title != NULL) printf("%s: ", title);
 	printf("%llu\t%llu\t(d = %llu)\n", td.last, td.current, td.delta);
 }
+
 
 void print_cpuinfo(sys_cpuinfo_t cpuinfo) {
 	print_timedelta(cpuinfo.user, "user");
@@ -55,21 +110,24 @@ void print_cpuinfo(sys_cpuinfo_t cpuinfo) {
 
 int get_proc() {
 
-	procs_info_t info = procs_init();
+	info = procs_init();
 
 	while (1) {
 		procs_update(&info);
-		//procbst_inorder(&info.procs, &print_procinfo);
-		print_cpuinfo(info.cpuinfo);
+		//procbst_inorder(&info.procs, &update_drawcache);
+		//print_cpuinfo(info.cpuinfo);
 
 		usleep(1000 * 1000);
 	}
-
 	
 	return 0;
 }
 
 
 int main() {
-	return get_proc();
+	//return cmtop();
+
+	cmtop();
+
+	return 0;
 }

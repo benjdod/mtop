@@ -25,3 +25,7 @@ int x_strcmp(const char* a, const char* b) {
 char* x_strncpy(char* dest, const char* src, size_t n) {
     return strncpy(dest, src, n);
 }
+
+void* x_memset(void* s, int c, size_t n) {
+    return memset(s,c,n);
+}

@@ -10,6 +10,7 @@ CMakeFiles/cmtop.dir/cmtop.c.o: procdraw.h
 CMakeFiles/cmtop.dir/cmtop.c.o: proctypes.h
 CMakeFiles/cmtop.dir/cmtop.c.o: screen.h
 CMakeFiles/cmtop.dir/cmtop.c.o: tty.h
+CMakeFiles/cmtop.dir/cmtop.c.o: xutil.h
 
 CMakeFiles/cmtop.dir/draw.c.o: common.h
 CMakeFiles/cmtop.dir/draw.c.o: draw.c
@@ -18,6 +19,7 @@ CMakeFiles/cmtop.dir/draw.c.o: proc.h
 CMakeFiles/cmtop.dir/draw.c.o: procbst.h
 CMakeFiles/cmtop.dir/draw.c.o: procdraw.h
 CMakeFiles/cmtop.dir/draw.c.o: proctypes.h
+CMakeFiles/cmtop.dir/draw.c.o: xutil.h
 
 CMakeFiles/cmtop.dir/error.c.o: common.h
 CMakeFiles/cmtop.dir/error.c.o: error.c
@@ -55,6 +57,7 @@ CMakeFiles/cmtop.dir/screen.c.o: screen.c
 CMakeFiles/cmtop.dir/screen.c.o: screen.h
 CMakeFiles/cmtop.dir/screen.c.o: tty.h
 
+CMakeFiles/cmtop.dir/tty.c.o: common.h
 CMakeFiles/cmtop.dir/tty.c.o: error.h
 CMakeFiles/cmtop.dir/tty.c.o: tty.c
 CMakeFiles/cmtop.dir/tty.c.o: tty.h

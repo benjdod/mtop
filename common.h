@@ -17,6 +17,6 @@
 /* FLAGS */
 
 #define CMTOP_PROC_DRAW
-#define CMTOP_DRAW_COLOR
+//#define CMTOP_DRAW_COLOR
 
 #endif

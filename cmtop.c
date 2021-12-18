@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "common.h"
 #include <signal.h>
 #include "screen.h"
@@ -6,9 +5,15 @@
 #include "proc.h"
 #include "procdraw.h"
 #include "draw.h"
+#include "xutil.h"
 
 procs_info_t info;
 screensize_t ssz;
+char* scrbuf = NULL;
+
+#ifdef CMTOP_DRAW_COLOR
+color_t current_color;
+#endif
 
 void update_procs() {
 	procs_update(&info);
@@ -26,18 +31,38 @@ void randomize_drawvalues() {
 	cur.current->value.drawdata.offset = 5;
 
 	while (cur.current != NULL) {
-		cur.current->value.drawdata.offset = rand() % 25;
-		cur.current->value.drawdata.padding = 15 + (rand() % 10);
+		cur.current->value.drawdata.offset = rand() % 50;
+		cur.current->value.drawdata.padding = 10 + (rand() % 6);
 		procbst_cursor_next(&cur);
 	}
 }
 
 void advance_offset(procinfo_t* p) {
 	p->drawdata.offset += 1;
+	p->drawdata.offset += ((p->pid) % 2);
 }
+
+#ifdef CMTOP_DRAW_COLOR
+void write_currentcolor() {
+	char buf[20];
+	int w = draw_color(current_color, buf, 20);
+	tty_writesn(buf, w);
+}
+
+void set_color(color_t color) {
+	current_color = color;
+}
+#endif
 
 void sigwinch_handler() {
 	ssz = get_screensize();
+	free(scrbuf);
+	scrbuf = (char*) malloc(ssz.rows * ssz.cols);
+	screen_setcursor((rowcol_t) {0,0});
+	tty_clear();
+#ifdef CMTOP_DRAW_COLOR
+	write_currentcolor();
+#endif
 }
 
 void graceful_exit() {
@@ -46,30 +71,50 @@ void graceful_exit() {
 	exit(0);
 }
 
+void segfault() {
+	screen_exit();
+	printf("program encountered a segmentation fault, exiting.\n");
+	exit(1);
+}
+
+
 int cmtop() {
 
 	signal(SIGWINCH, &sigwinch_handler);
-	signal(SIGSEGV, &graceful_exit);
+	signal(SIGSEGV, &segfault);
+	signal(SIGINT, &graceful_exit);
 
 	fill_procs();
 	randomize_drawvalues();
 
 	screen_init();
-
-	ssz = get_screensize();
+	sigwinch_handler();
 	screen_hidecursor();
 
-	char wbuf[ssz.cols];
-
 #ifdef CMTOP_DRAW_COLOR
-	tty_writes("\e[32;1m");
+	draw_setopts((DRAW_COLOR));
+	//tty_writes("\e[32;1m");
+	//tty_writes("\e[38;2;20;220;20m");
+	color_t color;
+	color.rgb = (rgb_t) {40,240,40};
+	color.hue = COLOR_GREEN;
+	color.stage = COLOR_FG;
+	color.nature = COLOR_BRIGHT;
+	set_color(color);
+	write_currentcolor();
 #endif
+
+
+	tty_clear();
 
 	while (1) {
 
 		update_procs();
 		
 		//tty_clear();
+/*
+		char wbuf[ssz.cols]
+
 		screen_setcursor((rowcol_t) {0,0});
 		for (int i = 0; i < ssz.rows; i++) {
 			memset(wbuf, ' ', ssz.cols);
@@ -80,9 +125,15 @@ int cmtop() {
 
 			//tty_writesn("\r\n", 2);
 		}
+		*/
+
+		draw_queryscr(&info, scrbuf, ssz.rows, ssz.cols, 0, 0, 3);
+		//printf("%.100s", scrbuf);
+		tty_clear();
+		tty_writesn(scrbuf, (int) (ssz.rows * ssz.cols));
 		if (tty_readc()) break;
 		procbst_inorder(&info.procs, &advance_offset);
-		usleep(100*1000);
+		usleep(1000*1000);
 	}
 
 	screen_exit();
@@ -123,11 +174,6 @@ int get_proc() {
 	return 0;
 }
 
-
 int main() {
-	//return cmtop();
-
-	cmtop();
-
-	return 0;
+	return cmtop();
 }

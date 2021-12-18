@@ -1,10 +1,14 @@
 #ifndef _TTY_H
 #define _TTY_H
 
+#include "common.h"
+
+#define TTY_TRAPSIGNAL 0x0001
+
 /* sets the tty into raw mode
 *  reads characters one at a time, and doesn't 
 *  generate signals */
-void tty_setraw();
+void tty_setraw(uint16_t);
 
 /* sets the tty back to the configuration
 *  it was in before tty_setraw() was called */

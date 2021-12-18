@@ -7,8 +7,6 @@
 #IncludeRegexTransform: 
 
 /home/bjd/projects/cmatrix-top/cmtop.c
-stdio.h
--
 common.h
 /home/bjd/projects/cmatrix-top/common.h
 signal.h
@@ -23,6 +21,8 @@ procdraw.h
 /home/bjd/projects/cmatrix-top/procdraw.h
 draw.h
 /home/bjd/projects/cmatrix-top/draw.h
+xutil.h
+/home/bjd/projects/cmatrix-top/xutil.h
 
 /home/bjd/projects/cmatrix-top/common.h
 stdlib.h
@@ -47,6 +47,10 @@ time.h
 -
 
 /home/bjd/projects/cmatrix-top/draw.c
+common.h
+/home/bjd/projects/cmatrix-top/common.h
+xutil.h
+/home/bjd/projects/cmatrix-top/xutil.h
 draw.h
 /home/bjd/projects/cmatrix-top/draw.h
 proc.h
@@ -161,6 +165,8 @@ error.h
 /home/bjd/projects/cmatrix-top/error.h
 
 /home/bjd/projects/cmatrix-top/tty.h
+common.h
+/home/bjd/projects/cmatrix-top/common.h
 
 /home/bjd/projects/cmatrix-top/xutil.c
 xutil.h

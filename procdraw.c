@@ -2,18 +2,24 @@
 
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
+
+    char* cmd_str = (*(p->cmd) == '\0')
+        ? "-"
+        : p->cmd;
+
     proc_cpuavg_t cpuavg = p->cpuavg;
     int written = snprintf(
 		buf,
         n,
-		"%s (%d) %c %llu %llu %llu %llu", 
-		p->cmd, 
+		"%s (%d) %c %llu %llu %llu %llu %.2f", 
+		cmd_str, 
 		p->pid,
 		p->state,
 		cpuavg.utime.current,
 		cpuavg.stime.current,
 		cpuavg.cutime.current,
-		cpuavg.cstime.current
+		cpuavg.cstime.current,
+        p->cpu_pct
 	);
 
     return (written >= n) ? n : ((size_t) written);

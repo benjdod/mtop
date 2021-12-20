@@ -37,6 +37,9 @@ void procbst_remove     (procbst_t *tree, pid_t pid);
 void procbst_destroy    (procbst_t *tree);
 procbst_cursor_t procbst_cursor_init(procbst_t* tree);
 const procinfo_t* procbst_cursor_next(procbst_cursor_t* cursor);
+const procinfo_t* procbst_cursor_prev(procbst_cursor_t* cursor);
+const procinfo_t* procbst_cursor_last(procbst_cursor_t* cursor);
+int procbst_cursor_eq(procbst_cursor_t a, procbst_cursor_t b);
 void procbst_dynamic_remove(procbst_cursor_t* cursor);
 
 #define PROCBST_COMPARE(a,b) ((b.pid) - (a.pid))

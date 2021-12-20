@@ -25,6 +25,35 @@ size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
     return (written >= n) ? n : ((size_t) written);
 }
 
+size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, unsigned short section) {
+
+    size_t w = 0;
+
+#define CLIP_BUF() 
+
+    proc_cpuavg_t ct = p->cpuavg;
+
+    switch (section) {
+        case 0:
+            w = snprintf(buf, n, "%s - %s (%d) %c", p->user, p->cmd, p->pid, p->state);
+            break;
+        case 1:
+            w = snprintf(buf, n, "%llu, %llu, %llu, %llu", ct.utime.current, ct.stime.current, ct.cutime.current, ct.cstime.current);
+            break;
+        default:
+            return 0;
+    }
+
+    if (w >= n) {
+        //size_t i = w-1; 
+        w -= 1;
+        while(buf[w] != ' ' && w >= n) buf[w--] = ' ';
+    }
+
+    return w;
+
+}
+
 void pd_updatecache(procinfo_t* p) {
    // printf("updating cache at %p\n", p->drawdata.cache);
     p->drawdata.length = pd_drawto(p, p->drawdata.cache, DRAWDATA_CACHE_LENGTH);

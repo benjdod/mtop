@@ -47,6 +47,11 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
         i++;
     }
 
+    while (i < n) {
+        buf[i*step] = '-';
+        i++;
+    }
+
     return i*step;
 }
 
@@ -57,20 +62,39 @@ size_t draw_queryscr(procs_info_t* info, char* scrbuf, size_t r_size, size_t c_s
     procbst_cursor_t cur = procbst_cursor_init(&info->procs);
     procbst_cursor_next(&cur);
 
+    unsigned char info_winsz = 2;
+
     for (size_t j = 0; j < c_off; j++) { procbst_cursor_next(&cur); }
 
     for (size_t c = 0; c < c_size; c++) {
-        for (size_t r = 0; r < r_size; r++) {
+        for (size_t r = 0; r < r_size - info_winsz; r++) {
 
             if (c % c_step == 0) {
                 scrbuf[r * c_size + c] = (cur.current != NULL)
                     ? /* 'a' + (c % 26) */ pd_charat(&(cur.current->value), r + r_off)
-                    : ' ';
+                    : (rand() % 4 == 3) ? '-' : ' ';
             } else {
                 scrbuf[r*c_size + c] = ' ';
             }
         }
         if (cur.current != NULL) procbst_cursor_next(&cur);
+    }
+
+    size_t w_len = 0;
+    char* w_ptr;
+
+    w_ptr = scrbuf + ((r_size - info_winsz) * c_size);
+    w_len = pd_drawinfo(&info->selected.current->value, w_ptr, c_size, 0);
+
+    while (w_len < c_size) {
+        w_ptr[w_len++] = ' ';
+    }
+
+    w_ptr = scrbuf + (r_size - info_winsz + 1) * c_size;
+    w_len = pd_drawinfo(&info->selected.current->value, w_ptr, c_size, 1);
+
+    while (w_len < c_size) {
+        w_ptr[w_len++] = ' ';
     }
 
     return r_size * c_size;

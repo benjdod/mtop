@@ -228,12 +228,34 @@ const procinfo_t* procbst_cursor_next(procbst_cursor_t* cursor) {
     return &cursor->current->value;
 }
 
+const procinfo_t* procbst_cursor_prev(procbst_cursor_t* cursor) {
+
+	if (cursor->current == NULL) return procbst_cursor_last(cursor);
+
+    if (cursor->current->left != NULL) {
+        cursor->current = cursor->current->left;
+        while (cursor->current->right != NULL) {cursor->current = cursor->current->right;}
+    } else {
+        if (cursor->current->parent->left == cursor->current) {
+            cursor->current = NULL;
+            return NULL;
+        }
+        cursor->current = cursor->current->parent;
+    }
+
+    return &cursor->current->value;
+}
+
 
 const procinfo_t* procbst_cursor_last(procbst_cursor_t* cursor) {
 	if (cursor->current == NULL) cursor->current = cursor->tree->head;
 	while (cursor->current->parent != NULL) cursor->current = cursor->current->parent;
 	while(cursor->current->right != NULL) cursor->current = cursor->current->right;
 	return &cursor->current->value;
+}
+
+int procbst_cursor_eq(procbst_cursor_t a, procbst_cursor_t b) {
+    return (a.current == b.current);
 }
 
 void procbst_dynamic_remove(procbst_cursor_t* cursor) {

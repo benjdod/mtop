@@ -42,6 +42,7 @@ procs_info_t procs_init() {
 	pi.procs = procbst_init();
 	pi.refresh_rate = 1000 * 100;
 	memset(&pi.cpuinfo, 0, sizeof(sys_cpuinfo_t));
+	pi.selected = procbst_cursor_init(&pi.procs);
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	//printf("got jiffy %ld\n", jiffy);
@@ -188,11 +189,21 @@ size_t procs_update(procs_info_t *info) {
 
 	closeproc(processes);
 
+	if (info->selected.current == NULL) {
+		info->selected = procbst_cursor_init(&info->procs);
+		procbst_cursor_last(&info->selected);
+	}
+
 	// delete processes that were not "found" in the last readproc cycle
 	procbst_cursor_t cur = procbst_cursor_init(&info->procs);
 	procbst_cursor_next(&cur);
 	while (cur.current != NULL) {
 		if (!(cur.current->value.flags & PROCINFO_FOUND)) {
+
+			if (procbst_cursor_eq(cur, info->selected)) {
+				procbst_cursor_prev(&info->selected);
+			}
+
 			procbst_dynamic_remove(&cur);
 			num_procs--;
 		} else {

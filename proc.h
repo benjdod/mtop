@@ -25,6 +25,7 @@ typedef struct {
 	procbst_t procs;
 	sys_cpuinfo_t cpuinfo;
 	uint32_t refresh_rate;
+	procbst_cursor_t selected;
 } procs_info_t;
 
 procs_info_t procs_init();
@@ -32,5 +33,8 @@ size_t procs_update(procs_info_t*);
 int read_cpuinfo(sys_cpuinfo_t*);
 procinfo_t proc_getinfo(proc_t proc, ptime_t period);
 void proc_freeinfo(procinfo_t p_info);
+void procs_selectnext(procs_info_t*);
+void procs_selectprev(procs_info_t*);
+procinfo_t* procs_selected(procs_info_t*);
 
 #endif

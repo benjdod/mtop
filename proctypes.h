@@ -15,6 +15,8 @@ typedef struct timedelta_t_ {
 #ifdef CMTOP_PROC_DRAW
 #define DRAWDATA_CACHE_LENGTH 8192
 
+#define PROCINFO_ACTIVE	0x0002	// 0x001 is the found flag, defined in proc.c
+
 // ..offset...###length#####...padding.....
 // |---|---|---|---|---|---|---|---|---|---
 

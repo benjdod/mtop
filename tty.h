@@ -14,6 +14,11 @@ void tty_setraw(uint16_t);
 *  it was in before tty_setraw() was called */
 void tty_reset();
 
+/* flush output from current tty */
+void tty_oflush();
+/* flush input from current tty */
+void tty_iflush();
+
 /* returns an integer indicating whether or not 
 *  the tty is in raw mode.
 *  0: not raw

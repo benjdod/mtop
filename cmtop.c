@@ -45,6 +45,7 @@ void advance_offset(procinfo_t* p) {
 #ifdef CMTOP_DRAW_COLOR
 void write_currentcolor() {
 	char buf[20];
+	memset(buf, '\0', 20);
 	int w = draw_color(current_color, buf, 20);
 	tty_writesn(buf, w);
 }
@@ -92,7 +93,7 @@ int cmtop() {
 	screen_hidecursor();
 
 #ifdef CMTOP_DRAW_COLOR
-	draw_setopts((DRAW_COLOR));
+	draw_setopts((DRAW_COLOR|DRAW_RGBCOLOR));
 	//tty_writes("\e[32;1m");
 	//tty_writes("\e[38;2;20;220;20m");
 	color_t color;
@@ -107,29 +108,21 @@ int cmtop() {
 
 	tty_clear();
 
+	u8 flushcount = 0;
+	u8 flushbreak = 5;
+
 	while (1) {
 
-		update_procs();
-		
-		//tty_clear();
-/*
-		char wbuf[ssz.cols]
-
-		screen_setcursor((rowcol_t) {0,0});
-		for (int i = 0; i < ssz.rows; i++) {
-			memset(wbuf, ' ', ssz.cols);
-			size_t written = draw_queryrow(&info, wbuf, (size_t) ssz.cols, i, 0, 2);
-			tty_writesn(wbuf, written);
-			tty_fill(' ', (ssz.cols - written));
-			//tty_writed(written);
-
-			//tty_writesn("\r\n", 2);
+		if (flushcount == flushbreak) {
+			tty_oflush();
+			tty_iflush();
 		}
-		*/
+
+		flushcount = (flushcount++) % flushbreak;
+
+		update_procs();
 
 		draw_queryscr(&info, scrbuf, ssz.rows, ssz.cols, 0, 0, 3);
-		//printf("%.100s", scrbuf);
-		tty_clear();
 		tty_writesn(scrbuf, (int) (ssz.rows * ssz.cols));
 		if (tty_readc()) break;
 		procbst_inorder(&info.procs, &advance_offset);
@@ -137,6 +130,7 @@ int cmtop() {
 	}
 
 	screen_exit();
+	screen_showcursor();
 }
 
 void print_timedelta(timedelta_t td, const char *title) {

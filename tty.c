@@ -88,6 +88,14 @@ int tty_israw() {
 	return flags & TTY_ISRAW;
 }
 
+void tty_oflush() {
+	tcflush(STDOUT_FILENO, TCOFLUSH);
+}
+
+void tty_iflush() {
+	tcflush(STDIN_FILENO, TCIFLUSH);
+}
+
 void tty_reset() {
 
 	// if the TTY isn't raw, we don't have to do anything here

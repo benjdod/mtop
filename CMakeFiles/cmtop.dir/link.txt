@@ -1,1 +1,0 @@
-/usr/bin/cc -ggdb   CMakeFiles/cmtop.dir/cmtop.c.o CMakeFiles/cmtop.dir/error.c.o CMakeFiles/cmtop.dir/mtxline.c.o CMakeFiles/cmtop.dir/draw.c.o CMakeFiles/cmtop.dir/xutil.c.o  -o cmtop display/libdisplay.a process/libprocess.a -lprocps 

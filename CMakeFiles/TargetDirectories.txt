@@ -1,9 +1,0 @@
-/home/bjd/projects/cmatrix-top/CMakeFiles/rebuild_cache.dir
-/home/bjd/projects/cmatrix-top/CMakeFiles/cmtop.dir
-/home/bjd/projects/cmatrix-top/CMakeFiles/edit_cache.dir
-/home/bjd/projects/cmatrix-top/display/CMakeFiles/rebuild_cache.dir
-/home/bjd/projects/cmatrix-top/display/CMakeFiles/display.dir
-/home/bjd/projects/cmatrix-top/display/CMakeFiles/edit_cache.dir
-/home/bjd/projects/cmatrix-top/process/CMakeFiles/rebuild_cache.dir
-/home/bjd/projects/cmatrix-top/process/CMakeFiles/process.dir
-/home/bjd/projects/cmatrix-top/process/CMakeFiles/edit_cache.dir

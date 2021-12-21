@@ -1,12 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/cmtop.dir/cmtop.c.o"
-  "CMakeFiles/cmtop.dir/screen.c.o"
-  "CMakeFiles/cmtop.dir/tty.c.o"
   "CMakeFiles/cmtop.dir/error.c.o"
   "CMakeFiles/cmtop.dir/mtxline.c.o"
-  "CMakeFiles/cmtop.dir/proc.c.o"
-  "CMakeFiles/cmtop.dir/procbst.c.o"
-  "CMakeFiles/cmtop.dir/procdraw.c.o"
   "CMakeFiles/cmtop.dir/draw.c.o"
   "CMakeFiles/cmtop.dir/xutil.c.o"
   "cmtop.pdb"

@@ -81,57 +81,9 @@ CMakeFiles/cmtop.dir/cmtop.c.o.provides: CMakeFiles/cmtop.dir/cmtop.c.o.requires
 CMakeFiles/cmtop.dir/cmtop.c.o.provides.build: CMakeFiles/cmtop.dir/cmtop.c.o
 
 
-CMakeFiles/cmtop.dir/screen.c.o: CMakeFiles/cmtop.dir/flags.make
-CMakeFiles/cmtop.dir/screen.c.o: screen.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/cmtop.dir/screen.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/screen.c.o   -c /home/bjd/projects/cmatrix-top/screen.c
-
-CMakeFiles/cmtop.dir/screen.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/screen.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/screen.c > CMakeFiles/cmtop.dir/screen.c.i
-
-CMakeFiles/cmtop.dir/screen.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/screen.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/screen.c -o CMakeFiles/cmtop.dir/screen.c.s
-
-CMakeFiles/cmtop.dir/screen.c.o.requires:
-
-.PHONY : CMakeFiles/cmtop.dir/screen.c.o.requires
-
-CMakeFiles/cmtop.dir/screen.c.o.provides: CMakeFiles/cmtop.dir/screen.c.o.requires
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/screen.c.o.provides.build
-.PHONY : CMakeFiles/cmtop.dir/screen.c.o.provides
-
-CMakeFiles/cmtop.dir/screen.c.o.provides.build: CMakeFiles/cmtop.dir/screen.c.o
-
-
-CMakeFiles/cmtop.dir/tty.c.o: CMakeFiles/cmtop.dir/flags.make
-CMakeFiles/cmtop.dir/tty.c.o: tty.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/cmtop.dir/tty.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/tty.c.o   -c /home/bjd/projects/cmatrix-top/tty.c
-
-CMakeFiles/cmtop.dir/tty.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/tty.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/tty.c > CMakeFiles/cmtop.dir/tty.c.i
-
-CMakeFiles/cmtop.dir/tty.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/tty.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/tty.c -o CMakeFiles/cmtop.dir/tty.c.s
-
-CMakeFiles/cmtop.dir/tty.c.o.requires:
-
-.PHONY : CMakeFiles/cmtop.dir/tty.c.o.requires
-
-CMakeFiles/cmtop.dir/tty.c.o.provides: CMakeFiles/cmtop.dir/tty.c.o.requires
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/tty.c.o.provides.build
-.PHONY : CMakeFiles/cmtop.dir/tty.c.o.provides
-
-CMakeFiles/cmtop.dir/tty.c.o.provides.build: CMakeFiles/cmtop.dir/tty.c.o
-
-
 CMakeFiles/cmtop.dir/error.c.o: CMakeFiles/cmtop.dir/flags.make
 CMakeFiles/cmtop.dir/error.c.o: error.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/cmtop.dir/error.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/cmtop.dir/error.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/error.c.o   -c /home/bjd/projects/cmatrix-top/error.c
 
 CMakeFiles/cmtop.dir/error.c.i: cmake_force
@@ -155,7 +107,7 @@ CMakeFiles/cmtop.dir/error.c.o.provides.build: CMakeFiles/cmtop.dir/error.c.o
 
 CMakeFiles/cmtop.dir/mtxline.c.o: CMakeFiles/cmtop.dir/flags.make
 CMakeFiles/cmtop.dir/mtxline.c.o: mtxline.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/cmtop.dir/mtxline.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/cmtop.dir/mtxline.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/mtxline.c.o   -c /home/bjd/projects/cmatrix-top/mtxline.c
 
 CMakeFiles/cmtop.dir/mtxline.c.i: cmake_force
@@ -177,81 +129,9 @@ CMakeFiles/cmtop.dir/mtxline.c.o.provides: CMakeFiles/cmtop.dir/mtxline.c.o.requ
 CMakeFiles/cmtop.dir/mtxline.c.o.provides.build: CMakeFiles/cmtop.dir/mtxline.c.o
 
 
-CMakeFiles/cmtop.dir/proc.c.o: CMakeFiles/cmtop.dir/flags.make
-CMakeFiles/cmtop.dir/proc.c.o: proc.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/cmtop.dir/proc.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/proc.c.o   -c /home/bjd/projects/cmatrix-top/proc.c
-
-CMakeFiles/cmtop.dir/proc.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/proc.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/proc.c > CMakeFiles/cmtop.dir/proc.c.i
-
-CMakeFiles/cmtop.dir/proc.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/proc.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/proc.c -o CMakeFiles/cmtop.dir/proc.c.s
-
-CMakeFiles/cmtop.dir/proc.c.o.requires:
-
-.PHONY : CMakeFiles/cmtop.dir/proc.c.o.requires
-
-CMakeFiles/cmtop.dir/proc.c.o.provides: CMakeFiles/cmtop.dir/proc.c.o.requires
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/proc.c.o.provides.build
-.PHONY : CMakeFiles/cmtop.dir/proc.c.o.provides
-
-CMakeFiles/cmtop.dir/proc.c.o.provides.build: CMakeFiles/cmtop.dir/proc.c.o
-
-
-CMakeFiles/cmtop.dir/procbst.c.o: CMakeFiles/cmtop.dir/flags.make
-CMakeFiles/cmtop.dir/procbst.c.o: procbst.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/cmtop.dir/procbst.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/procbst.c.o   -c /home/bjd/projects/cmatrix-top/procbst.c
-
-CMakeFiles/cmtop.dir/procbst.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/procbst.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/procbst.c > CMakeFiles/cmtop.dir/procbst.c.i
-
-CMakeFiles/cmtop.dir/procbst.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/procbst.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/procbst.c -o CMakeFiles/cmtop.dir/procbst.c.s
-
-CMakeFiles/cmtop.dir/procbst.c.o.requires:
-
-.PHONY : CMakeFiles/cmtop.dir/procbst.c.o.requires
-
-CMakeFiles/cmtop.dir/procbst.c.o.provides: CMakeFiles/cmtop.dir/procbst.c.o.requires
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procbst.c.o.provides.build
-.PHONY : CMakeFiles/cmtop.dir/procbst.c.o.provides
-
-CMakeFiles/cmtop.dir/procbst.c.o.provides.build: CMakeFiles/cmtop.dir/procbst.c.o
-
-
-CMakeFiles/cmtop.dir/procdraw.c.o: CMakeFiles/cmtop.dir/flags.make
-CMakeFiles/cmtop.dir/procdraw.c.o: procdraw.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/cmtop.dir/procdraw.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/procdraw.c.o   -c /home/bjd/projects/cmatrix-top/procdraw.c
-
-CMakeFiles/cmtop.dir/procdraw.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/cmtop.dir/procdraw.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/bjd/projects/cmatrix-top/procdraw.c > CMakeFiles/cmtop.dir/procdraw.c.i
-
-CMakeFiles/cmtop.dir/procdraw.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/cmtop.dir/procdraw.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/bjd/projects/cmatrix-top/procdraw.c -o CMakeFiles/cmtop.dir/procdraw.c.s
-
-CMakeFiles/cmtop.dir/procdraw.c.o.requires:
-
-.PHONY : CMakeFiles/cmtop.dir/procdraw.c.o.requires
-
-CMakeFiles/cmtop.dir/procdraw.c.o.provides: CMakeFiles/cmtop.dir/procdraw.c.o.requires
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.o.provides.build
-.PHONY : CMakeFiles/cmtop.dir/procdraw.c.o.provides
-
-CMakeFiles/cmtop.dir/procdraw.c.o.provides.build: CMakeFiles/cmtop.dir/procdraw.c.o
-
-
 CMakeFiles/cmtop.dir/draw.c.o: CMakeFiles/cmtop.dir/flags.make
 CMakeFiles/cmtop.dir/draw.c.o: draw.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/cmtop.dir/draw.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/cmtop.dir/draw.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/draw.c.o   -c /home/bjd/projects/cmatrix-top/draw.c
 
 CMakeFiles/cmtop.dir/draw.c.i: cmake_force
@@ -275,7 +155,7 @@ CMakeFiles/cmtop.dir/draw.c.o.provides.build: CMakeFiles/cmtop.dir/draw.c.o
 
 CMakeFiles/cmtop.dir/xutil.c.o: CMakeFiles/cmtop.dir/flags.make
 CMakeFiles/cmtop.dir/xutil.c.o: xutil.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/cmtop.dir/xutil.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/cmtop.dir/xutil.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/cmtop.dir/xutil.c.o   -c /home/bjd/projects/cmatrix-top/xutil.c
 
 CMakeFiles/cmtop.dir/xutil.c.i: cmake_force
@@ -300,13 +180,8 @@ CMakeFiles/cmtop.dir/xutil.c.o.provides.build: CMakeFiles/cmtop.dir/xutil.c.o
 # Object files for target cmtop
 cmtop_OBJECTS = \
 "CMakeFiles/cmtop.dir/cmtop.c.o" \
-"CMakeFiles/cmtop.dir/screen.c.o" \
-"CMakeFiles/cmtop.dir/tty.c.o" \
 "CMakeFiles/cmtop.dir/error.c.o" \
 "CMakeFiles/cmtop.dir/mtxline.c.o" \
-"CMakeFiles/cmtop.dir/proc.c.o" \
-"CMakeFiles/cmtop.dir/procbst.c.o" \
-"CMakeFiles/cmtop.dir/procdraw.c.o" \
 "CMakeFiles/cmtop.dir/draw.c.o" \
 "CMakeFiles/cmtop.dir/xutil.c.o"
 
@@ -314,18 +189,15 @@ cmtop_OBJECTS = \
 cmtop_EXTERNAL_OBJECTS =
 
 cmtop: CMakeFiles/cmtop.dir/cmtop.c.o
-cmtop: CMakeFiles/cmtop.dir/screen.c.o
-cmtop: CMakeFiles/cmtop.dir/tty.c.o
 cmtop: CMakeFiles/cmtop.dir/error.c.o
 cmtop: CMakeFiles/cmtop.dir/mtxline.c.o
-cmtop: CMakeFiles/cmtop.dir/proc.c.o
-cmtop: CMakeFiles/cmtop.dir/procbst.c.o
-cmtop: CMakeFiles/cmtop.dir/procdraw.c.o
 cmtop: CMakeFiles/cmtop.dir/draw.c.o
 cmtop: CMakeFiles/cmtop.dir/xutil.c.o
 cmtop: CMakeFiles/cmtop.dir/build.make
+cmtop: display/libdisplay.a
+cmtop: process/libprocess.a
 cmtop: CMakeFiles/cmtop.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking C executable cmtop"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking C executable cmtop"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/cmtop.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -334,13 +206,8 @@ CMakeFiles/cmtop.dir/build: cmtop
 .PHONY : CMakeFiles/cmtop.dir/build
 
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/cmtop.c.o.requires
-CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/screen.c.o.requires
-CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/tty.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/error.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/mtxline.c.o.requires
-CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/proc.c.o.requires
-CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/procbst.c.o.requires
-CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/procdraw.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/draw.c.o.requires
 CMakeFiles/cmtop.dir/requires: CMakeFiles/cmtop.dir/xutil.c.o.requires
 

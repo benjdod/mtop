@@ -18,6 +18,10 @@ int x_streq(const char* a, const char* b) {
     return strcmp(a,b) == 0 ? 1 : 0;
 }
 
+size_t x_strlen(const char* s) {
+    return strlen(s);
+}
+
 int x_strcmp(const char* a, const char* b) {
     return strcmp(a,b);
 }

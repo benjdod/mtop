@@ -130,7 +130,7 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/objcopy
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/objdump
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=cmatrix-top
+CMAKE_PROJECT_NAME:STATIC=cmtop
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -186,6 +186,30 @@ cmatrix-top_BINARY_DIR:STATIC=/home/bjd/projects/cmatrix-top
 
 //Value Computed by CMake
 cmatrix-top_SOURCE_DIR:STATIC=/home/bjd/projects/cmatrix-top
+
+//Value Computed by CMake
+cmtop_BINARY_DIR:STATIC=/home/bjd/projects/cmatrix-top
+
+//Value Computed by CMake
+cmtop_SOURCE_DIR:STATIC=/home/bjd/projects/cmatrix-top
+
+//Value Computed by CMake
+display_BINARY_DIR:STATIC=/home/bjd/projects/cmatrix-top/display
+
+//Dependencies for target
+display_LIB_DEPENDS:STATIC=
+
+//Value Computed by CMake
+display_SOURCE_DIR:STATIC=/home/bjd/projects/cmatrix-top/display
+
+//Value Computed by CMake
+process_BINARY_DIR:STATIC=/home/bjd/projects/cmatrix-top/process
+
+//Dependencies for target
+process_LIB_DEPENDS:STATIC=
+
+//Value Computed by CMake
+process_SOURCE_DIR:STATIC=/home/bjd/projects/cmatrix-top/process
 
 
 ########################
@@ -286,7 +310,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libdisplay.a  CMakeFiles/display.dir/drawbuffer.c.o CMakeFiles/display.dir/dstring.c.o CMakeFiles/display.dir/dcolor.c.o CMakeFiles/display.dir/screen.c.o CMakeFiles/display.dir/tty.c.o
+/usr/bin/ranlib libdisplay.a

@@ -6,5 +6,5 @@ C_FLAGS = -ggdb
 
 C_DEFINES = 
 
-C_INCLUDES = 
+C_INCLUDES = -I/home/bjd/projects/cmatrix-top/. -I"/home/bjd/projects/cmatrix-top/./**" -I/home/bjd/projects/cmatrix-top/display/.. -I/home/bjd/projects/cmatrix-top/display/. -I/home/bjd/projects/cmatrix-top/process/.. -I/home/bjd/projects/cmatrix-top/process/. 
 

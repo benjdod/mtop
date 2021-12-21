@@ -1,17 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cmatrix-top)
+project(cmtop)
 
+add_subdirectory(display)
+add_subdirectory(process)
 
 add_executable(cmtop 	
 	cmtop.c
-	screen.c
-	tty.c
 	error.c
 	mtxline.c
-	proc.c	
-	procbst.c
-	procdraw.c
 	draw.c
 	xutil.c
 )
@@ -20,5 +17,14 @@ SET(GCC_COMPILE_FLAGS "-ggdb")
 SET(CMAKE_C_FLAGS "${GCC_COMPILE_FLAGS}")
 
 target_link_libraries(cmtop
-	-lprocps	
+	PUBLIC display
+	PUBLIC process
+	-lprocps
+)
+
+target_include_directories(cmtop PUBLIC
+	"."
+	"./**"
+	# "process"
+	# "display"
 )

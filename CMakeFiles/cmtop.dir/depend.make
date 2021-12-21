@@ -4,63 +4,34 @@
 CMakeFiles/cmtop.dir/cmtop.c.o: cmtop.c
 CMakeFiles/cmtop.dir/cmtop.c.o: common.h
 CMakeFiles/cmtop.dir/cmtop.c.o: draw.h
-CMakeFiles/cmtop.dir/cmtop.c.o: proc.h
-CMakeFiles/cmtop.dir/cmtop.c.o: procbst.h
-CMakeFiles/cmtop.dir/cmtop.c.o: procdraw.h
-CMakeFiles/cmtop.dir/cmtop.c.o: proctypes.h
-CMakeFiles/cmtop.dir/cmtop.c.o: screen.h
-CMakeFiles/cmtop.dir/cmtop.c.o: tty.h
 CMakeFiles/cmtop.dir/cmtop.c.o: xutil.h
+CMakeFiles/cmtop.dir/cmtop.c.o: display/./screen.h
+CMakeFiles/cmtop.dir/cmtop.c.o: display/./tty.h
+CMakeFiles/cmtop.dir/cmtop.c.o: process/./proc.h
+CMakeFiles/cmtop.dir/cmtop.c.o: process/./procbst.h
+CMakeFiles/cmtop.dir/cmtop.c.o: process/./procdraw.h
+CMakeFiles/cmtop.dir/cmtop.c.o: process/./proctypes.h
 
 CMakeFiles/cmtop.dir/draw.c.o: common.h
 CMakeFiles/cmtop.dir/draw.c.o: draw.c
 CMakeFiles/cmtop.dir/draw.c.o: draw.h
-CMakeFiles/cmtop.dir/draw.c.o: proc.h
-CMakeFiles/cmtop.dir/draw.c.o: procbst.h
-CMakeFiles/cmtop.dir/draw.c.o: procdraw.h
-CMakeFiles/cmtop.dir/draw.c.o: proctypes.h
 CMakeFiles/cmtop.dir/draw.c.o: xutil.h
+CMakeFiles/cmtop.dir/draw.c.o: process/./proc.h
+CMakeFiles/cmtop.dir/draw.c.o: process/./procbst.h
+CMakeFiles/cmtop.dir/draw.c.o: process/./procdraw.h
+CMakeFiles/cmtop.dir/draw.c.o: process/./proctypes.h
 
 CMakeFiles/cmtop.dir/error.c.o: common.h
 CMakeFiles/cmtop.dir/error.c.o: error.c
 CMakeFiles/cmtop.dir/error.c.o: error.h
-CMakeFiles/cmtop.dir/error.c.o: tty.h
+CMakeFiles/cmtop.dir/error.c.o: display/./tty.h
 
 CMakeFiles/cmtop.dir/mtxline.c.o: common.h
 CMakeFiles/cmtop.dir/mtxline.c.o: mtxline.c
 CMakeFiles/cmtop.dir/mtxline.c.o: mtxline.h
-CMakeFiles/cmtop.dir/mtxline.c.o: proc.h
-CMakeFiles/cmtop.dir/mtxline.c.o: procbst.h
-CMakeFiles/cmtop.dir/mtxline.c.o: proctypes.h
-
-CMakeFiles/cmtop.dir/proc.c.o: common.h
-CMakeFiles/cmtop.dir/proc.c.o: error.h
-CMakeFiles/cmtop.dir/proc.c.o: proc.c
-CMakeFiles/cmtop.dir/proc.c.o: proc.h
-CMakeFiles/cmtop.dir/proc.c.o: procbst.h
-CMakeFiles/cmtop.dir/proc.c.o: proctypes.h
-CMakeFiles/cmtop.dir/proc.c.o: xutil.h
-
-CMakeFiles/cmtop.dir/procbst.c.o: common.h
-CMakeFiles/cmtop.dir/procbst.c.o: procbst.c
-CMakeFiles/cmtop.dir/procbst.c.o: procbst.h
-CMakeFiles/cmtop.dir/procbst.c.o: proctypes.h
-
-CMakeFiles/cmtop.dir/procdraw.c.o: common.h
-CMakeFiles/cmtop.dir/procdraw.c.o: procdraw.c
-CMakeFiles/cmtop.dir/procdraw.c.o: procdraw.h
-CMakeFiles/cmtop.dir/procdraw.c.o: proctypes.h
-
-CMakeFiles/cmtop.dir/screen.c.o: common.h
-CMakeFiles/cmtop.dir/screen.c.o: error.h
-CMakeFiles/cmtop.dir/screen.c.o: screen.c
-CMakeFiles/cmtop.dir/screen.c.o: screen.h
-CMakeFiles/cmtop.dir/screen.c.o: tty.h
-
-CMakeFiles/cmtop.dir/tty.c.o: common.h
-CMakeFiles/cmtop.dir/tty.c.o: error.h
-CMakeFiles/cmtop.dir/tty.c.o: tty.c
-CMakeFiles/cmtop.dir/tty.c.o: tty.h
+CMakeFiles/cmtop.dir/mtxline.c.o: process/./proc.h
+CMakeFiles/cmtop.dir/mtxline.c.o: process/./procbst.h
+CMakeFiles/cmtop.dir/mtxline.c.o: process/./proctypes.h
 
 CMakeFiles/cmtop.dir/xutil.c.o: common.h
 CMakeFiles/cmtop.dir/xutil.c.o: xutil.c

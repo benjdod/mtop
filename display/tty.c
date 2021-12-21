@@ -163,9 +163,7 @@ int tty_fill(char c, int n) {
 }
 
 int tty_writesn(const char *str, int nbytes) {
-
 	return write(STDOUT_FILENO,str,nbytes);
-
 }
 
 int tty_clear() {

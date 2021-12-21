@@ -123,6 +123,32 @@ cmtop/fast:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/build
 .PHONY : cmtop/fast
 
+#=============================================================================
+# Target rules for targets named display
+
+# Build rule for target.
+display: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 display
+.PHONY : display
+
+# fast build rule for target.
+display/fast:
+	$(MAKE) -f display/CMakeFiles/display.dir/build.make display/CMakeFiles/display.dir/build
+.PHONY : display/fast
+
+#=============================================================================
+# Target rules for targets named process
+
+# Build rule for target.
+process: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 process
+.PHONY : process
+
+# fast build rule for target.
+process/fast:
+	$(MAKE) -f process/CMakeFiles/process.dir/build.make process/CMakeFiles/process.dir/build
+.PHONY : process/fast
+
 cmtop.o: cmtop.c.o
 
 .PHONY : cmtop.o
@@ -231,141 +257,6 @@ mtxline.c.s:
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/mtxline.c.s
 .PHONY : mtxline.c.s
 
-proc.o: proc.c.o
-
-.PHONY : proc.o
-
-# target to build an object file
-proc.c.o:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/proc.c.o
-.PHONY : proc.c.o
-
-proc.i: proc.c.i
-
-.PHONY : proc.i
-
-# target to preprocess a source file
-proc.c.i:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/proc.c.i
-.PHONY : proc.c.i
-
-proc.s: proc.c.s
-
-.PHONY : proc.s
-
-# target to generate assembly for a file
-proc.c.s:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/proc.c.s
-.PHONY : proc.c.s
-
-procbst.o: procbst.c.o
-
-.PHONY : procbst.o
-
-# target to build an object file
-procbst.c.o:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procbst.c.o
-.PHONY : procbst.c.o
-
-procbst.i: procbst.c.i
-
-.PHONY : procbst.i
-
-# target to preprocess a source file
-procbst.c.i:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procbst.c.i
-.PHONY : procbst.c.i
-
-procbst.s: procbst.c.s
-
-.PHONY : procbst.s
-
-# target to generate assembly for a file
-procbst.c.s:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procbst.c.s
-.PHONY : procbst.c.s
-
-procdraw.o: procdraw.c.o
-
-.PHONY : procdraw.o
-
-# target to build an object file
-procdraw.c.o:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.o
-.PHONY : procdraw.c.o
-
-procdraw.i: procdraw.c.i
-
-.PHONY : procdraw.i
-
-# target to preprocess a source file
-procdraw.c.i:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.i
-.PHONY : procdraw.c.i
-
-procdraw.s: procdraw.c.s
-
-.PHONY : procdraw.s
-
-# target to generate assembly for a file
-procdraw.c.s:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/procdraw.c.s
-.PHONY : procdraw.c.s
-
-screen.o: screen.c.o
-
-.PHONY : screen.o
-
-# target to build an object file
-screen.c.o:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/screen.c.o
-.PHONY : screen.c.o
-
-screen.i: screen.c.i
-
-.PHONY : screen.i
-
-# target to preprocess a source file
-screen.c.i:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/screen.c.i
-.PHONY : screen.c.i
-
-screen.s: screen.c.s
-
-.PHONY : screen.s
-
-# target to generate assembly for a file
-screen.c.s:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/screen.c.s
-.PHONY : screen.c.s
-
-tty.o: tty.c.o
-
-.PHONY : tty.o
-
-# target to build an object file
-tty.c.o:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/tty.c.o
-.PHONY : tty.c.o
-
-tty.i: tty.c.i
-
-.PHONY : tty.i
-
-# target to preprocess a source file
-tty.c.i:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/tty.c.i
-.PHONY : tty.c.i
-
-tty.s: tty.c.s
-
-.PHONY : tty.s
-
-# target to generate assembly for a file
-tty.c.s:
-	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/tty.c.s
-.PHONY : tty.c.s
-
 xutil.o: xutil.c.o
 
 .PHONY : xutil.o
@@ -402,6 +293,8 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... cmtop"
 	@echo "... edit_cache"
+	@echo "... display"
+	@echo "... process"
 	@echo "... cmtop.o"
 	@echo "... cmtop.i"
 	@echo "... cmtop.s"
@@ -414,21 +307,6 @@ help:
 	@echo "... mtxline.o"
 	@echo "... mtxline.i"
 	@echo "... mtxline.s"
-	@echo "... proc.o"
-	@echo "... proc.i"
-	@echo "... proc.s"
-	@echo "... procbst.o"
-	@echo "... procbst.i"
-	@echo "... procbst.s"
-	@echo "... procdraw.o"
-	@echo "... procdraw.i"
-	@echo "... procdraw.s"
-	@echo "... screen.o"
-	@echo "... screen.i"
-	@echo "... screen.s"
-	@echo "... tty.o"
-	@echo "... tty.i"
-	@echo "... tty.s"
 	@echo "... xutil.o"
 	@echo "... xutil.i"
 	@echo "... xutil.s"

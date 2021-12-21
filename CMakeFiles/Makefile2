@@ -63,10 +63,11 @@ CMAKE_BINARY_DIR = /home/bjd/projects/cmatrix-top
 # Target rules for target CMakeFiles/cmtop.dir
 
 # All Build rule for target.
-CMakeFiles/cmtop.dir/all:
+CMakeFiles/cmtop.dir/all: display/CMakeFiles/display.dir/all
+CMakeFiles/cmtop.dir/all: process/CMakeFiles/process.dir/all
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/depend
 	$(MAKE) -f CMakeFiles/cmtop.dir/build.make CMakeFiles/cmtop.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target cmtop"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target cmtop"
 .PHONY : CMakeFiles/cmtop.dir/all
 
 # Include target in all.
@@ -76,7 +77,7 @@ all: CMakeFiles/cmtop.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/cmtop.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 11
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 16
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/cmtop.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 0
 .PHONY : CMakeFiles/cmtop.dir/rule
@@ -93,6 +94,116 @@ CMakeFiles/cmtop.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/cmtop.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory display
+
+# Convenience name for "all" pass in the directory.
+display/all: display/CMakeFiles/display.dir/all
+
+.PHONY : display/all
+
+# Convenience name for "clean" pass in the directory.
+display/clean: display/CMakeFiles/display.dir/clean
+
+.PHONY : display/clean
+
+# Convenience name for "preinstall" pass in the directory.
+display/preinstall:
+
+.PHONY : display/preinstall
+
+#=============================================================================
+# Target rules for target display/CMakeFiles/display.dir
+
+# All Build rule for target.
+display/CMakeFiles/display.dir/all:
+	$(MAKE) -f display/CMakeFiles/display.dir/build.make display/CMakeFiles/display.dir/depend
+	$(MAKE) -f display/CMakeFiles/display.dir/build.make display/CMakeFiles/display.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=7,8,9,10,11,12 "Built target display"
+.PHONY : display/CMakeFiles/display.dir/all
+
+# Include target in all.
+all: display/CMakeFiles/display.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+display/CMakeFiles/display.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 6
+	$(MAKE) -f CMakeFiles/Makefile2 display/CMakeFiles/display.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 0
+.PHONY : display/CMakeFiles/display.dir/rule
+
+# Convenience name for target.
+display: display/CMakeFiles/display.dir/rule
+
+.PHONY : display
+
+# clean rule for target.
+display/CMakeFiles/display.dir/clean:
+	$(MAKE) -f display/CMakeFiles/display.dir/build.make display/CMakeFiles/display.dir/clean
+.PHONY : display/CMakeFiles/display.dir/clean
+
+# clean rule for target.
+clean: display/CMakeFiles/display.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory process
+
+# Convenience name for "all" pass in the directory.
+process/all: process/CMakeFiles/process.dir/all
+
+.PHONY : process/all
+
+# Convenience name for "clean" pass in the directory.
+process/clean: process/CMakeFiles/process.dir/clean
+
+.PHONY : process/clean
+
+# Convenience name for "preinstall" pass in the directory.
+process/preinstall:
+
+.PHONY : process/preinstall
+
+#=============================================================================
+# Target rules for target process/CMakeFiles/process.dir
+
+# All Build rule for target.
+process/CMakeFiles/process.dir/all:
+	$(MAKE) -f process/CMakeFiles/process.dir/build.make process/CMakeFiles/process.dir/depend
+	$(MAKE) -f process/CMakeFiles/process.dir/build.make process/CMakeFiles/process.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bjd/projects/cmatrix-top/CMakeFiles --progress-num=13,14,15,16 "Built target process"
+.PHONY : process/CMakeFiles/process.dir/all
+
+# Include target in all.
+all: process/CMakeFiles/process.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+process/CMakeFiles/process.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 4
+	$(MAKE) -f CMakeFiles/Makefile2 process/CMakeFiles/process.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bjd/projects/cmatrix-top/CMakeFiles 0
+.PHONY : process/CMakeFiles/process.dir/rule
+
+# Convenience name for target.
+process: process/CMakeFiles/process.dir/rule
+
+.PHONY : process
+
+# clean rule for target.
+process/CMakeFiles/process.dir/clean:
+	$(MAKE) -f process/CMakeFiles/process.dir/build.make process/CMakeFiles/process.dir/clean
+.PHONY : process/CMakeFiles/process.dir/clean
+
+# clean rule for target.
+clean: process/CMakeFiles/process.dir/clean
 
 .PHONY : clean
 

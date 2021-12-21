@@ -1,0 +1,2 @@
+/usr/bin/ar qc libprocess.a  CMakeFiles/process.dir/proc.c.o CMakeFiles/process.dir/procbst.c.o CMakeFiles/process.dir/procdraw.c.o
+/usr/bin/ranlib libprocess.a

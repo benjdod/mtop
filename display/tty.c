@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "common.h"
 #include "tty.h"
 #include "error.h"
 
@@ -13,7 +14,7 @@
 static struct termios orig_termios;
 static int ttyfd = STDIN_FILENO;
 static int israw = 0;
-static size_t flags;
+static u16 flags;
 
 /*** STATIC FUNCTIONS ***/
 
@@ -22,13 +23,13 @@ static int tty_init() {
 	// verifies that the program is running on a tty
 	if (!isatty(ttyfd)) {
 		fatal(1,"not on a tty");
-		return 1;
+		return TTY_EBADDEV;
 	}
 
 	// saves the current tty settings in `orig_termios`
 	if (tcgetattr(ttyfd, &orig_termios) < 0) {
 		fatal(1,"can't get tty settings");
-		return 1;
+		return TTY_ETCATTR;
 	}
 
 	// zero flags
@@ -69,7 +70,7 @@ void tty_setraw(uint16_t flags) {
 	raw.c_lflag &= ~(ECHO|ICANON|IEXTEN);
 
 	if (flags & TTY_TRAPSIGNAL) 
-		raw.c_lflag &= ~(ISIG);
+		raw.c_lflag |= (ISIG);
 
 	raw.c_cc[VMIN] = 0;
 	raw.c_cc[VTIME] = 1;
@@ -101,10 +102,8 @@ void tty_reset() {
 	// if the TTY isn't raw, we don't have to do anything here
 	if (!(flags & TTY_ISRAW)) return;
 	
-	
 	if (tcsetattr(ttyfd, TCSAFLUSH, &orig_termios) < 0) {
 		printf("cannot reset tty (danger!)\n");
-		return;
 	}
 
 	// turn off the ISRAW flag

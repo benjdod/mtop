@@ -19,11 +19,11 @@
 #define DCOLOR_RESET     1
 #define DCOLOR_BRIGHT    60
 
-typedef struct rgb_t_ {
+typedef struct drgb_t_ {
     u8 r,g,b;
 } drgb_t;
 
-typedef struct color_t_ {
+typedef struct dcolor_t_ {
     drgb_t rgb;
 
     // intended to represent the ansi set

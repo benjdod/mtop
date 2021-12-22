@@ -4,6 +4,8 @@
 #include "error.h"
 #include "tty.h"
 
+static int open = 0;
+
 screensize_t get_screensize() {
 	screensize_t sz;
 
@@ -23,15 +25,20 @@ screensize_t get_screensize() {
 }
 
 void screen_init() {
+	tty_setraw(0);
 	tty_writes("\e[?1049h");
 	tty_clear();
-	tty_setraw(TTY_TRAPSIGNAL);
+	open = 1;
 }
 
 void screen_exit() {
-	tty_clear();
 	tty_writes("\e[?1049l");
 	tty_reset();
+	open = 0;
+}
+
+int screen_isopen() {
+	return open;
 }
 
 void screen_setcursor(rowcol_t location) {

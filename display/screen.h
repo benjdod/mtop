@@ -15,6 +15,7 @@ typedef rowcol_t screensize_t;
 screensize_t get_screensize();
 void screen_init();
 void screen_exit();
+int screen_isopen();
 
 void screen_setcursor(rowcol_t location);
 void screen_hidecursor();

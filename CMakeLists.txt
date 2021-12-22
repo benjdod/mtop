@@ -16,6 +16,8 @@ add_executable(cmtop
 SET(GCC_COMPILE_FLAGS "-ggdb")
 SET(CMAKE_C_FLAGS "${GCC_COMPILE_FLAGS}")
 
+add_compile_options(-ggdb)
+
 target_link_libraries(cmtop
 	PUBLIC display
 	PUBLIC process

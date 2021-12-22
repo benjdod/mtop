@@ -6,6 +6,7 @@
 #include "procdraw.h"
 #include "draw.h"
 #include "xutil.h"
+#include "drawbuffer.h"
 
 procs_info_t info;
 screensize_t ssz;
@@ -68,7 +69,7 @@ void sigwinch_handler() {
 
 void graceful_exit() {
 	screen_exit();
-	printf("program encountered a segmentation fault, exiting.\n");
+	printf("exiting.\n");
 	exit(0);
 }
 
@@ -168,6 +169,36 @@ int get_proc() {
 	return 0;
 }
 
+int try_drawbuffer() {
+
+	dcolor_t blue;
+	blue.stage = DCOLOR_FG;
+	blue.hue = DCOLOR_BLUE;
+	blue.nature = DCOLOR_BRIGHT;
+	blue.rgb = (drgb_t) {0x40, 0x44, 0xee};
+
+	dcolor_t reset;
+	reset.stage = DCOLOR_FG;
+	reset.nature = DCOLOR_RESET;
+
+	drawbuffer_t dbuf = dbuf_init();
+	dbuf_addstr(&dbuf, "hello ");
+	dbuf_addcolor(&dbuf, blue);
+	dbuf_addstr(&dbuf, "there");
+	char out[1024];
+	memset(out, '\0', 1024);
+	dbuf_flushto(&dbuf, out, 1023);
+	printf("dbuf: %s\n", out);
+
+	dbuf_addcolor(&dbuf, reset);
+	dbuf_addstr(&dbuf, "you are ");
+	dbuf_addcolor(&dbuf, blue);
+	dbuf_addstr(&dbuf, "stinky boy!");
+	dbuf_flushto(&dbuf, out, 1023);
+	printf("dbuf: %s\n", out);
+}
+
 int main() {
-	return cmtop();
+	//return cmtop();
+	try_drawbuffer();
 }

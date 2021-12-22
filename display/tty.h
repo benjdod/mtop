@@ -3,7 +3,10 @@
 
 #include "common.h"
 
-#define TTY_TRAPSIGNAL 0x0001
+#define TTY_TRAPSIGNAL  0x0001
+
+#define TTY_EBADDEV     0x0001       // output device is not a tty
+#define TTY_ETCATTR     0x0002       // bad return from get/set tc attr funcs
 
 /* sets the tty into raw mode
 *  reads characters one at a time, and doesn't 

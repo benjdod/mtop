@@ -1,4 +1,5 @@
 #include "dcolor.h"
+#include "xutil.h"
 
 #define DCOLOR_USECOLOR 1
 #define DCOLOR_USETRUECOLOR 1

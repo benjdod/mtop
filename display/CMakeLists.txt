@@ -10,7 +10,7 @@ add_library(display STATIC
     tty.c
 )
 
-target_include_directories(display PUBLIC 
-    ".."
-    "."
+target_include_directories(display 
+    PUBLIC ".."
+    PUBLIC "."
 )

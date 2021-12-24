@@ -3,6 +3,7 @@
 #include "draw.h"
 #include "proc.h"
 #include "procdraw.h"
+#include "drawbuffer.h"
 
 static uint16_t flags = 0;
 
@@ -12,6 +13,19 @@ void draw_setopts(uint16_t f) {
 
 static unsigned int isset(unsigned int flag) {
     return flags & flag;
+}
+
+static char randchar() {
+    char r_chars[] = {
+        '\'',
+        '`',
+        '.',
+        ','
+    };
+
+    u8 rselect = (rand() % (sizeof(r_chars) * 3));
+
+    return (rselect < sizeof(r_chars)) ? r_chars[rselect] : ' ';
 }
 
 size_t draw_color(color_t color, char* buf, size_t n) {
@@ -67,17 +81,23 @@ size_t draw_queryscr(procs_info_t* info, char* scrbuf, size_t r_size, size_t c_s
     for (size_t j = 0; j < c_off; j++) { procbst_cursor_next(&cur); }
 
     for (size_t c = 0; c < c_size; c++) {
+
+        u8 draw_a_proc = (c % c_step == 0) ? 1 : 0;
+
         for (size_t r = 0; r < r_size - info_winsz; r++) {
 
-            if (c % c_step == 0) {
+            if (draw_a_proc) {
                 scrbuf[r * c_size + c] = (cur.current != NULL)
                     ? /* 'a' + (c % 26) */ pd_charat(&(cur.current->value), r + r_off)
-                    : (rand() % 4 == 3) ? '-' : ' ';
+                    : randchar();
             } else {
                 scrbuf[r*c_size + c] = ' ';
             }
         }
-        if (cur.current != NULL) procbst_cursor_next(&cur);
+
+        if (draw_a_proc && cur.current != NULL) {
+            procbst_cursor_next(&cur);
+        }
     }
 
     size_t w_len = 0;
@@ -98,4 +118,12 @@ size_t draw_queryscr(procs_info_t* info, char* scrbuf, size_t r_size, size_t c_s
     }
 
     return r_size * c_size;
+}
+
+void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* procs, size_t r_size, size_t c_size) {
+
+    char srcbuf[r_size * c_size];
+
+    draw_queryscr(procs, srcbuf, r_size, c_size, 0, 0, 3);
+    dbuf_addstrn(dbuf, srcbuf, r_size * c_size);
 }

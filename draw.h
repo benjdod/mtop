@@ -2,6 +2,7 @@
 #define _CMTOP_DRAW_H
 
 #include "proc.h"
+#include "drawbuffer.h"
 
 #define DRAW_COLOR      0x0001
 #define DRAW_RGBCOLOR   0x0002
@@ -43,5 +44,6 @@ size_t draw_color(color_t color, char* buf, size_t n);
 
 size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size_t c_off, int step);
 size_t draw_queryscr(procs_info_t* info, char* scrbuf, size_t r_size, size_t c_size, size_t r_off, size_t c_off, int c_step);
+void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* procs, size_t r_size, size_t c_size);
 
 #endif

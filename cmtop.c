@@ -106,6 +106,7 @@ int cmtop() {
 	write_currentcolor();
 #endif
 
+	drawbuffer_t dbuf = dbuf_init();
 
 	tty_clear();
 
@@ -119,16 +120,34 @@ int cmtop() {
 			tty_iflush();
 		}
 
-		flushcount = (flushcount++) % flushbreak;
+		// if (flushcount)break;
+
+		flushcount = (++flushcount) % flushbreak;
+
+		screen_setcursor((rowcol_t) {0,0});
 
 		update_procs();
 
-		draw_queryscr(&info, scrbuf, ssz.rows, ssz.cols, 0, 0, 3);
-		tty_writesn(scrbuf, (int) (ssz.rows * ssz.cols));
-		if (tty_readc()) break;
+		//draw_queryscr(&info, scrbuf, ssz.rows, ssz.cols, 0, 0, 3);
+		//tty_writesn(scrbuf, (int) (ssz.rows * ssz.cols));
+
+		draw_fillbuffer(&dbuf, &info, ssz.rows, ssz.cols);
+		dbuf_flush(&dbuf);
+
+		char ch = tty_readc();
+
+		if (ch) {
+			if (ch == 'j') procbst_cursor_prev(&info.selected);
+			else if (ch == 'k') procbst_cursor_next(&info.selected);
+			else if (ch == 'q') break;
+		}
+
+
 		procbst_inorder(&info.procs, &advance_offset);
-		usleep(1000*1000);
+		usleep(50*1000);
 	}
+
+	while (! tty_readc()) ;
 
 	screen_exit();
 	screen_showcursor();
@@ -199,6 +218,6 @@ int try_drawbuffer() {
 }
 
 int main() {
-	//return cmtop();
-	try_drawbuffer();
+	return cmtop();
+	//try_drawbuffer();
 }

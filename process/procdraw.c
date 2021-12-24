@@ -38,7 +38,11 @@ size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, unsigned short section) {
             w = snprintf(buf, n, "%s - %s (%d) %c", p->user, p->cmd, p->pid, p->state);
             break;
         case 1:
-            w = snprintf(buf, n, "%llu, %llu, %llu, %llu", ct.utime.current, ct.stime.current, ct.cutime.current, ct.cstime.current);
+            w = snprintf(buf, n, "%llu, %llu, %llu, %llu - clock ticks of execution (user, sys, cu, cs)", ct.utime.current, ct.stime.current, ct.cutime.current, ct.cstime.current);
+            break;
+        case 2:
+            w = snprintf(buf, n, "%u %u %.2f - memory and cpu (res, shared, cpu %%)", p->res_mem, p->shr_mem, p->cpu_pct);
+            //w = snprintf(buf, n, "hello");
             break;
         default:
             return 0;
@@ -59,7 +63,7 @@ void pd_updatecache(procinfo_t* p) {
     p->drawdata.length = pd_drawto(p, p->drawdata.cache, DRAWDATA_CACHE_LENGTH);
 }
 
-char pd_charat(procinfo_t* p, size_t offset) {
+inline char pd_charat(procinfo_t* p, size_t offset) {
 
     // XXX: overflows here? 
     // should we modulo after subtracting process offset?

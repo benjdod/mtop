@@ -38,7 +38,7 @@ static int tty_init() {
 	return 0;
 }
 
-void tty_setraw(uint16_t flags) {
+void tty_setraw() {
 
 	// init and sanity checks (see above)
 	tty_init();
@@ -67,10 +67,7 @@ void tty_setraw(uint16_t flags) {
 	raw.c_iflag &= ~(BRKINT|ICRNL|INPCK|ISTRIP|IXON);
 	raw.c_oflag &= ~(OPOST);
 	raw.c_cflag |= (CS8);
-	raw.c_lflag &= ~(ECHO|ICANON|IEXTEN);
-
-	if (flags & TTY_TRAPSIGNAL) 
-		raw.c_lflag |= (ISIG);
+	raw.c_lflag &= ~(ECHO|ICANON|IEXTEN /*|ISIG */ );
 
 	raw.c_cc[VMIN] = 0;
 	raw.c_cc[VTIME] = 1;

@@ -63,16 +63,38 @@ void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color) {
     dbuf->colorbuf_length += 1;
 }
 
-void dbuf_addstrn(drawbuffer_t* dbuf, const char* str, size_t n) {
+void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n) {
     BUF_EXPAND(dbuf->chbuf, char, dbuf->chbuf_length, dbuf->chbuf_size, n);
     char* new_str = x_strncpy(dbuf->chbuf + dbuf->chbuf_length, str, n);
     dbuf->chbuf_length += n;
-    dbuf_add_dstr(dbuf, (dstring_t) {new_str, n});
+
+    // append to the latest dstring
+    if (dbuf->dstrbuf_length > 0 && dbuf->buffer[dbuf->length - 1].type == DITEM_DSTRING) {
+        dstring_t* last_string = & (dbuf->dstrbuf[dbuf->buffer[dbuf->length - 1].idx]);
+        last_string->len += n;
+    } else {    // add a new one
+        dbuf_add_dstr(dbuf, (dstring_t) {new_str, n});
+    }
 }
 
-void dbuf_addstr(drawbuffer_t* dbuf, const char* str) {
+void dbuf_adds(drawbuffer_t* dbuf, const char* str) {
     size_t len = x_strlen(str);
-    dbuf_addstrn(dbuf, str, len);
+    dbuf_addsn(dbuf, str, len);
+}
+
+void dbuf_addc(drawbuffer_t* dbuf, char c) {
+    BUF_EXPAND(dbuf->chbuf, char, dbuf->chbuf_length, dbuf->chbuf_size, 1);
+    dbuf->chbuf[dbuf->chbuf_length] = c;
+    char* new_str = dbuf->chbuf + dbuf->chbuf_length;
+    dbuf->chbuf_length += 1;
+
+        // append to the latest dstring
+    if (dbuf->dstrbuf_length > 0 && dbuf->buffer[dbuf->length - 1].type == DITEM_DSTRING) {
+        dstring_t* last_string = & (dbuf->dstrbuf[dbuf->buffer[dbuf->length - 1].idx]);
+        last_string->len += 1;
+    } else {    // add a new one
+        dbuf_add_dstr(dbuf, (dstring_t) {new_str, 1});
+    }
 }
 
 size_t dbuf_renderto(drawbuffer_t* dbuf, char* dest, size_t n) {
@@ -121,8 +143,7 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
     char cbuf[20];
     
     
-    while (1) {
-        if (i_item >= dbuf->length) break;
+    while (i_item < dbuf->length) {
 
         drawitem_t item = dbuf->buffer[i_item];
 
@@ -132,15 +153,15 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
             dstring_t* data = &dbuf->dstrbuf[item.idx];
             tty_writesn(data->start, data->len);
             i_write += data->len;
-            i_item++;
         } else if (item.type == DITEM_DCOLOR) {
             x_memset(cbuf, '\0', 20);
-            dcolor_t* color = &dbuf->colorbuf[item.idx];
-            size_t w = dcolor_write(*color, cbuf, 20);
+            // dcolor_t* color = &dbuf->colorbuf[item.idx];
+            size_t w = dcolor_write(dbuf->colorbuf[item.idx], cbuf, 20);
             tty_writesn(cbuf, w);
             i_write += w;
-            i_item++;
         }
+
+        i_item++;
     }
 
     return i_write;

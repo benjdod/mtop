@@ -258,6 +258,10 @@ int procbst_cursor_eq(procbst_cursor_t a, procbst_cursor_t b) {
     return (a.current == b.current);
 }
 
+procinfo_t* procbst_cursor_at(procbst_cursor_t* cursor) {
+    return &cursor->current->value;
+}
+
 void procbst_dynamic_remove(procbst_cursor_t* cursor) {
     pid_t pid = cursor->current->value.pid;
     procbst_cursor_next(cursor);

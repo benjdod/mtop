@@ -13,7 +13,7 @@ typedef struct {
 typedef rowcol_t screensize_t;
 
 screensize_t get_screensize();
-void screen_init();
+void screen_open();
 void screen_exit();
 int screen_isopen();
 

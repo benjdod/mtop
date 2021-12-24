@@ -120,10 +120,74 @@ size_t draw_queryscr(procs_info_t* info, char* scrbuf, size_t r_size, size_t c_s
     return r_size * c_size;
 }
 
-void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* procs, size_t r_size, size_t c_size) {
+void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t c_size) {
 
-    char srcbuf[r_size * c_size];
+    char tbuf[c_size+1];
 
-    draw_queryscr(procs, srcbuf, r_size, c_size, 0, 0, 3);
-    dbuf_addstrn(dbuf, srcbuf, r_size * c_size);
+    size_t 
+        c_step = 2,
+        r_step = 0,
+        c_off = 0,
+        r_off = 0;
+
+    size_t sel_idx = 0;
+
+    size_t info_winsz = 3;
+
+#define SET_PRIMARYCOLOR() dbuf_adds(dbuf, "\e[38;2;0;200;0m");
+#define SET_SECONDARYCOLOR() dbuf_adds(dbuf, "\e[0m\e[38;5;242m")
+
+    // append matrix rows
+    for (size_t r = 0; r < r_size - info_winsz; r++) {
+        procbst_cursor_t cur = procbst_cursor_init(&info->procs);
+        procbst_cursor_next(&cur);
+
+        sel_idx = 0;
+
+        for (size_t c = 0; c < c_size; c++) {
+            if (c % c_step == 0 && cur.current != NULL) {
+                if (!sel_idx && procbst_cursor_eq(cur, info->selected)) {
+                    sel_idx = c;
+                }
+                tbuf[c] = pd_charat(procbst_cursor_at(&cur), r + r_off);
+                procbst_cursor_next(&cur);
+            } else {
+                tbuf[c] = ' ';
+            }
+        }
+
+        dcolor_t dc;
+        dc.stage = DCOLOR_BG;
+        dc.hue = DCOLOR_GREEN;
+        dc.nature = DCOLOR_NORMAL;
+        dc.rgb = (drgb_t) {0x0, 0x0, 0x0};
+
+        dcolor_t reset;
+        dc.stage = DCOLOR_BG;
+        dc.nature = DCOLOR_RESET;
+        dc.hue = DCOLOR_WHITE;
+        dc.rgb = (drgb_t) {0x0, 0x0, 0x0};
+
+        dbuf_addsn(dbuf, tbuf, sel_idx);
+        //dbuf_addcolor(dbuf, dc);
+        SET_PRIMARYCOLOR();
+        dbuf_addc(dbuf, tbuf[sel_idx]);
+        //dbuf_addcolor(dbuf, reset);
+        //dbuf_adds(dbuf, "\e[32m");
+        SET_SECONDARYCOLOR();
+        dbuf_addsn(dbuf, tbuf + sel_idx + 1, c_size - sel_idx - 1);
+    }
+
+    SET_PRIMARYCOLOR();
+
+    for (size_t i = 0; i < info_winsz; i++) {
+        memset(tbuf, ' ', c_size);
+        size_t w = pd_drawinfo(&info->selected.current->value, tbuf, c_size, i);
+        while (w < c_size) {
+            tbuf[w++] = ' ';
+        }
+        dbuf_addsn(dbuf, tbuf, c_size);
+    }
+
+    SET_SECONDARYCOLOR();
 }

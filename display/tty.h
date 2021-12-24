@@ -11,10 +11,10 @@
 /* sets the tty into raw mode
 *  reads characters one at a time, and doesn't 
 *  generate signals */
-void tty_setraw(uint16_t);
+void tty_setraw();
 
 /* sets the tty back to the configuration
-*  it was in before tty_setraw() was called */
+*  it was in before tty_screen_open) was called */
 void tty_reset();
 
 /* flush output from current tty */

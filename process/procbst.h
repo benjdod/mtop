@@ -40,6 +40,7 @@ const procinfo_t* procbst_cursor_next(procbst_cursor_t* cursor);
 const procinfo_t* procbst_cursor_prev(procbst_cursor_t* cursor);
 const procinfo_t* procbst_cursor_last(procbst_cursor_t* cursor);
 int procbst_cursor_eq(procbst_cursor_t a, procbst_cursor_t b);
+procinfo_t* procbst_cursor_at(procbst_cursor_t* cursor);
 void procbst_dynamic_remove(procbst_cursor_t* cursor);
 
 #define PROCBST_COMPARE(a,b) ((b.pid) - (a.pid))

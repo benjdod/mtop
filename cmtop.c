@@ -89,9 +89,13 @@ int cmtop() {
 	fill_procs();
 	randomize_drawvalues();
 
-	screen_init();
+	screen_open();
 	sigwinch_handler();
 	screen_hidecursor();
+
+	int sleeptime = 50 * 1000;
+
+#define DO_SLEEP() usleep(sleeptime)
 
 #ifdef CMTOP_DRAW_COLOR
 	draw_setopts((DRAW_COLOR|DRAW_RGBCOLOR));
@@ -115,6 +119,14 @@ int cmtop() {
 
 	while (1) {
 
+		char ch = tty_readc();
+
+		if (ch) {
+			if (ch == 'j') procbst_cursor_prev(&info.selected);
+			else if (ch == 'k') procbst_cursor_next(&info.selected);
+			else if (ch == 'q') break;
+		}
+
 		if (flushcount == flushbreak) {
 			tty_oflush();
 			tty_iflush();
@@ -134,20 +146,11 @@ int cmtop() {
 		draw_fillbuffer(&dbuf, &info, ssz.rows, ssz.cols);
 		dbuf_flush(&dbuf);
 
-		char ch = tty_readc();
-
-		if (ch) {
-			if (ch == 'j') procbst_cursor_prev(&info.selected);
-			else if (ch == 'k') procbst_cursor_next(&info.selected);
-			else if (ch == 'q') break;
-		}
-
-
 		procbst_inorder(&info.procs, &advance_offset);
-		usleep(50*1000);
+		DO_SLEEP();
 	}
 
-	while (! tty_readc()) ;
+	//while (! tty_readc()) ;
 
 	screen_exit();
 	screen_showcursor();
@@ -188,36 +191,6 @@ int get_proc() {
 	return 0;
 }
 
-int try_drawbuffer() {
-
-	dcolor_t blue;
-	blue.stage = DCOLOR_FG;
-	blue.hue = DCOLOR_BLUE;
-	blue.nature = DCOLOR_BRIGHT;
-	blue.rgb = (drgb_t) {0x40, 0x44, 0xee};
-
-	dcolor_t reset;
-	reset.stage = DCOLOR_FG;
-	reset.nature = DCOLOR_RESET;
-
-	drawbuffer_t dbuf = dbuf_init();
-	dbuf_addstr(&dbuf, "hello ");
-	dbuf_addcolor(&dbuf, blue);
-	dbuf_addstr(&dbuf, "there");
-	char out[1024];
-	memset(out, '\0', 1024);
-	dbuf_flushto(&dbuf, out, 1023);
-	printf("dbuf: %s\n", out);
-
-	dbuf_addcolor(&dbuf, reset);
-	dbuf_addstr(&dbuf, "you are ");
-	dbuf_addcolor(&dbuf, blue);
-	dbuf_addstr(&dbuf, "stinky boy!");
-	dbuf_flushto(&dbuf, out, 1023);
-	printf("dbuf: %s\n", out);
-}
-
 int main() {
 	return cmtop();
-	//try_drawbuffer();
 }

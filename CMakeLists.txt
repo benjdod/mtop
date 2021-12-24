@@ -13,7 +13,7 @@ add_executable(cmtop
 	xutil.c
 )
 
-SET(GCC_COMPILE_FLAGS "-ggdb")
+SET(GCC_COMPILE_FLAGS "-ggdb -O2 -Wall")
 SET(CMAKE_C_FLAGS "${GCC_COMPILE_FLAGS}")
 
 add_compile_options(-ggdb)

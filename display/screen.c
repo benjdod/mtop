@@ -24,8 +24,8 @@ screensize_t get_screensize() {
 	return sz;
 }
 
-void screen_init() {
-	tty_setraw(0);
+void screen_open() {
+	tty_setraw();
 	tty_writes("\e[?1049h");
 	tty_clear();
 	open = 1;

@@ -4,6 +4,7 @@
 #include "proc.h"
 #include "procdraw.h"
 #include "drawbuffer.h"
+#include "opt.h"
 
 static uint16_t flags = 0;
 
@@ -31,12 +32,12 @@ static char randchar() {
 size_t draw_color(color_t color, char* buf, size_t n) {
     //"\e[38;2;255;255;255m";     // 19 chars!
 
-    if (n < 19 || !(isset(DRAW_COLOR | DRAW_RGBCOLOR))) return 0;
+    if (n < 19 || opt.colormode == OPT_DRAWCOLOR_NONE) return 0;
 
     if (color.nature == COLOR_RESET) {
         x_strncpy(buf, "\e[0m", 4);
         return 4;
-    } else if (isset(DRAW_RGBCOLOR)) {
+    } else if (opt.colormode == OPT_DRAWCOLOR_24BIT) {
         return snprintf(buf, 19, "\e[38;2;%d;%d;%dm", color.rgb.r, color.rgb.g, color.rgb.b);
     } else {
         char colorcode = color.hue + color.nature + color.stage;
@@ -134,39 +135,35 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 
     size_t info_winsz = 3;
 
-#define SET_PRIMARYCOLOR() dbuf_adds(dbuf, "\e[38;2;0;200;0m");
-#define SET_SECONDARYCOLOR() dbuf_adds(dbuf, "\e[0m\e[38;5;242m")
+#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}
+#define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
 
     // append matrix rows
-    for (size_t r = 0; r < r_size - info_winsz; r++) {
+    for (size_t r = 0; r < r_size - info_winsz - 1; r++) {
         procbst_cursor_t cur = procbst_cursor_init(&info->procs);
         procbst_cursor_next(&cur);
 
         sel_idx = 0;
 
+        u8 proc_do_draw = 0;
+
         for (size_t c = 0; c < c_size; c++) {
-            if (c % c_step == 0 && cur.current != NULL) {
-                if (!sel_idx && procbst_cursor_eq(cur, info->selected)) {
-                    sel_idx = c;
+            proc_do_draw = c % c_step == 0 ? 1 : 0;
+            if (cur.current != NULL) {
+                if (proc_do_draw) {
+                    if (!sel_idx && procbst_cursor_eq(cur, info->selected)) {
+                        sel_idx = c;
+                    }
+                    tbuf[c] = pd_charat(procbst_cursor_at(&cur), r + r_off);
+                    procbst_cursor_next(&cur);
+                } else {
+                    tbuf[c] = ' ';
                 }
-                tbuf[c] = pd_charat(procbst_cursor_at(&cur), r + r_off);
-                procbst_cursor_next(&cur);
             } else {
-                tbuf[c] = ' ';
+                tbuf[c] = proc_do_draw ? randchar() : ' ';
             }
+            
         }
-
-        dcolor_t dc;
-        dc.stage = DCOLOR_BG;
-        dc.hue = DCOLOR_GREEN;
-        dc.nature = DCOLOR_NORMAL;
-        dc.rgb = (drgb_t) {0x0, 0x0, 0x0};
-
-        dcolor_t reset;
-        dc.stage = DCOLOR_BG;
-        dc.nature = DCOLOR_RESET;
-        dc.hue = DCOLOR_WHITE;
-        dc.rgb = (drgb_t) {0x0, 0x0, 0x0};
 
         dbuf_addsn(dbuf, tbuf, sel_idx);
         //dbuf_addcolor(dbuf, dc);
@@ -177,11 +174,12 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
         SET_SECONDARYCOLOR();
         dbuf_addsn(dbuf, tbuf + sel_idx + 1, c_size - sel_idx - 1);
     }
+    for (size_t i = 0; i < c_size; i++) dbuf_addc(dbuf, '-');
 
     SET_PRIMARYCOLOR();
 
     for (size_t i = 0; i < info_winsz; i++) {
-        memset(tbuf, ' ', c_size);
+        x_memset(tbuf, ' ', c_size);
         size_t w = pd_drawinfo(&info->selected.current->value, tbuf, c_size, i);
         while (w < c_size) {
             tbuf[w++] = ' ';

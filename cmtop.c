@@ -7,6 +7,8 @@
 #include "draw.h"
 #include "xutil.h"
 #include "drawbuffer.h"
+#include "dmeter.h"
+#include "opt.h"
 
 procs_info_t info;
 screensize_t ssz;
@@ -46,7 +48,7 @@ void advance_offset(procinfo_t* p) {
 #ifdef CMTOP_DRAW_COLOR
 void write_currentcolor() {
 	char buf[20];
-	memset(buf, '\0', 20);
+	x_memset(buf, '\0', 20);
 	int w = draw_color(current_color, buf, 20);
 	tty_writesn(buf, w);
 }
@@ -58,8 +60,8 @@ void set_color(color_t color) {
 
 void sigwinch_handler() {
 	ssz = get_screensize();
-	free(scrbuf);
-	scrbuf = (char*) malloc(ssz.rows * ssz.cols);
+	x_free(scrbuf);
+	scrbuf = (char*) x_malloc(ssz.rows * ssz.cols, sizeof(char));
 	screen_setcursor((rowcol_t) {0,0});
 	tty_clear();
 #ifdef CMTOP_DRAW_COLOR
@@ -67,10 +69,21 @@ void sigwinch_handler() {
 #endif
 }
 
+
+void forceful_exit() {
+	exit(1);
+}
+
 void graceful_exit() {
+	procbst_destroy(&info.procs);
 	screen_exit();
 	printf("exiting.\n");
 	exit(0);
+}
+
+void sigint_handler() {
+	signal(SIGINT, &forceful_exit);
+	graceful_exit();
 }
 
 void segfault() {
@@ -82,9 +95,11 @@ void segfault() {
 
 int cmtop() {
 
+	opt_init();
+
 	signal(SIGWINCH, &sigwinch_handler);
 	signal(SIGSEGV, &segfault);
-	signal(SIGINT, &graceful_exit);
+	signal(SIGINT, &sigint_handler);
 
 	fill_procs();
 	randomize_drawvalues();
@@ -101,6 +116,7 @@ int cmtop() {
 	draw_setopts((DRAW_COLOR|DRAW_RGBCOLOR));
 	//tty_writes("\e[32;1m");
 	//tty_writes("\e[38;2;20;220;20m");
+	/*
 	color_t color;
 	color.rgb = (rgb_t) {40,240,40};
 	color.hue = COLOR_GREEN;
@@ -108,6 +124,7 @@ int cmtop() {
 	color.nature = COLOR_BRIGHT;
 	set_color(color);
 	write_currentcolor();
+	*/
 #endif
 
 	drawbuffer_t dbuf = dbuf_init();
@@ -134,7 +151,8 @@ int cmtop() {
 
 		// if (flushcount)break;
 
-		flushcount = (++flushcount) % flushbreak;
+		flushcount += 1; 
+		flushcount %= flushbreak;
 
 		screen_setcursor((rowcol_t) {0,0});
 
@@ -152,15 +170,14 @@ int cmtop() {
 
 	//while (! tty_readc()) ;
 
-	screen_exit();
 	screen_showcursor();
+	graceful_exit();
 }
 
 void print_timedelta(timedelta_t td, const char *title) {
 	if (title != NULL) printf("%s: ", title);
 	printf("%llu\t%llu\t(d = %llu)\n", td.last, td.current, td.delta);
 }
-
 
 void print_cpuinfo(sys_cpuinfo_t cpuinfo) {
 	print_timedelta(cpuinfo.user, "user");
@@ -176,21 +193,32 @@ void print_cpuinfo(sys_cpuinfo_t cpuinfo) {
 	printf("\n");
 }
 
-int get_proc() {
+int meter() {
+	dmeter_t dm;
+	dm.min = 0;
+	dm.max = 100;
+	dm.value = 25;
+	dm.width = 50;
 
-	info = procs_init();
+	char buf[58];
 
-	while (1) {
-		procs_update(&info);
-		//procbst_inorder(&info.procs, &update_drawcache);
-		//print_cpuinfo(info.cpuinfo);
+	while(1) {
 
-		usleep(1000 * 1000);
+		dm.value = rand() % 100;
+
+		x_memset(buf, '\0', 58);
+		dmeter_draw(dm, buf, 57);
+
+		printf("meter: %s", buf);
+		usleep(10 * 1000);
+		printf("\r");
 	}
-	
+
+
 	return 0;
 }
 
 int main() {
 	return cmtop();
+	//return meter();
 }

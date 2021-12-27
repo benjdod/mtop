@@ -6,6 +6,7 @@ add_library(display STATIC
     drawbuffer.c
     dstring.c 
     dcolor.c
+    dmeter.c
     screen.c 
     tty.c
 )

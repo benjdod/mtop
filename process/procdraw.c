@@ -1,4 +1,5 @@
 #include "procdraw.h"
+#include "proc.h"
 
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
@@ -25,7 +26,25 @@ size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
     return (written >= n) ? n : ((size_t) written);
 }
 
-size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, unsigned short section) {
+static void truncate_buffer(char* buf, size_t w, size_t n) {
+
+    if (w >= n) {
+        size_t i = n-1;
+
+        while (i && buf[i] != ' ') {
+            buf[i] = ' ';
+            i -= 1;
+        }
+    } else {
+        while (w < n) {
+            buf[w++] = ' ';
+        }
+    }
+    
+    return;
+}
+
+size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, u8 section) {
 
     size_t w = 0;
 
@@ -35,27 +54,43 @@ size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, unsigned short section) {
 
     switch (section) {
         case 0:
-            w = snprintf(buf, n, "%s - %s (%d) %c", p->user, p->cmd, p->pid, p->state);
+            w = snprintf(buf, n, "%s - %s (%d) %c (%s)", p->user, p->cmd, p->pid, p->state, proc_state_tostring(p->state));
             break;
         case 1:
             w = snprintf(buf, n, "%llu, %llu, %llu, %llu - clock ticks of execution (user, sys, cu, cs)", ct.utime.current, ct.stime.current, ct.cutime.current, ct.cstime.current);
             break;
         case 2:
-            w = snprintf(buf, n, "%u %u %.2f - memory and cpu (res, shared, cpu %%)", p->res_mem, p->shr_mem, p->cpu_pct);
+            w = snprintf(buf, n, "%lu %lu %lu %.2f - memory and cpu (res, shared, vsz, cpu %%)", p->res_mem, p->shr_mem, p->virt_mem, p->cpu_pct);
             //w = snprintf(buf, n, "hello");
             break;
         default:
             return 0;
     }
 
-    if (w >= n) {
+    truncate_buffer(buf, w, n);
+    return n;
+
+}
+
+size_t pd_drawcpuinfo(sys_cpuinfo_t cpuinfo, char* buf, size_t n, u8 section) {
+    size_t w = 0;
+
+    switch (section) {
+        case 0:
+            w = snprintf(buf, n, "%llu - idle cpu!", cpuinfo.idle.current);
+            break;
+        default: 
+            return 0;
+    }
+
+    /* if (w >= n) {
         //size_t i = w-1; 
         w -= 1;
         while(buf[w] != ' ' && w >= n) buf[w--] = ' ';
-    }
+    } */
 
-    return w;
-
+    truncate_buffer(buf, w, n);
+    return n;
 }
 
 void pd_updatecache(procinfo_t* p) {

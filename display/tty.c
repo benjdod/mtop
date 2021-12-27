@@ -1,12 +1,9 @@
 #include <termios.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "common.h"
 #include "tty.h"
 #include "error.h"
+#include "xutil.h"
 
 // TTY flags
 #define TTY_ISRAW 0x1
@@ -154,7 +151,7 @@ int tty_writed(int d) {
 
 int tty_fill(char c, int n) {
 	char buf[n];
-	memset(buf, c, n);
+	x_memset(buf, c, n);
 	return write(STDOUT_FILENO, buf, n);
 }
 

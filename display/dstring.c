@@ -10,5 +10,5 @@ void dstring_cpy(char* dest, dstring_t src) {
 }
 
 void dstring_ncpy(char* dest, dstring_t src, size_t n) {
-    x_strncpy(dest, src.start, MMIN(src.len, n));
+    x_strncpy(dest, src.start, X_MIN(src.len, n));
 }

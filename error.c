@@ -31,14 +31,14 @@ void fatal(int e_no, const char *msg, ...) {
 
 	tty_writes(cp);
 
-	tty_writes("\r\nPress ctrl + c to exit...\r\n");
+	tty_writes("\r\nPress any key to exit...\r\n");
 
 	char c;
 
 	while (1) {
-		read(STDIN_FILENO,&c,1);
+		ssize_t r = read(STDIN_FILENO,&c,1);
 
-		if (c == 0x03) {
+		if ((r == -1) || (r)) {
 			break;
 		}
 	}
@@ -78,9 +78,9 @@ void error(int e_no, const char *msg, ...) {
 	char c;
 
 	while (1) {
-		read(STDIN_FILENO,&c,1);
-
-		if (c == 0x03) {
+		ssize_t r = read(STDIN_FILENO,&c,1);
+		
+		if ((r == -1) || (r)) {
 			break;
 		}
 	}

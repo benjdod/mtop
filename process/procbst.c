@@ -1,7 +1,9 @@
 #include "procbst.h"
+#include "proc.h"
+#include "xutil.h"
 
 procbst_node_t* node_make(bst_value_t value, procbst_node_t* left, procbst_node_t* right, procbst_node_t* parent) {
-    procbst_node_t* node = malloc(sizeof(procbst_node_t));
+    procbst_node_t* node = x_malloc(1, sizeof(procbst_node_t));
     node->value = value;
     node->left = left;
     node->right = right;
@@ -14,11 +16,12 @@ void node_destroyall(procbst_node_t* node) {
 
     node_destroyall(node->left);
     node_destroyall(node->right);
-    free(node);
+    proc_freeinfo(&node->value);
+    x_free(node);
 }
 
 void node_destroy(procbst_node_t* node) {
-    free(node);
+    x_free(node);
 }
 
 procbst_t procbst_init() {

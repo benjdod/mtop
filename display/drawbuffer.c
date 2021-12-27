@@ -5,7 +5,7 @@
 #define BUF_EXPAND(buf, type, len, size, ext) \
     while ((len) + (ext) >= (size)) { \
         (size) *= 1.5; \
-        (buf) = realloc((buf), (size) * sizeof(type)); \
+        (buf) = x_realloc((buf), (size), sizeof(type)); \
     }
 
 drawbuffer_t dbuf_init() {
@@ -13,19 +13,19 @@ drawbuffer_t dbuf_init() {
 
 #define DBUF_INIT_BUFSZ 16
 
-    dbuf.buffer = malloc(DBUF_INIT_BUFSZ * sizeof(drawitem_t));
+    dbuf.buffer = x_malloc(DBUF_INIT_BUFSZ, sizeof(drawitem_t));
     dbuf.size = DBUF_INIT_BUFSZ;
     dbuf.length = 0;
 
-    dbuf.colorbuf = malloc(DBUF_INIT_BUFSZ * sizeof(dcolor_t));
+    dbuf.colorbuf = x_malloc(DBUF_INIT_BUFSZ, sizeof(dcolor_t));
     dbuf.colorbuf_size = DBUF_INIT_BUFSZ;
     dbuf.length = 0;
 
-    dbuf.dstrbuf = malloc(DBUF_INIT_BUFSZ * sizeof(dstring_t));
+    dbuf.dstrbuf = x_malloc(DBUF_INIT_BUFSZ, sizeof(dstring_t));
     dbuf.dstrbuf_size = DBUF_INIT_BUFSZ;
     dbuf.dstrbuf_length = 0;
 
-    dbuf.chbuf = malloc(DBUF_INIT_BUFSZ * sizeof(char));
+    dbuf.chbuf = x_malloc(DBUF_INIT_BUFSZ, sizeof(char));
     dbuf.chbuf_size = DBUF_INIT_BUFSZ;
     dbuf.chbuf_length = 0;
 
@@ -115,14 +115,14 @@ size_t dbuf_renderto(drawbuffer_t* dbuf, char* dest, size_t n) {
 
         if (item.type == DITEM_DSTRING) {
             dstring_t* data = &dbuf->dstrbuf[item.idx];
-            writelen = MMIN(data->len, bytes_left);
+            writelen = X_MIN(data->len, bytes_left);
             x_strncpy(dest + i_write, data->start, writelen);
             i_write += writelen;
         } else if (item.type == DITEM_DCOLOR) {
             x_memset(cbuf, '\0', 20);
             dcolor_t* color = &dbuf->colorbuf[item.idx];
             size_t w = dcolor_write(*color, cbuf, 20);
-            writelen = MMIN(w, bytes_left);
+            writelen = X_MIN(w, bytes_left);
             x_strncpy(dest + i_write, cbuf, writelen);
             i_write += writelen;
         }

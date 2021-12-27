@@ -6,6 +6,7 @@ add_subdirectory(display)
 add_subdirectory(process)
 
 add_executable(cmtop 	
+	opt.c
 	cmtop.c
 	error.c
 	mtxline.c

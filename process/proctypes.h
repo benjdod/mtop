@@ -59,8 +59,8 @@ typedef struct procinfo_t_ {
 		*user, 
 		*cmd;
 	long priority;
-	int32_t nice;
-	uint32_t 
+	i32 nice;
+	u64 
 		virt_mem,
 		res_mem,
 		shr_mem,

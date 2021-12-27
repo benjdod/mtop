@@ -12,6 +12,7 @@
 char* null_cmd = "\0";
 
 static long jiffy = 1;
+static long pagesize = 1;
 
 #define PROCINFO_FOUND 0x00001
 
@@ -34,6 +35,42 @@ static char* strip_pathinfo(char* cmd_path) {
 	return (char*) (cmd_path + last_fslash);
 }
 
+const char* proc_state_tostring(char state) {
+
+	// https://man7.org/linux/man-pages/man5/proc.5.html > /proc/[pid]/stat > state
+
+	switch (state) {
+		case 'R':
+			return "running";
+		case 'S':
+			return "sleeping";
+		case 'D':
+			return "waiting";
+		case 'Z':
+			return "zombie";
+		case 'T':
+			return "stopped";
+		case 't':	// > 2.6.33
+			return "tracing stop";
+		case 'W':
+			return "waking"; 	// 2.6.33 - 3.13
+			// return "paging" for linux < 2.6.0
+
+		case 'X':	// > 2.6.0
+		case 'x':	// 2.6.33 - 3.13
+			return "dead";
+		case 'K':	// 2.6.33 - 3.13
+			return "wakekill";
+		case 'P':	// 3.9 - 3.13
+			return "parked";
+	}
+}
+
+size_t proc_state_getstring(char state, char* buf) {
+	x_strncpy(buf, proc_state_tostring(state), 13);
+}
+
+
 procs_info_t procs_init() {
 
 	procs_info_t pi;
@@ -41,10 +78,11 @@ procs_info_t procs_init() {
 	pi.num_procs = 0;
 	pi.procs = procbst_init();
 	pi.refresh_rate = 1000 * 100;
-	memset(&pi.cpuinfo, 0, sizeof(sys_cpuinfo_t));
+	x_memset(&pi.cpuinfo, 0, sizeof(sys_cpuinfo_t));
 	pi.selected = procbst_cursor_init(&pi.procs);
 
 	jiffy = sysconf(_SC_CLK_TCK);
+	pagesize = sysconf(_SC_PAGESIZE);
 	//printf("got jiffy %ld\n", jiffy);
 
 	return pi;
@@ -54,10 +92,8 @@ int read_cpuinfo(sys_cpuinfo_t *info_ptr) {
 
 #define CPUINFO_BUFSZ 256
 
-
-
 	char buf[CPUINFO_BUFSZ];
-	memset(buf, '\0', CPUINFO_BUFSZ);
+	x_memset(buf, '\0', CPUINFO_BUFSZ);
 	x_readfile("/proc/stat", buf, CPUINFO_BUFSZ);
 
 	// XXX: there is likely a better way to do this.
@@ -114,9 +150,14 @@ void proc_updateinfo(procinfo_t* p, proc_t proc, ptime_t period) {
 
 	p->priority 	= proc.priority;
 	p->nice 		= proc.nice;
-	p->virt_mem	= 0;
-	p->res_mem		= 0;
-	p->shr_mem		= 0;
+
+	// memory data is given as # of pages,
+	// so to get bytes we have to multiply to
+	// get a useful number
+	p->virt_mem		= proc.size * pagesize / 1024;
+	p->res_mem		= proc.resident * pagesize / 1024;
+	p->shr_mem		= proc.share * pagesize / 1024;
+
 	p->state		= proc.state;
 	p->cpu_pct		= 0;
 	p->mem_pct		= 0;
@@ -163,27 +204,28 @@ size_t procs_update(procs_info_t *info) {
 			PROC_FILLSTAT | 
 			PROC_FILLSTATUS | 
 			PROC_FILLUSR | 
-			PROC_FILLCOM
+			PROC_FILLCOM		// allocated! must be freed
 		);
 
-	proc_t proc;
-	memset(&proc, 0, sizeof(proc));
+	proc_t *proc;
+	//x_memset(&proc, 0, sizeof(proc));
 
-	while (readproc(processes, &proc) != NULL)  {
+	while ((proc = readproc(processes, NULL)) != NULL)  {
 
 		procinfo_t* proc_ptr = NULL;
 
 		ptime_t period = info->cpuinfo.total.delta;
 
-		if ((proc_ptr = procbst_find(&info->procs, PROC_PIDOF(proc))) != NULL) {
-			proc_updateinfo(proc_ptr, proc, period);
+		if ((proc_ptr = procbst_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
+			proc_updateinfo(proc_ptr, *proc, period);
 		} else {
-			proc_ptr = procbst_insert(&info->procs, proc_getinfo(proc, period));
+			proc_ptr = procbst_insert(&info->procs, proc_getinfo(*proc, period));
 		}
 
 		proc_touch(proc_ptr);	// mark that the process in the tree has been found this round
-		memset(&proc, 0, sizeof(proc));
+		//x_memset(&proc, 0, sizeof(proc));
 
+		freeproc(proc);
 		num_procs++;
 	}
 
@@ -215,7 +257,6 @@ size_t procs_update(procs_info_t *info) {
 	return info->num_procs;
 }
 
-
 procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	procinfo_t p;
@@ -225,7 +266,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 #ifdef CMTOP_PROC_DRAW
 	drawdata_t d;
 	d.offset = 0;
-	memset(d.cache, '\0', sizeof(d.cache));
+	x_memset(d.cache, '\0', sizeof(d.cache));
 	p.drawdata = d;
 	p.drawdata.offset = 0;
 #endif
@@ -238,7 +279,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	const char *user_ptr = PROC_USEROF(proc);
 
 	size_t userlen = strlen(user_ptr);
-	p.user 		= (char*) malloc((userlen + 1) * sizeof(char));
+	p.user 		= (char*) x_malloc((userlen + 1), sizeof(char));
 	p.user[userlen] = '\0';
 	x_strncpy(p.user, user_ptr, userlen);
 
@@ -248,21 +289,23 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 		cmd_ptr = strip_pathinfo(proc.cmd);
 
 		size_t cmd_len = strlen(cmd_ptr);
-		p.cmd = malloc((cmd_len + 1) * sizeof(char));
+		p.cmd = x_malloc((cmd_len + 1), sizeof(char));
 		x_strncpy(p.cmd, cmd_ptr, cmd_len);
+		//free(*proc.cmdline);
 	} else {
 		p.cmd = null_cmd;
 	}
+
 
 	proc_updateinfo(&p, proc, period);
 
 	return p;
 }
 
-void proc_freeinfo(procinfo_t p_info) {
-	free(p_info.user);
+void proc_freeinfo(procinfo_t* p_info) {
+	x_free(p_info->user);
 
-	if (p_info.cmd != null_cmd) {
-		free(p_info.cmd);
+	if (p_info->cmd != null_cmd) {
+		x_free(p_info->cmd);
 	}
 }

@@ -75,7 +75,7 @@ void forceful_exit() {
 }
 
 void graceful_exit() {
-	procbst_destroy(&info.procs);
+	procs_destroy(&info);
 	screen_exit();
 	printf("exiting.\n");
 	exit(0);
@@ -179,17 +179,17 @@ void print_timedelta(timedelta_t td, const char *title) {
 	printf("%llu\t%llu\t(d = %llu)\n", td.last, td.current, td.delta);
 }
 
-void print_cpuinfo(sys_cpuinfo_t cpuinfo) {
-	print_timedelta(cpuinfo.user, "user");
-	print_timedelta(cpuinfo.nice, "nice");
-	print_timedelta(cpuinfo.system, "system");
-	print_timedelta(cpuinfo.idle, "idle");
-	print_timedelta(cpuinfo.iowait, "iowait");
-	print_timedelta(cpuinfo.irq, "irq");
-	print_timedelta(cpuinfo.softirq, "softirq");
-	print_timedelta(cpuinfo.steal, "steal");
-	print_timedelta(cpuinfo.guest, "guest");
-	print_timedelta(cpuinfo.guest_nice, "guest_nice");
+void print_cpuinfo(cpuinfo_t cpuinfo) {
+	print_timedelta(cpuinfo.total.user, "user");
+	print_timedelta(cpuinfo.total.nice, "nice");
+	print_timedelta(cpuinfo.total.system, "system");
+	print_timedelta(cpuinfo.total.idle, "idle");
+	print_timedelta(cpuinfo.total.iowait, "iowait");
+	print_timedelta(cpuinfo.total.irq, "irq");
+	print_timedelta(cpuinfo.total.softirq, "softirq");
+	print_timedelta(cpuinfo.total.steal, "steal");
+	print_timedelta(cpuinfo.total.guest, "guest");
+	print_timedelta(cpuinfo.total.guest_nice, "guest_nice");
 	printf("\n");
 }
 

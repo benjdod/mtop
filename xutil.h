@@ -10,6 +10,7 @@ ssize_t x_readfile(const char* path, char* buf, ssize_t n);
 
 // strings 
 int x_streq(const char* a, const char* b);
+char* x_strstr(const char* haystack, const char* needle);
 int x_strcmp(const char* a, const char* b);
 int x_strncmp(const char* a, const char* b, size_t n);
 size_t x_strlen(const char* s);

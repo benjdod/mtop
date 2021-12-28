@@ -35,6 +35,10 @@ int x_strcmp(const char* a, const char* b) {
     return strcmp(a,b);
 }
 
+char* x_strstr(const char* haystack, const char* needle) {
+    return strstr(haystack, needle);
+}
+
 int x_strncmp(const char* a, const char* b, size_t n) {
     return strncmp(a,b, n);
 }

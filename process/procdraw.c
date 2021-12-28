@@ -72,12 +72,12 @@ size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, u8 section) {
 
 }
 
-size_t pd_drawcpuinfo(sys_cpuinfo_t cpuinfo, char* buf, size_t n, u8 section) {
+size_t pd_drawcpuinfo(cpuinfo_t cpuinfo, char* buf, size_t n, u8 section) {
     size_t w = 0;
 
     switch (section) {
         case 0:
-            w = snprintf(buf, n, "%llu - idle cpu!", cpuinfo.idle.current);
+            w = snprintf(buf, n, "%llu - idle cpu!", cpuinfo.total.idle.current);
             break;
         default: 
             return 0;

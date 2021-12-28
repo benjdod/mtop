@@ -70,6 +70,17 @@ size_t proc_state_getstring(char state, char* buf) {
 	x_strncpy(buf, proc_state_tostring(state), 13);
 }
 
+cpuinfo_t cpuinfo_init() {
+	cpuinfo_t info;
+	x_memset(&info, 0, sizeof(cpuinfo_t));
+	info.num_cores = (u16) sysconf(_SC_NPROCESSORS_ONLN);
+	info.cores = x_malloc(info.num_cores, sizeof(cputimes_t));
+	return info;
+}
+
+void cpuinfo_destroy(cpuinfo_t* info) {
+	info->cores = x_free(info->cores);
+}
 
 procs_info_t procs_init() {
 
@@ -78,7 +89,7 @@ procs_info_t procs_init() {
 	pi.num_procs = 0;
 	pi.procs = procbst_init();
 	pi.refresh_rate = 1000 * 100;
-	x_memset(&pi.cpuinfo, 0, sizeof(sys_cpuinfo_t));
+	pi.cpuinfo = cpuinfo_init();
 	pi.selected = procbst_cursor_init(&pi.procs);
 
 	jiffy = sysconf(_SC_CLK_TCK);
@@ -88,9 +99,28 @@ procs_info_t procs_init() {
 	return pi;
 }
 
-int read_cpuinfo(sys_cpuinfo_t *info_ptr) {
+void procs_destroy(procs_info_t* procs) {
+	procbst_destroy(&procs->procs);
+	cpuinfo_destroy(&procs->cpuinfo);
+}
 
-#define CPUINFO_BUFSZ 256
+static int read_cpuinfo(cpuinfo_t* info_ptr) {
+	
+#define CPUTIME_UPDATE(ts, user, nice, sys, idle, io, irq, softirq, steal, guest, guest_nice) {\
+	TIMEDELTA_COND_UPDATE(ts.user, user); \
+	TIMEDELTA_COND_UPDATE(ts.nice, nice); \
+	TIMEDELTA_COND_UPDATE(ts.system, sys); \
+	TIMEDELTA_COND_UPDATE(ts.idle, idle); \
+	TIMEDELTA_COND_UPDATE(ts.iowait, io); \
+	TIMEDELTA_COND_UPDATE(ts.irq, irq); \
+	TIMEDELTA_COND_UPDATE(ts.softirq, softirq); \
+	TIMEDELTA_COND_UPDATE(ts.steal, steal); \
+	TIMEDELTA_COND_UPDATE(ts.guest, guest); \
+	TIMEDELTA_COND_UPDATE(ts.guest_nice, guest_nice); \
+	TIMEDELTA_COND_UPDATE(ts.total, user + nice + system + idle);\
+}
+
+#define CPUINFO_BUFSZ 1024	// should be enough
 
 	char buf[CPUINFO_BUFSZ];
 	x_memset(buf, '\0', CPUINFO_BUFSZ);
@@ -127,19 +157,56 @@ int read_cpuinfo(sys_cpuinfo_t *info_ptr) {
 		&guest_nice
 	);
 
-	TIMEDELTA_COND_UPDATE(info_ptr->user, user);
-	TIMEDELTA_COND_UPDATE(info_ptr->nice, nice);
-	TIMEDELTA_COND_UPDATE(info_ptr->system, system);
-	TIMEDELTA_COND_UPDATE(info_ptr->idle, idle);
-	TIMEDELTA_COND_UPDATE(info_ptr->iowait, iowait);
-	TIMEDELTA_COND_UPDATE(info_ptr->irq, irq);
-	TIMEDELTA_COND_UPDATE(info_ptr->softirq, softirq);
-	TIMEDELTA_COND_UPDATE(info_ptr->steal, steal);
-	TIMEDELTA_COND_UPDATE(info_ptr->guest, guest);
-	TIMEDELTA_COND_UPDATE(info_ptr->guest_nice, guest_nice);
-	TIMEDELTA_COND_UPDATE(info_ptr->total, user + nice + system + idle);
+	// TODO: add time super groups or generator functions 
+	// there seem to be 3 meaningful time sums as written here:
+	// https://gitlab.com/procps-ng/procps/-/blob/newlib/proc/stat.h : 60
+/*
+	TIMEDELTA_COND_UPDATE(info_ptr->total.user, user);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.nice, nice);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.system, system);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.idle, idle);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.iowait, iowait);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.irq, irq);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.softirq, softirq);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.steal, steal);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.guest, guest);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.guest_nice, guest_nice);
+	TIMEDELTA_COND_UPDATE(info_ptr->total.total, user + nice + system + idle);*/
+
+	CPUTIME_UPDATE(info_ptr->total, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice);
+
+#define SEEK_NEXTLINE(ptr) {while (*ptr != '\n' && *ptr != '\0') ptr++; if (*ptr == '\n') ptr++;}
+
+	char *p = buf;
+
+	for (u16 i = 0; i < info_ptr->num_cores; i++) {
+		SEEK_NEXTLINE(p);
+
+		// skip "cpu<no.>   "
+
+		p += 3;					// skip "cpu"
+		while (*p != ' ') p++;	// skip <no>
+		while (*p == ' ') p++;	// skip ' '
+
+		sscanf(valstart, "%llu %llu %llu %llu %llu %llu %llu %llu %llu %llu", 
+			&user,
+			&nice,
+			&system,
+			&idle,
+			&iowait,
+			&irq,
+			&softirq, 
+			&steal,
+			&guest,
+			&guest_nice
+		);
+
+		CPUTIME_UPDATE(info_ptr->cores[i], user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice);
+	}
 
 #undef CPUINFO_BUFSZ
+
+	return 0;
 }
 
 
@@ -214,7 +281,7 @@ size_t procs_update(procs_info_t *info) {
 
 		procinfo_t* proc_ptr = NULL;
 
-		ptime_t period = info->cpuinfo.total.delta;
+		ptime_t period = info->cpuinfo.total.total.delta;
 
 		if ((proc_ptr = procbst_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
 			proc_updateinfo(proc_ptr, *proc, period);

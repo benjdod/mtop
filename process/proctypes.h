@@ -35,8 +35,6 @@ typedef struct drawdata_t_ {
 	(TD).current = (NEWTIME); \
 	(TD).delta = (TD).current - (TD).last;\
 	}
-		//(TD).current = ((NEWTIME) > (TD).current) ? (NEWTIME) : (TD).current; \
-	//(TD).delta = ((NEWTIME) > (TD).current) ? (TD).current - (TD).last : 0;\
 
 #define TIMEDELTA_COND_UPDATE(TD, NEWTIME) {if ((NEWTIME) > 0) TIMEDELTA_UPDATE((TD), (NEWTIME))}
 

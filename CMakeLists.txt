@@ -14,10 +14,10 @@ add_executable(cmtop
 	xutil.c
 )
 
-SET(GCC_COMPILE_FLAGS "-ggdb -O2 -Wall")
-SET(CMAKE_C_FLAGS "${GCC_COMPILE_FLAGS}")
+SET(GCC_COMPILE_FLAGS "-g -O2 -Wall")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
 
-add_compile_options(-ggdb)
+add_compile_options(-g)
 
 target_link_libraries(cmtop
 	PUBLIC display

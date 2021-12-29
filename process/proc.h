@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "proctypes.h"
+#include "proclist.h"
 #include "procbst.h"
 
 typedef struct {
@@ -28,10 +29,10 @@ typedef struct cpuinfo_t_ {
 
 typedef struct {
 	size_t num_procs;
-	procbst_t procs;
+	proclist_t procs;
 	cpuinfo_t cpuinfo;
 	uint32_t refresh_rate;
-	procbst_cursor_t selected;
+	proclist_cur_t selected;
 } procs_info_t;
 
 const char* proc_state_tostring(char state);

@@ -2,6 +2,7 @@
 #include "xutil.h"
 #include "draw.h"
 #include "proc.h"
+#include "proclist.h"
 #include "procdraw.h"
 #include "drawbuffer.h"
 #include "opt.h"
@@ -12,9 +13,10 @@ void draw_setopts(uint16_t f) {
     flags = f;
 }
 
+/*
 static unsigned int isset(unsigned int flag) {
     return flags & flag;
-}
+} */
 
 static char randchar() {
     char r_chars[] = {
@@ -51,14 +53,14 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
 
     if (step < 1) step = 1;
 
-    procbst_cursor_t cur = procbst_cursor_init(&info->procs);
-    procbst_cursor_next(&cur);
+    proclist_cur_t cur = pl_cur_init(&info->procs);
+    pl_cur_next(&cur);
 
-    for (size_t j = 0; j < c_off; j++) { procbst_cursor_next(&cur); }
+    for (size_t j = 0; j < c_off; j++) { pl_cur_next(&cur); }
 
     while (cur.current != NULL && i < n) {
         buf[i*step] = pd_charat(&(cur.current->value), r_off);
-        procbst_cursor_next(&cur);
+        pl_cur_next(&cur);
         i++;
     }
 
@@ -70,65 +72,14 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
     return i*step;
 }
 
-size_t draw_queryscr(procs_info_t* info, char* scrbuf, size_t r_size, size_t c_size, size_t r_off, size_t c_off, int c_step) {
-
-    if (c_step < 1) c_step = 1;
-
-    procbst_cursor_t cur = procbst_cursor_init(&info->procs);
-    procbst_cursor_next(&cur);
-
-    unsigned char info_winsz = 2;
-
-    for (size_t j = 0; j < c_off; j++) { procbst_cursor_next(&cur); }
-
-    for (size_t c = 0; c < c_size; c++) {
-
-        u8 draw_a_proc = (c % c_step == 0) ? 1 : 0;
-
-        for (size_t r = 0; r < r_size - info_winsz; r++) {
-
-            if (draw_a_proc) {
-                scrbuf[r * c_size + c] = (cur.current != NULL)
-                    ? /* 'a' + (c % 26) */ pd_charat(&(cur.current->value), r + r_off)
-                    : randchar();
-            } else {
-                scrbuf[r*c_size + c] = ' ';
-            }
-        }
-
-        if (draw_a_proc && cur.current != NULL) {
-            procbst_cursor_next(&cur);
-        }
-    }
-
-    size_t w_len = 0;
-    char* w_ptr;
-
-    w_ptr = scrbuf + ((r_size - info_winsz) * c_size);
-    w_len = pd_drawinfo(&info->selected.current->value, w_ptr, c_size, 0);
-
-    while (w_len < c_size) {
-        w_ptr[w_len++] = ' ';
-    }
-
-    w_ptr = scrbuf + (r_size - info_winsz + 1) * c_size;
-    w_len = pd_drawinfo(&info->selected.current->value, w_ptr, c_size, 1);
-
-    while (w_len < c_size) {
-        w_ptr[w_len++] = ' ';
-    }
-
-    return r_size * c_size;
-}
-
 void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t c_size) {
 
     char tbuf[c_size+1];
 
     size_t 
         c_step = 2,
-        r_step = 0,
-        c_off = 0,
+        //r_step = 0,
+        //c_off = 0,
         r_off = 0;
 
     size_t sel_idx = 0;
@@ -139,28 +90,27 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 #define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
 
     // append matrix rows
-    for (size_t r = 0; r < r_size - info_winsz - 1; r++) {
-        procbst_cursor_t cur = procbst_cursor_init(&info->procs);
-        procbst_cursor_next(&cur);
-
+    for (size_t r = 0; r < r_size - info_winsz - 1; r++) {  // for row in "window"
+        proclist_cur_t cur = pl_cur_init(&info->procs);
+        procinfo_t* pi = pl_cur_next(&cur);
         sel_idx = 0;
 
-        u8 proc_do_draw = 0;
+        u8 on_step = 0;
 
-        for (size_t c = 0; c < c_size; c++) {
-            proc_do_draw = c % c_step == 0 ? 1 : 0;
-            if (cur.current != NULL) {
-                if (proc_do_draw) {
-                    if (!sel_idx && procbst_cursor_eq(cur, info->selected)) {
+        for (size_t c = 0; c < c_size; c++) {   // for column in row
+            on_step = c % c_step == 0 ? 1 : 0;
+            if (pi != NULL) {
+                if (on_step) {
+                    if (!sel_idx && pl_cur_eq(&cur, &info->selected)) {
                         sel_idx = c;
                     }
-                    tbuf[c] = pd_charat(procbst_cursor_at(&cur), r + r_off);
-                    procbst_cursor_next(&cur);
+                    tbuf[c] = pd_charat(pi, r + r_off);
+                    pi = pl_cur_next(&cur);
                 } else {
                     tbuf[c] = ' ';
                 }
             } else {
-                tbuf[c] = proc_do_draw ? randchar() : ' ';
+                tbuf[c] = on_step ? randchar() : ' ';
             }
             
         }
@@ -180,7 +130,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 
     for (size_t i = 0; i < info_winsz; i++) {
         x_memset(tbuf, ' ', c_size);
-        size_t w = pd_drawinfo(&info->selected.current->value, tbuf, c_size, i);
+        size_t w = pd_drawinfo(pl_cur_at(&info->selected), tbuf, c_size, i);
         while (w < c_size) {
             tbuf[w++] = ' ';
         }

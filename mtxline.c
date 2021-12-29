@@ -34,6 +34,8 @@ mtxline_t mtx_make_line(uint16_t length, uint16_t speed) {
 	l.length = min_length + rand() % (max_length - min_length);
 	l.offset = 0 - l.length - (rand() % (offset_delta));
 	l.speed = speed;
+
+	return l;
 }
 
 size_t mtx_query_row(uint16_t row, char *buffer, size_t buffer_limit) {

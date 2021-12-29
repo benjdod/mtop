@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "tty.h"
 #include "proc.h"
+#include "proclist.h"
 #include "procdraw.h"
 #include "draw.h"
 #include "xutil.h"
@@ -20,7 +21,7 @@ color_t current_color;
 
 void update_procs() {
 	procs_update(&info);
-	procbst_inorder(&info.procs, &pd_updatecache);
+	proclist_foreach(&info.procs, &pd_updatecache);
 }
 
 void fill_procs() {
@@ -29,14 +30,14 @@ void fill_procs() {
 }
 
 void randomize_drawvalues() {
-	procbst_cursor_t cur = procbst_cursor_init(&info.procs);
-	procbst_cursor_next(&cur);
+	proclist_cur_t cur = pl_cur_init(&info.procs);
+	pl_cur_next(&cur);
 	cur.current->value.drawdata.offset = 5;
 
 	while (cur.current != NULL) {
 		cur.current->value.drawdata.offset = rand() % 50;
 		cur.current->value.drawdata.padding = 10 + (rand() % 6);
-		procbst_cursor_next(&cur);
+		pl_cur_next(&cur);
 	}
 }
 
@@ -139,8 +140,8 @@ int cmtop() {
 		char ch = tty_readc();
 
 		if (ch) {
-			if (ch == 'j') procbst_cursor_prev(&info.selected);
-			else if (ch == 'k') procbst_cursor_next(&info.selected);
+			if (ch == 'j') pl_cur_prev(&info.selected);
+			else if (ch == 'k') pl_cur_next(&info.selected);
 			else if (ch == 'q') break;
 		}
 
@@ -158,13 +159,10 @@ int cmtop() {
 
 		update_procs();
 
-		//draw_queryscr(&info, scrbuf, ssz.rows, ssz.cols, 0, 0, 3);
-		//tty_writesn(scrbuf, (int) (ssz.rows * ssz.cols));
-
 		draw_fillbuffer(&dbuf, &info, ssz.rows, ssz.cols);
 		dbuf_flush(&dbuf);
 
-		procbst_inorder(&info.procs, &advance_offset);
+		proclist_foreach(&info.procs, &advance_offset);
 		DO_SLEEP();
 	}
 
@@ -172,6 +170,8 @@ int cmtop() {
 
 	screen_showcursor();
 	graceful_exit();
+
+	return 0;
 }
 
 void print_timedelta(timedelta_t td, const char *title) {
@@ -193,32 +193,37 @@ void print_cpuinfo(cpuinfo_t cpuinfo) {
 	printf("\n");
 }
 
-int meter() {
-	dmeter_t dm;
-	dm.min = 0;
-	dm.max = 100;
-	dm.value = 25;
-	dm.width = 50;
+int testlist() {
 
-	char buf[58];
+	proclist_t list = proclist_init();
 
-	while(1) {
+	pid_t pids[] = {
+		1,
+		3,
+		5,
+		17
+	};
 
-		dm.value = rand() % 100;
+	u16 num_pids = sizeof(pids) / sizeof(pid_t);
 
-		x_memset(buf, '\0', 58);
-		dmeter_draw(dm, buf, 57);
-
-		printf("meter: %s", buf);
-		usleep(10 * 1000);
-		printf("\r");
+	for (int i = 0; i < num_pids; i++) {
+		procinfo_t n;
+		n.pid = pids[i];
+		proclist_insert(&list, n);
 	}
 
+	proclist_cur_t cur = pl_cur_init(&list);
+
+	PL_CUR_FOREACH(&cur) {
+		printf("%d\n", cur.current->value.pid);
+	}
+
+	proclist_destroy(&list);
 
 	return 0;
 }
 
 int main() {
 	return cmtop();
-	//return meter();
+	//return testlist();
 }

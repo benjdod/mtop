@@ -2,6 +2,7 @@
 #include "xutil.h"
 #include "error.h"
 #include "procbst.h"
+#include "proclist.h"
 #include "proc.h"
 
 #define PROCINFO_BUFSZ 8192
@@ -87,10 +88,10 @@ procs_info_t procs_init() {
 	procs_info_t pi;
 
 	pi.num_procs = 0;
-	pi.procs = procbst_init();
+	pi.procs = proclist_init();
 	pi.refresh_rate = 1000 * 100;
 	pi.cpuinfo = cpuinfo_init();
-	pi.selected = procbst_cursor_init(&pi.procs);
+	pi.selected = pl_cur_init(&pi.procs);
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
@@ -100,7 +101,7 @@ procs_info_t procs_init() {
 }
 
 void procs_destroy(procs_info_t* procs) {
-	procbst_destroy(&procs->procs);
+	proclist_destroy(&procs->procs);
 	cpuinfo_destroy(&procs->cpuinfo);
 }
 
@@ -260,9 +261,13 @@ static void proc_touch(procinfo_t* p) {
 	p->flags |= PROCINFO_FOUND;
 }
 
+static void proc_untouch(procinfo_t* p) {
+	p->flags &= ~(PROCINFO_FOUND);
+}
+
 size_t procs_update(procs_info_t *info) {
 
-	size_t num_procs;
+	size_t num_procs = 0;
 
 	read_cpuinfo(&info->cpuinfo);
 
@@ -271,11 +276,10 @@ size_t procs_update(procs_info_t *info) {
 			PROC_FILLSTAT | 
 			PROC_FILLSTATUS | 
 			PROC_FILLUSR | 
-			PROC_FILLCOM		// allocated! must be freed
+			PROC_FILLCOM
 		);
 
 	proc_t *proc;
-	//x_memset(&proc, 0, sizeof(proc));
 
 	while ((proc = readproc(processes, NULL)) != NULL)  {
 
@@ -283,15 +287,13 @@ size_t procs_update(procs_info_t *info) {
 
 		ptime_t period = info->cpuinfo.total.total.delta;
 
-		if ((proc_ptr = procbst_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
+		if ((proc_ptr = proclist_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
 			proc_updateinfo(proc_ptr, *proc, period);
 		} else {
-			proc_ptr = procbst_insert(&info->procs, proc_getinfo(*proc, period));
+			proc_ptr = proclist_insert(&info->procs, proc_getinfo(*proc, period));
 		}
 
 		proc_touch(proc_ptr);	// mark that the process in the tree has been found this round
-		//x_memset(&proc, 0, sizeof(proc));
-
 		freeproc(proc);
 		num_procs++;
 	}
@@ -299,24 +301,28 @@ size_t procs_update(procs_info_t *info) {
 	closeproc(processes);
 
 	if (info->selected.current == NULL) {
-		info->selected = procbst_cursor_init(&info->procs);
-		procbst_cursor_last(&info->selected);
+		info->selected = pl_cur_init(&info->procs);
+		pl_cur_last(&info->selected);
 	}
 
-	// delete processes that were not "found" in the last readproc cycle
-	procbst_cursor_t cur = procbst_cursor_init(&info->procs);
-	procbst_cursor_next(&cur);
-	while (cur.current != NULL) {
-		if (!(cur.current->value.flags & PROCINFO_FOUND)) {
 
-			if (procbst_cursor_eq(cur, info->selected)) {
-				procbst_cursor_prev(&info->selected);
+	// iterate over all processes in list, deleting processes that were 
+	// not listed in the read of the latest PROCTAB
+
+	proclist_cur_t cur = pl_cur_init(&info->procs);
+	pl_cur_next(&cur);
+	while (cur.current != NULL) {
+		if (!(PL_CURVAL(&cur)->flags & PROCINFO_FOUND)) {
+
+			if (pl_cur_eq(&cur, &info->selected)) {
+				pl_cur_prev(&info->selected);
 			}
 
-			procbst_dynamic_remove(&cur);
+			pl_cur_remove(&cur, PL_CURSHIFT_RIGHT);
 			num_procs--;
 		} else {
-			procbst_cursor_next(&cur);
+			proc_untouch(&cur.current->value);
+			pl_cur_next(&cur);
 		}
 	}
 

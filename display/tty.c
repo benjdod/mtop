@@ -116,6 +116,7 @@ char tty_readc() {
 
 	if (readn == -1) {
 		fatal(1, "readkey");
+		return '\0';
 	} else {
 		return c;
 	}

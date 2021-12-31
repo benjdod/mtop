@@ -243,14 +243,13 @@ void proc_updateinfo(procinfo_t* p, proc_t proc, ptime_t period) {
 	// float percent_cpu = (period < 1E-6) ? 0.0F : ((lp->utime + lp->stime - lasttimes) / period * 100.0);
 
 	timedelta_t cputotal = p->cpuavg.ttime;
-	ptime_t cputotal_delta = cputotal.delta;
 
 	if (period > CPU_PERIOD_EPS) {
 		float percent_cpu = cputotal.delta * 100.0F / period;
 		p->cpu_pct = percent_cpu;
 	}
 
-	proc_cpuavg_t cpuavg = p->cpuavg;
+	//proc_cpuavg_t cpuavg = p->cpuavg;
 
 	//printf("proc %d (%s): ", p->pid, p->cmd);
 	//printf("period: %llu \tproc period: %llu\tcpu_pct: %f\n", period, cputotal.delta, p->cpu_pct);

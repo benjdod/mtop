@@ -147,8 +147,6 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
 
         drawitem_t item = dbuf->buffer[i_item];
 
-        size_t writelen = 0;
-
         if (item.type == DITEM_DSTRING) {
             dstring_t* data = &dbuf->dstrbuf[item.idx];
             tty_writesn(data->start, data->len);

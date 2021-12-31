@@ -64,11 +64,13 @@ const char* proc_state_tostring(char state) {
 			return "wakekill";
 		case 'P':	// 3.9 - 3.13
 			return "parked";
+		default:
+			return "";
 	}
 }
 
 size_t proc_state_getstring(char state, char* buf) {
-	x_strncpy(buf, proc_state_tostring(state), 13);
+	return strlen(x_strncpy(buf, proc_state_tostring(state), 13));
 }
 
 cpuinfo_t cpuinfo_init() {

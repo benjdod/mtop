@@ -1,5 +1,6 @@
 #include "common.h"
 #include "xutil.h"
+#include "opt.h"
 #include "draw.h"
 #include "proc.h"
 #include "proclist.h"
@@ -110,7 +111,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
                     tbuf[c] = ' ';
                 }
             } else {
-                tbuf[c] = on_step ? randchar() : ' ';
+                tbuf[c] = (on_step && opt.draw_static) ? randchar() : ' ';
             }
             
         }

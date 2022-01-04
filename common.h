@@ -15,8 +15,8 @@
 
 /* FLAGS */
 
-#define CMTOP_PROC_DRAW
-#define CMTOP_DRAW_COLOR
+#define MTOP_PROC_DRAW
+#define MTOP_DRAW_COLOR
 
 // XXX: should we make these ourselves?
 

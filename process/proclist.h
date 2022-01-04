@@ -1,5 +1,5 @@
-#ifndef CMTOP_PROCLIST_H
-#define CMTOP_PROCLIST_H
+#ifndef MTOP_PROCLIST_H
+#define MTOP_PROCLIST_H
 
 #include "common.h"
 #include "xutil.h"

@@ -1,5 +1,5 @@
-#ifndef _CMTOP_DMETER_H
-#define _CMTOP_DMETER_H
+#ifndef MTOP_DMETER_H
+#define MTOP_DMETER_H
 
 #include "common.h"
 

@@ -1,5 +1,5 @@
-#ifndef _CMTOP_SCREEN_H
-#define _CMTOP_SCREEN_H
+#ifndef MTOP_SCREEN_H
+#define MTOP_SCREEN_H
 
 #include "common.h"
 

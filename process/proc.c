@@ -337,7 +337,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	p.flags = 0;
 
-#ifdef CMTOP_PROC_DRAW
+#ifdef MTOP_PROC_DRAW
 	drawdata_t d;
 	d.offset = 0;
 	x_memset(d.cache, '\0', sizeof(d.cache));

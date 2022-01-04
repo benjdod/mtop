@@ -1,5 +1,5 @@
-#ifndef _CMTOP_PROC_H
-#define _CMTOP_PROC_H
+#ifndef MTOP_PROC_H
+#define MTOP_PROC_H
 
 #include "common.h"
 #include "proctypes.h"

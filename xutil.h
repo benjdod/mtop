@@ -1,5 +1,5 @@
-#ifndef _CMTOP_XUTIL_H
-#define _CMTOP_XUTIL_H
+#ifndef MTOP_XUTIL_H
+#define MTOP_XUTIL_H
 
 #include "common.h"
 

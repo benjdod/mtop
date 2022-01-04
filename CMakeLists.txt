@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cmtop)
+project(mtop)
 
 add_subdirectory(display)
 add_subdirectory(process)
 
-add_executable(cmtop 	
+add_executable(mtop 	
 	opt.c
-	cmtop.c
+	mtop.c
 	error.c
 	mtxline.c
 	draw.c
@@ -19,13 +19,13 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
 
 add_compile_options(-g)
 
-target_link_libraries(cmtop
+target_link_libraries(mtop
 	PUBLIC display
 	PUBLIC process
 	-lprocps
 )
 
-target_include_directories(cmtop PUBLIC
+target_include_directories(mtop PUBLIC
 	"."
 	"./**"
 	# "process"

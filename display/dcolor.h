@@ -1,5 +1,5 @@
-#ifndef _CMTOP_DISPLAY_DCOLOR_H
-#define _CMTOP_DISPLAY_DCOLOR_H
+#ifndef MTOP_DISPLAY_DCOLOR_H
+#define MTOP_DISPLAY_DCOLOR_H
 
 #include "common.h"
 #include "dstring.h"

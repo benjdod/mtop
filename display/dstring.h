@@ -1,5 +1,5 @@
-#ifndef _CMTOP_DISPLAY_DSTRING_H
-#define _CMTOP_DISPLAY_DSTRING_H
+#ifndef MTOP_DISPLAY_DSTRING_H
+#define MTOP_DISPLAY_DSTRING_H
 
 #include "common.h"
 

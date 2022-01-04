@@ -1,5 +1,5 @@
-#ifndef _CMTOP_BST_H
-#define _CMTOP_BST_H
+#ifndef MTOP_BST_H
+#define MTOP_BST_H
 
 #include <stdlib.h>
 #include <stdint.h>

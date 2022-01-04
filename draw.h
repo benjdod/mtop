@@ -1,5 +1,5 @@
-#ifndef _CMTOP_DRAW_H
-#define _CMTOP_DRAW_H
+#ifndef MTOP_DRAW_H
+#define MTOP_DRAW_H
 
 #include "proc.h"
 #include "drawbuffer.h"

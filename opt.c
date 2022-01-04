@@ -1,6 +1,6 @@
 #include "opt.h"
 
-extern cmtop_opt_t opt;
+mtop_opt_t opt;	// global options struct
 
 void opt_init() {
     opt.colormode = OPT_DRAWCOLOR_24BIT;

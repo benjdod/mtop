@@ -15,7 +15,7 @@ procs_info_t info;
 screensize_t ssz;
 char* scrbuf = NULL;
 
-#ifdef CMTOP_DRAW_COLOR
+#ifdef MTOP_DRAW_COLOR
 color_t current_color;
 #endif
 
@@ -46,7 +46,7 @@ void advance_offset(procinfo_t* p) {
 	p->drawdata.offset += ((p->pid) % 2);
 }
 
-#ifdef CMTOP_DRAW_COLOR
+#ifdef MTOP_DRAW_COLOR
 void write_currentcolor() {
 	char buf[20];
 	x_memset(buf, '\0', 20);
@@ -65,7 +65,7 @@ void sigwinch_handler() {
 	scrbuf = (char*) x_malloc(ssz.rows * ssz.cols, sizeof(char));
 	screen_setcursor((rowcol_t) {0,0});
 	tty_clear();
-#ifdef CMTOP_DRAW_COLOR
+#ifdef MTOP_DRAW_COLOR
 	write_currentcolor();
 #endif
 }
@@ -113,7 +113,7 @@ int cmtop() {
 
 #define DO_SLEEP() usleep(sleeptime)
 
-#ifdef CMTOP_DRAW_COLOR
+#ifdef MTOP_DRAW_COLOR
 	draw_setopts((DRAW_COLOR|DRAW_RGBCOLOR));
 	//tty_writes("\e[32;1m");
 	//tty_writes("\e[38;2;20;220;20m");

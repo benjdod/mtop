@@ -1,7 +1,7 @@
 #include "common.h"
 
-#if !defined(_CMTOP_PROCDRAW_H) && defined(CMTOP_PROC_DRAW)
-#define _CMTOP_PROCDRAW_H
+#if !defined(MTOP_PROCDRAW_H) && defined(MTOP_PROC_DRAW)
+#define MTOP_PROCDRAW_H
 
 #include "proctypes.h"
 #include "proc.h"

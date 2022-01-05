@@ -15,6 +15,6 @@ _deps
 .vscode/**
 
 # executables and library files
-cmtop
+mtop
 display/*.a
 process/*.a

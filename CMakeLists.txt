@@ -16,6 +16,7 @@ add_executable(mtop
 
 SET(GCC_COMPILE_FLAGS "-g -O2 -Wall")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-g)
 

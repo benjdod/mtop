@@ -1,7 +1,6 @@
 #include "common.h"
 #include "xutil.h"
 #include "error.h"
-#include "procbst.h"
 #include "proclist.h"
 #include "proc.h"
 

@@ -4,7 +4,6 @@
 #include "common.h"
 #include "proctypes.h"
 #include "proclist.h"
-#include "procbst.h"
 
 typedef struct {
 	timedelta_t

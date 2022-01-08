@@ -162,7 +162,17 @@ proclist_cur_t pl_cur_init(proclist_t* list) {
 
     return cursor;
 }
+proclist_cur_t pl_cur_clone(proclist_cur_t* cur) {
+	proclist_cur_t cursor = *cur;
 
+	/*
+	cursor.list = cur->list;
+	cursor.current = cur->current;
+	cursor.pos = cur->pos;
+	*/
+
+	return cursor;
+}
 u8 pl_cur_hasnext(proclist_cur_t* cur) {
     if (cur->current)
         return (cur->current->next != NULL) ? 1 : 0;
@@ -185,6 +195,7 @@ procinfo_t* pl_cur_at(proclist_cur_t* cur) {
     return PL_CURVAL(cur);
 }
 procinfo_t* pl_cur_next(proclist_cur_t* cur) {
+	if (cur->pos == PL_CUR_AFTER) return NULL;
     cur->current = (cur->pos == PL_CUR_BEFORE)
         ? cur->list->head
         : cur->current->next;
@@ -194,13 +205,14 @@ procinfo_t* pl_cur_next(proclist_cur_t* cur) {
     return PL_CURVAL(cur);
 }
 procinfo_t* pl_cur_prev(proclist_cur_t* cur) {
-        cur->current = (cur->pos == PL_CUR_AFTER)
-            ? cur->list->tail
-            : cur->current->prev;
-        cur->pos = (cur->current == NULL)
-            ? PL_CUR_BEFORE
-            : PL_CUR_IN;
-        return PL_CURVAL(cur);
+	if (cur->pos == PL_CUR_BEFORE) return NULL;
+	cur->current = (cur->pos == PL_CUR_AFTER)
+		? cur->list->tail
+		: cur->current->prev;
+	cur->pos = (cur->current == NULL)
+		? PL_CUR_BEFORE
+		: PL_CUR_IN;
+	return PL_CURVAL(cur);
 }
 procinfo_t* pl_cur_first(proclist_cur_t* cur) {
     cur->current = cur->list->head;

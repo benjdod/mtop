@@ -24,16 +24,26 @@ void update_procs() {
 	proclist_foreach(&info.procs, &pd_updatecache);
 }
 
+/** 
+ * Initializes and populates procs_info struct.
+ * Sets the selected cursor to the last process in the list.
+ * */
 void fill_procs() {
 	info = procs_init();
 	update_procs();
+	procs_select(&info, PROCS_SELECT_LAST);
 }
 
+/**
+ * randomizes draw values for all processes in the proclist.
+ * pretty self explanatory. 
+ * Note: these values are pretty conservative 
+ * XXX: replace these with values that correspond to the 
+ * CPU load of the process?
+ * */ 
 void randomize_drawvalues() {
 	proclist_cur_t cur = pl_cur_init(&info.procs);
 	pl_cur_next(&cur);
-	cur.current->value.drawdata.offset = 5;
-
 	while (cur.current != NULL) {
 		cur.current->value.drawdata.offset = rand() % 50;
 		cur.current->value.drawdata.padding = 10 + (rand() % 6);
@@ -70,7 +80,6 @@ void sigwinch_handler() {
 #endif
 }
 
-
 void forceful_exit() {
 	exit(1);
 }
@@ -92,7 +101,6 @@ void segfault() {
 	printf("program encountered a segmentation fault, exiting.\n");
 	exit(1);
 }
-
 
 int cmtop() {
 
@@ -140,9 +148,11 @@ int cmtop() {
 		char ch = tty_readc();
 
 		if (ch) {
-			if (ch == 'j') pl_cur_prev(&info.selected);
-			else if (ch == 'k') pl_cur_next(&info.selected);
-			else if (ch == 'q') break;
+			if (ch == 'j') {
+				procs_select(&info, PROCS_SELECT_PREV);
+			} else if (ch == 'k') {
+				procs_select(&info, PROCS_SELECT_NEXT);
+			} else if (ch == 'q') break;
 		}
 
 		if (flushcount == flushbreak) {
@@ -150,15 +160,14 @@ int cmtop() {
 			tty_iflush();
 		}
 
-		// if (flushcount)break;
-
 		flushcount += 1; 
 		flushcount %= flushbreak;
 
 		screen_setcursor((rowcol_t) {0,0});
 
 		update_procs();
-
+		
+		// draw procs info at current state and flush to screen
 		draw_fillbuffer(&dbuf, &info, ssz.rows, ssz.cols);
 		dbuf_flush(&dbuf);
 
@@ -214,8 +223,11 @@ int testlist() {
 
 	proclist_cur_t cur = pl_cur_init(&list);
 
-	PL_CUR_FOREACH(&cur) {
-		printf("%d\n", cur.current->value.pid);
+	pl_cur_next(&cur);
+
+	while (pl_cur_at(&cur) != NULL) {
+		printf("%d\n", pl_cur_at(&cur)->pid);
+		pl_cur_next(&cur);
 	}
 
 	proclist_destroy(&list);

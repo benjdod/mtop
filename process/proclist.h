@@ -41,6 +41,7 @@ void proclist_remove(proclist_t* list, pid_t pid);
 void proclist_foreach (proclist_t* list, void (*on_value)(procinfo_t*));
 
 proclist_cur_t pl_cur_init(proclist_t* list);
+proclist_cur_t pl_cur_clone(proclist_cur_t* cur);
 u8 pl_cur_hasnext(proclist_cur_t* cur);
 u8 pl_cur_hasprev(proclist_cur_t* cur);
 u8 pl_cur_eq(proclist_cur_t* a, proclist_cur_t* b);

@@ -94,11 +94,48 @@ procs_info_t procs_init() {
 	pi.cpuinfo = cpuinfo_init();
 	pi.selected = pl_cur_init(&pi.procs);
 
+#ifdef MTOP_PROC_DRAW
+	pi.selected_index = 0;
+	pi.draw_offset = 0;
+#endif
+
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
-	//printf("got jiffy %ld\n", jiffy);
 
 	return pi;
+}
+
+size_t procs_select(procs_info_t* info, u8 select) {
+
+	// if cursor isn't initialized, replace the errant operation
+	// with something more sensible
+	if (info->selected.list == NULL) {
+		if (select == PROCS_SELECT_NEXT) select = PROCS_SELECT_FIRST;
+		if (select == PROCS_SELECT_PREV) select = PROCS_SELECT_LAST;
+	}
+
+	switch ( select ) {
+		case PROCS_SELECT_FIRST:
+			info->selected = pl_cur_init(&info->procs);
+			pl_cur_first(&info->selected);
+			return 0;
+		case PROCS_SELECT_LAST:
+			info->selected = pl_cur_init(&info->procs);
+			pl_cur_last(&info->selected);
+			return info->num_procs - 1;
+		
+		// for next and prev we can assume that there is an
+		// active cursor
+		case PROCS_SELECT_NEXT:
+			if (pl_cur_next(&info->selected) != NULL) info->selected_index += 1;
+			return info->selected_index;
+		case PROCS_SELECT_PREV:
+			if (pl_cur_prev(&info->selected) != NULL) info->selected_index -= 1;
+			return info->selected_index;
+	}
+
+	// we should never get here, but safety first kids.
+	return info->selected_index;
 }
 
 void procs_destroy(procs_info_t* procs) {
@@ -211,7 +248,6 @@ static int read_cpuinfo(cpuinfo_t* info_ptr) {
 	return 0;
 }
 
-
 void proc_updateinfo(procinfo_t* p, proc_t proc, ptime_t period) {
 
 	// update all the non-constant fields 
@@ -300,11 +336,6 @@ size_t procs_update(procs_info_t *info) {
 
 	closeproc(processes);
 
-	if (info->selected.current == NULL) {
-		info->selected = pl_cur_init(&info->procs);
-		pl_cur_last(&info->selected);
-	}
-
 
 	// iterate over all processes in list, deleting processes that were 
 	// not listed in the read of the latest PROCTAB
@@ -327,6 +358,16 @@ size_t procs_update(procs_info_t *info) {
 	}
 
 	info->num_procs = num_procs;
+	
+	// after everything has been updated, fill the selected
+	// cursor if it's empty. Set it to the last entry by default
+	
+	if (info->selected.current == NULL) {
+		info->selected = pl_cur_init(&info->procs);
+		pl_cur_last(&info->selected);
+		info->selected_index = info->num_procs - 1;
+	}
+
 	return info->num_procs;
 }
 
@@ -382,3 +423,4 @@ void proc_freeinfo(procinfo_t* p_info) {
 		x_free(p_info->cmd);
 	}
 }
+

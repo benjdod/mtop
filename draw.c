@@ -83,30 +83,42 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
         //c_off = 0,
         r_off = 0;
 
-    size_t sel_idx = 0;
+	if (info->selected_index < info->draw_offset) {
+		info->draw_offset = info->selected_index;
+	} else if (info->selected_index > info->draw_offset + c_size) {
+		info->draw_offset = info->selected_index - c_size;
+	} 
 
     size_t info_winsz = 3;
 
-#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}
+// FIXME: builtin color drawing doesnt work :(
+#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}	
 #define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
 
+	proclist_cur_t cursor = pl_cur_init(&info->procs);
+	pl_cur_next(&cursor);
+	
+	for (size_t i = 0; i < info->draw_offset; i++) {
+		pl_cur_next(&cursor);
+	} 
+
     // append matrix rows
+	ssize_t sel_visual_idx = -1;
     for (size_t r = 0; r < r_size - info_winsz - 1; r++) {  // for row in "window"
-        proclist_cur_t cur = pl_cur_init(&info->procs);
-        procinfo_t* pi = pl_cur_next(&cur);
-        sel_idx = 0;
+        proclist_cur_t cur = pl_cur_clone(&cursor);
+		sel_visual_idx = -1;
 
         u8 on_step = 0;
 
         for (size_t c = 0; c < c_size; c++) {   // for column in row
             on_step = c % c_step == 0 ? 1 : 0;
-            if (pi != NULL) {
+            if (pl_cur_at(&cur) != NULL) {
                 if (on_step) {
-                    if (!sel_idx && pl_cur_eq(&cur, &info->selected)) {
-                        sel_idx = c;
+                    if (sel_visual_idx == -1 && pl_cur_eq(&cur, &info->selected)) {
+                        sel_visual_idx = c;
                     }
-                    tbuf[c] = pd_charat(pi, r + r_off);
-                    pi = pl_cur_next(&cur);
+                    tbuf[c] = pd_charat(PL_CURVAL(&cur), r + r_off);
+					pl_cur_next(&cur);
                 } else {
                     tbuf[c] = ' ';
                 }
@@ -116,19 +128,21 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
             
         }
 
-        dbuf_addsn(dbuf, tbuf, sel_idx);
-        //dbuf_addcolor(dbuf, dc);
-        SET_PRIMARYCOLOR();
-        dbuf_addc(dbuf, tbuf[sel_idx]);
-        //dbuf_addcolor(dbuf, reset);
-        //dbuf_adds(dbuf, "\e[32m");
-        SET_SECONDARYCOLOR();
-        dbuf_addsn(dbuf, tbuf + sel_idx + 1, c_size - sel_idx - 1);
+		if (sel_visual_idx != -1) {
+			dbuf_addsn(dbuf, tbuf, sel_visual_idx);
+			SET_PRIMARYCOLOR();
+			dbuf_addc(dbuf, tbuf[sel_visual_idx]);
+			SET_SECONDARYCOLOR();
+			dbuf_addsn(dbuf, tbuf + sel_visual_idx + 1, c_size - sel_visual_idx - 1);
+		} else {
+			dbuf_addsn(dbuf, tbuf, c_size);
+		}
     }
+
+	// draw info window (this contains details for
+	// the selected process
     for (size_t i = 0; i < c_size; i++) dbuf_addc(dbuf, '-');
-
     SET_PRIMARYCOLOR();
-
     for (size_t i = 0; i < info_winsz; i++) {
         x_memset(tbuf, ' ', c_size);
         size_t w = pd_drawinfo(pl_cur_at(&info->selected), tbuf, c_size, i);
@@ -137,6 +151,5 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
         }
         dbuf_addsn(dbuf, tbuf, c_size);
     }
-
     SET_SECONDARYCOLOR();
 }

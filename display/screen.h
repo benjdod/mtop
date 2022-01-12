@@ -5,7 +5,7 @@
 
 #include "tty.h"
 
-typedef struct {
+typedef struct rowcol_t_ {
 	uint16_t rows;
 	uint16_t cols;
 } rowcol_t;
@@ -16,6 +16,7 @@ screensize_t get_screensize();
 void screen_open();
 void screen_exit();
 int screen_isopen();
+void screen_clear();
 
 void screen_setcursor(rowcol_t location);
 void screen_hidecursor();

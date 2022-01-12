@@ -13,7 +13,6 @@
 
 procs_info_t info;
 screensize_t ssz;
-char* scrbuf = NULL;
 
 #ifdef MTOP_DRAW_COLOR
 color_t current_color;
@@ -70,11 +69,17 @@ void set_color(color_t color) {
 #endif
 
 void sigwinch_handler() {
+	// update stored screen size and do a "hard" reset
+	// of the screen (erase everything and wati for the next write)
+	//
+	// TODO: update with better logic to draw a new screen 
+	// immediately instead of waiting for the loop to come around 
+	// again
+
 	ssz = get_screensize();
-	x_free(scrbuf);
-	scrbuf = (char*) x_malloc(ssz.rows * ssz.cols, sizeof(char));
 	screen_setcursor((rowcol_t) {0,0});
-	tty_clear();
+	procs_set_drawopts(&info, info.step, ssz.rows, ssz.cols);
+	screen_clear();
 #ifdef MTOP_DRAW_COLOR
 	write_currentcolor();
 #endif
@@ -111,6 +116,7 @@ int cmtop() {
 	signal(SIGINT, &sigint_handler);
 
 	fill_procs();
+	procs_set_drawopts(&info, 2, ssz.rows, ssz.cols);
 	randomize_drawvalues();
 
 	screen_open();

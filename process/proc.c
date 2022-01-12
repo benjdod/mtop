@@ -94,16 +94,22 @@ procs_info_t procs_init() {
 	pi.cpuinfo = cpuinfo_init();
 	pi.selected = pl_cur_init(&pi.procs);
 
-#ifdef MTOP_PROC_DRAW
-	pi.selected_index = 0;
-	pi.draw_offset = 0;
-#endif
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
 
 	return pi;
 }
+
+#ifdef MTOP_PROC_DRAW
+void procs_set_drawopts(procs_info_t* info, size_t step, size_t rsize, size_t csize) {
+	info->selected_index = 0;
+	info->draw_offset = 0;
+	info->display_size = csize;
+	info->step = 2;
+	info->real_size = csize / info->step + (csize % info->step ? 1 : 0);
+}
+#endif
 
 size_t procs_select(procs_info_t* info, u8 select) {
 

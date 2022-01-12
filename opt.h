@@ -13,6 +13,7 @@ typedef struct mtop_opt_t_ {
 #define OPT_DRAWCOLOR_24BIT    0x3
     u8 colormode;
     u8 draw_static;
+    u32 refresh_rate;
 } mtop_opt_t;
 
 // global options structs
@@ -20,6 +21,7 @@ extern mtop_opt_t opt;
 
 #define SET_OPT(FIELD, VALUE) {opt.FIELD = VALUE;}
 
-void opt_init();
+void opt_default();
+void opt_print();
 
 #endif

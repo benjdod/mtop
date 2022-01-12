@@ -85,7 +85,6 @@ void cpuinfo_destroy(cpuinfo_t* info) {
 }
 
 procs_info_t procs_init() {
-
 	procs_info_t pi;
 
 	pi.num_procs = 0;
@@ -93,10 +92,10 @@ procs_info_t procs_init() {
 	pi.refresh_rate = 1000 * 100;
 	pi.cpuinfo = cpuinfo_init();
 	pi.selected = pl_cur_init(&pi.procs);
+	pi.selected_index = 0;
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
-
 	return pi;
 }
 

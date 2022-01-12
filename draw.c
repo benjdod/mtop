@@ -80,7 +80,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 	if (info->selected_index < info->draw_offset) {
 		info->draw_offset = info->selected_index;
 	} else if (info->selected_index > info->draw_offset + info->real_size) {
-		info->draw_offset = info->selected_index - info->real_size;
+		info->draw_offset = info->selected_index - info->real_size + 1;
 	} 
 
     size_t info_winsz = 3;
@@ -96,7 +96,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 		pl_cur_next(&cursor);
 	} 
 
-	int skip_drawing = 1;
+	int skip_drawing = 0;
 
     // append matrix rows
 	ssize_t sel_visual_idx = -1;

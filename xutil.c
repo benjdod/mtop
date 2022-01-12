@@ -54,36 +54,6 @@ void* x_memset(void* s, int c, size_t n) {
 // memory functions
 
 void* x_malloc(size_t n, size_t s) {
-
-    /*
-    void *array[2];
-    char **strings;
-    int size = 0;
-
-    size = backtrace(array, 2);
-    strings = backtrace_symbols(array, 2);
-
-
-    char buf[8192];
-    int offset = 0;
-    x_memset(buf, '\0', 8192);
-
-    void* out = malloc(n * s);
-
-    if (strings != NULL) {
-        offset += snprintf(&buf[offset], 8192 - offset, "allocated %lu at %p\n", n*s, out);
-        for (int i = 0; i < size; i++) {
-            offset += snprintf(&buf[offset], 8192 - offset, "at %s\n", strings[i]);
-        }
-    } else {
-        snprintf(buf, 8192, "??? allocated %lu at %p\n", n * s, out);
-    }
-
-    x_writefile("./malloc.log", buf);
-    
-    return out;
-    */
-
     return malloc(n*s);
 }
 

@@ -13,19 +13,19 @@ drawbuffer_t dbuf_init() {
 
 #define DBUF_INIT_BUFSZ 16
 
-    dbuf.buffer = x_malloc(DBUF_INIT_BUFSZ, sizeof(drawitem_t));
+    dbuf.buffer = x_calloc(DBUF_INIT_BUFSZ, sizeof(drawitem_t));
     dbuf.size = DBUF_INIT_BUFSZ;
     dbuf.length = 0;
 
-    dbuf.colorbuf = x_malloc(DBUF_INIT_BUFSZ, sizeof(dcolor_t));
+    dbuf.colorbuf = x_calloc(DBUF_INIT_BUFSZ, sizeof(dcolor_t));
     dbuf.colorbuf_size = DBUF_INIT_BUFSZ;
     dbuf.length = 0;
 
-    dbuf.dstrbuf = x_malloc(DBUF_INIT_BUFSZ, sizeof(dstring_t));
+    dbuf.dstrbuf = x_calloc(DBUF_INIT_BUFSZ, sizeof(dstring_t));
     dbuf.dstrbuf_size = DBUF_INIT_BUFSZ;
     dbuf.dstrbuf_length = 0;
 
-    dbuf.chbuf = x_malloc(DBUF_INIT_BUFSZ, sizeof(char));
+    dbuf.chbuf = x_calloc(DBUF_INIT_BUFSZ, sizeof(char));
     dbuf.chbuf_size = DBUF_INIT_BUFSZ;
     dbuf.chbuf_length = 0;
 

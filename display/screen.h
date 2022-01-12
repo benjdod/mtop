@@ -2,7 +2,6 @@
 #define MTOP_SCREEN_H
 
 #include "common.h"
-
 #include "tty.h"
 
 typedef struct rowcol_t_ {

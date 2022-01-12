@@ -79,7 +79,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 
 	if (info->selected_index < info->draw_offset) {
 		info->draw_offset = info->selected_index;
-	} else if (info->selected_index > info->draw_offset + c_size) {
+	} else if (info->selected_index > info->draw_offset + info->real_size) {
 		info->draw_offset = info->selected_index - info->real_size;
 	} 
 
@@ -96,6 +96,8 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 		pl_cur_next(&cursor);
 	} 
 
+	int skip_drawing = 1;
+
     // append matrix rows
 	ssize_t sel_visual_idx = -1;
     for (size_t r = 0; r < r_size - info_winsz - 1; r++) {  // for row in "window"
@@ -105,6 +107,10 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
         u8 on_step = 0;
 
         for (size_t c = 0; c < info->display_size; c++) {   // for column in row
+			if (skip_drawing) {
+				buf[c] = ' ';
+				continue;
+			}
             on_step = c % info->step == 0 ? 1 : 0;
             if (pl_cur_at(&cur) != NULL) {
                 if (on_step) {

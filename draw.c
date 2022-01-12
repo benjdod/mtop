@@ -75,18 +75,12 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
 
 void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t c_size) {
 
-    char tbuf[c_size+1];
-
-    size_t 
-        c_step = 2,
-        //r_step = 0,
-        //c_off = 0,
-        r_off = 0;
+    char buf[c_size+1];
 
 	if (info->selected_index < info->draw_offset) {
 		info->draw_offset = info->selected_index;
-	} else if (info->selected_index > info->draw_offset + c_size) {
-		info->draw_offset = info->selected_index - c_size;
+	} else if (info->selected_index > info->draw_offset + info->real_size) {
+		info->draw_offset = info->selected_index - info->real_size + 1;
 	} 
 
     size_t info_winsz = 3;
@@ -102,6 +96,8 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 		pl_cur_next(&cursor);
 	} 
 
+	int skip_drawing = 0;
+
     // append matrix rows
 	ssize_t sel_visual_idx = -1;
     for (size_t r = 0; r < r_size - info_winsz - 1; r++) {  // for row in "window"
@@ -110,32 +106,36 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 
         u8 on_step = 0;
 
-        for (size_t c = 0; c < c_size; c++) {   // for column in row
-            on_step = c % c_step == 0 ? 1 : 0;
+        for (size_t c = 0; c < info->display_size; c++) {   // for column in row
+			if (skip_drawing) {
+				buf[c] = ' ';
+				continue;
+			}
+            on_step = c % info->step == 0 ? 1 : 0;
             if (pl_cur_at(&cur) != NULL) {
                 if (on_step) {
                     if (sel_visual_idx == -1 && pl_cur_eq(&cur, &info->selected)) {
                         sel_visual_idx = c;
                     }
-                    tbuf[c] = pd_charat(PL_CURVAL(&cur), r + r_off);
+                    buf[c] = pd_charat(PL_CURVAL(&cur), r /* + r_off */);
 					pl_cur_next(&cur);
                 } else {
-                    tbuf[c] = ' ';
+                    buf[c] = ' ';
                 }
             } else {
-                tbuf[c] = (on_step && opt.draw_static) ? randchar() : ' ';
+                buf[c] = (on_step && opt.draw_static) ? randchar() : ' ';
             }
             
         }
 
 		if (sel_visual_idx != -1) {
-			dbuf_addsn(dbuf, tbuf, sel_visual_idx);
+			dbuf_addsn(dbuf, buf, sel_visual_idx);
 			SET_PRIMARYCOLOR();
-			dbuf_addc(dbuf, tbuf[sel_visual_idx]);
+			dbuf_addc(dbuf, buf[sel_visual_idx]);
 			SET_SECONDARYCOLOR();
-			dbuf_addsn(dbuf, tbuf + sel_visual_idx + 1, c_size - sel_visual_idx - 1);
+			dbuf_addsn(dbuf, buf + sel_visual_idx + 1, c_size - sel_visual_idx - 1);
 		} else {
-			dbuf_addsn(dbuf, tbuf, c_size);
+			dbuf_addsn(dbuf, buf, c_size);
 		}
     }
 
@@ -144,12 +144,12 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
     for (size_t i = 0; i < c_size; i++) dbuf_addc(dbuf, '-');
     SET_PRIMARYCOLOR();
     for (size_t i = 0; i < info_winsz; i++) {
-        x_memset(tbuf, ' ', c_size);
-        size_t w = pd_drawinfo(pl_cur_at(&info->selected), tbuf, c_size, i);
+        x_memset(buf, ' ', c_size);
+        size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, c_size, i);
         while (w < c_size) {
-            tbuf[w++] = ' ';
+            buf[w++] = ' ';
         }
-        dbuf_addsn(dbuf, tbuf, c_size);
+        dbuf_addsn(dbuf, buf, c_size);
     }
     SET_SECONDARYCOLOR();
 }

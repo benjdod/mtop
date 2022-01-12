@@ -41,6 +41,11 @@ int screen_isopen() {
 	return open;
 }
 
+void screen_clear() {
+	tty_writes("\e[2J");
+	tty_writes("\e[0;0H");
+}
+
 void screen_setcursor(rowcol_t location) {
 	char buf[32];
 

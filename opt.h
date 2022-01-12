@@ -18,6 +18,8 @@ typedef struct mtop_opt_t_ {
 // global options structs
 extern mtop_opt_t opt;
 
+#define SET_OPT(FIELD, VALUE) {opt.FIELD = VALUE;}
+
 void opt_init();
 
 #endif

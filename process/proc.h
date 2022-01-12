@@ -40,12 +40,24 @@ typedef struct procs_info_t_ {
 #ifdef MTOP_PROC_DRAW
 	size_t selected_index;
 	size_t draw_offset;
+
+	// display_size = query_size * step
+	//
+	// +-----------+
+	// |  |  |  |       4 * 3 = 12
+	// | | | | | | 		6 * 2 = 12
+	// |||||||||||| 	12 * 1 = 12
+	
+	size_t display_size; 	
+	size_t real_size;
+	size_t step;
 #endif
 } procs_info_t;
 
 const char* proc_state_tostring(char state);
 size_t proc_state_getstring(char state, char* buf);
 procs_info_t procs_init();
+void procs_set_drawopts(procs_info_t* info, size_t step, size_t rsize, size_t csize);
 size_t procs_select(procs_info_t* info, u8 select);
 void procs_destroy(procs_info_t* procs);
 size_t procs_update(procs_info_t*);

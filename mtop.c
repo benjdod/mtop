@@ -13,7 +13,6 @@
 
 procs_info_t info;
 screensize_t ssz;
-char* scrbuf = NULL;
 
 #ifdef MTOP_DRAW_COLOR
 color_t current_color;
@@ -70,11 +69,17 @@ void set_color(color_t color) {
 #endif
 
 void sigwinch_handler() {
+	// update stored screen size and do a "hard" reset
+	// of the screen (erase everything and wati for the next write)
+	//
+	// TODO: update with better logic to draw a new screen 
+	// immediately instead of waiting for the loop to come around 
+	// again
+
 	ssz = get_screensize();
-	x_free(scrbuf);
-	scrbuf = (char*) x_malloc(ssz.rows * ssz.cols, sizeof(char));
 	screen_setcursor((rowcol_t) {0,0});
-	tty_clear();
+	procs_set_drawopts(&info, info.step, ssz.rows, ssz.cols);
+	screen_clear();
 #ifdef MTOP_DRAW_COLOR
 	write_currentcolor();
 #endif
@@ -102,7 +107,7 @@ void segfault() {
 	exit(1);
 }
 
-int cmtop() {
+int mtop() {
 
 	opt_init();
 
@@ -111,13 +116,15 @@ int cmtop() {
 	signal(SIGINT, &sigint_handler);
 
 	fill_procs();
+	//procs_set_drawopts(&info, 2, ssz.rows, ssz.cols);
 	randomize_drawvalues();
 
 	screen_open();
+	info.step = 2;
 	sigwinch_handler();
 	screen_hidecursor();
 
-	int sleeptime = 50 * 1000;
+	int sleeptime = 250 * 1000;
 
 #define DO_SLEEP() usleep(sleeptime)
 
@@ -143,17 +150,38 @@ int cmtop() {
 	u8 flushcount = 0;
 	u8 flushbreak = 5;
 
+	char ch  ='\0';
+	u8 quit_now = 0;
+
 	while (1) {
 
-		char ch = tty_readc();
+		ch = tty_readc();
 
 		if (ch) {
-			if (ch == 'j') {
-				procs_select(&info, PROCS_SELECT_PREV);
-			} else if (ch == 'k') {
-				procs_select(&info, PROCS_SELECT_NEXT);
-			} else if (ch == 'q') break;
+			switch (ch) {
+				case 'h':
+				case 'j':
+					procs_select(&info, PROCS_SELECT_PREV);
+					break;
+				case 'k':
+				case 'l':
+					procs_select(&info, PROCS_SELECT_NEXT);
+					break;
+				case 'g':
+				case '^':
+					procs_select(&info, PROCS_SELECT_FIRST);
+					break;
+				case 'G':
+				case '$':
+					procs_select(&info, PROCS_SELECT_LAST);
+					break;
+				case 'q':
+					quit_now = 1;
+					break;
+			}
 		}
+
+		if (quit_now) break;
 
 		if (flushcount == flushbreak) {
 			tty_oflush();
@@ -236,6 +264,6 @@ int testlist() {
 }
 
 int main() {
-	return cmtop();
+	return mtop();
 	//return testlist();
 }

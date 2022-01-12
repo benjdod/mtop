@@ -85,7 +85,6 @@ void cpuinfo_destroy(cpuinfo_t* info) {
 }
 
 procs_info_t procs_init() {
-
 	procs_info_t pi;
 
 	pi.num_procs = 0;
@@ -93,22 +92,26 @@ procs_info_t procs_init() {
 	pi.refresh_rate = 1000 * 100;
 	pi.cpuinfo = cpuinfo_init();
 	pi.selected = pl_cur_init(&pi.procs);
-
-#ifdef MTOP_PROC_DRAW
 	pi.selected_index = 0;
-	pi.draw_offset = 0;
-#endif
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
-
 	return pi;
 }
 
+#ifdef MTOP_PROC_DRAW
+void procs_set_drawopts(procs_info_t* info, size_t step, size_t rsize, size_t csize) {
+	// info->selected_index = 0;
+	info->draw_offset = 0;
+	info->display_size = csize;
+	info->step = step;
+	info->real_size = csize / info->step + (csize % info->step ? 1 : 0);
+}
+#endif
+
 size_t procs_select(procs_info_t* info, u8 select) {
 
-	// if cursor isn't initialized, replace the errant operation
-	// with something more sensible
+	// initialize the cursor if needed in a sensible way
 	if (info->selected.list == NULL) {
 		if (select == PROCS_SELECT_NEXT) select = PROCS_SELECT_FIRST;
 		if (select == PROCS_SELECT_PREV) select = PROCS_SELECT_LAST;
@@ -118,23 +121,26 @@ size_t procs_select(procs_info_t* info, u8 select) {
 		case PROCS_SELECT_FIRST:
 			info->selected = pl_cur_init(&info->procs);
 			pl_cur_first(&info->selected);
-			return 0;
+			info->selected_index = 0;
+			break;
 		case PROCS_SELECT_LAST:
 			info->selected = pl_cur_init(&info->procs);
 			pl_cur_last(&info->selected);
-			return info->num_procs - 1;
-		
+			info->selected_index = info->num_procs - 1;
+			break;
+
 		// for next and prev we can assume that there is an
 		// active cursor
 		case PROCS_SELECT_NEXT:
 			if (pl_cur_next(&info->selected) != NULL) info->selected_index += 1;
-			return info->selected_index;
+			else pl_cur_prev(&info->selected);
+			break;
 		case PROCS_SELECT_PREV:
 			if (pl_cur_prev(&info->selected) != NULL) info->selected_index -= 1;
-			return info->selected_index;
+			else pl_cur_next(&info->selected);
+			break;
 	}
 
-	// we should never get here, but safety first kids.
 	return info->selected_index;
 }
 
@@ -364,8 +370,7 @@ size_t procs_update(procs_info_t *info) {
 	
 	if (info->selected.current == NULL) {
 		info->selected = pl_cur_init(&info->procs);
-		pl_cur_last(&info->selected);
-		info->selected_index = info->num_procs - 1;
+		info->selected_index = procs_select(info, PROCS_SELECT_LAST);
 	}
 
 	return info->num_procs;

@@ -53,11 +53,11 @@ void error(int e_no, const char *msg, ...) {
 	va_start(args,msg);
 
 	if (!tty_israw()) {
-		printf("Error (code %d): ",e_no);
+		printf("Error: ");
 		vprintf(msg,args);
 		putchar('\n');
 		va_end(args);
-		return;
+		exit(e_no);
 	}
 
 	tty_clear();

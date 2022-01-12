@@ -10,6 +10,7 @@
 #include "drawbuffer.h"
 #include "dmeter.h"
 #include "opt.h"
+#include "error.h"
 
 procs_info_t info;
 screensize_t ssz;
@@ -19,6 +20,63 @@ char* scrbuf = NULL;
 color_t current_color;
 #endif
 
+// ARG PARSING
+
+/**
+ * Parse command line arguments and set corresponding options.
+ * If bad args are provided, this function will call the appropriate 
+ * function and exit the program.
+ * */
+void parse_args(int argc, char** argv) {
+	int n = argc;
+
+	char** args = argv;
+
+#define ARG_EQ_SL(SHORT, LONG) (x_streq(*args, SHORT) || x_streq(*args, LONG))
+#define ARG_EQ(VALUE) (x_streq(*args, VALUE))
+#define ARG_SHIFT() {args++; n--;}
+
+	while (n) {
+		if (ARG_EQ_SL("-r", "--refresh-rate")) {
+
+			ARG_SHIFT();
+			u32 r = atol(*args);
+			if (r == 0) error(-1, "invalid value for field -r.");
+			SET_OPT(refresh_rate, r);
+
+		} else if (ARG_EQ_SL("-c", "--color")) {
+			ARG_SHIFT();
+
+			/* if (ARG_EQ("auto")) {
+				; // TODO: automatically infer maximum possible colormode,
+				  // using available capabilities (termcap, etc.)
+			} else */
+
+			if (ARG_EQ("none")) {
+				SET_OPT(colormode, OPT_DRAWCOLOR_NONE);
+			} else if (ARG_EQ("ansi")) {
+				SET_OPT(colormode, OPT_DRAWCOLOR_ANSI);
+			} else if (ARG_EQ_SL("8bit", "256")) {
+				SET_OPT(colormode, OPT_DRAWCOLOR_8BIT);
+			} else if (ARG_EQ("24bit")) {
+				SET_OPT(colormode, OPT_DRAWCOLOR_24BIT);
+			} else {
+				error(-1, "invalid argument for color.");
+			}
+
+		} else if (ARG_EQ_SL("-s", "--static")) {
+			SET_OPT(draw_static, OPT_YES);
+		} else {
+			error(-1, "invalid option '%s'. Type --help for more info.", *args);
+		}
+
+		ARG_SHIFT();
+	}
+}
+
+/**
+ * Updates procs list and renews all drawcaches
+ * */
 void update_procs() {
 	procs_update(&info);
 	proclist_foreach(&info.procs, &pd_updatecache);
@@ -102,9 +160,11 @@ void segfault() {
 	exit(1);
 }
 
-int cmtop() {
+int cmtop(int argc, char** argv) {
 
-	opt_init();
+	opt_default();
+	parse_args(argc - 1, argv + 1);
+	opt_print();
 
 	signal(SIGWINCH, &sigwinch_handler);
 	signal(SIGSEGV, &segfault);
@@ -117,9 +177,7 @@ int cmtop() {
 	sigwinch_handler();
 	screen_hidecursor();
 
-	int sleeptime = 50 * 1000;
-
-#define DO_SLEEP() usleep(sleeptime)
+#define DO_SLEEP() usleep(opt.refresh_rate * 1000)
 
 #ifdef MTOP_DRAW_COLOR
 	draw_setopts((DRAW_COLOR|DRAW_RGBCOLOR));
@@ -235,7 +293,7 @@ int testlist() {
 	return 0;
 }
 
-int main() {
-	return cmtop();
+int main(int argc, char** argv) {
+	return cmtop(argc, argv);
 	//return testlist();
 }

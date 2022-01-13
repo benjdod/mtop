@@ -159,6 +159,11 @@ void sigint_handler() {
 	graceful_exit();
 }
 
+void sigterm_handler() {
+	signal(SIGTERM, &forceful_exit);
+	graceful_exit();
+}
+
 void segfault() {
 	screen_exit();
 	printf("program encountered a segmentation fault, exiting.\n");
@@ -174,6 +179,7 @@ int cmtop(int argc, char** argv) {
 	signal(SIGWINCH, &sigwinch_handler);
 	signal(SIGSEGV, &segfault);
 	signal(SIGINT, &sigint_handler);
+	signal(SIGTERM, &sigterm_handler);
 
 	fill_procs();
 	//procs_set_drawopts(&info, 2, ssz.rows, ssz.cols);
@@ -253,7 +259,7 @@ int cmtop(int argc, char** argv) {
 		update_procs();
 		
 		// draw procs info at current state and flush to screen
-		draw_fillbuffer(&dbuf, &info, ssz.rows, ssz.cols);
+		draw_fillbuffer(&dbuf, &info, ssz.rows);
 		dbuf_flush(&dbuf);
 
 		proclist_foreach(&info.procs, &advance_offset);

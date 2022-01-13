@@ -85,14 +85,19 @@ void cpuinfo_destroy(cpuinfo_t* info) {
 }
 
 procs_info_t procs_init() {
+	sysinfo_t sys;
+	sys.num_procs = 0;
+	sys.running = 0;
+	sys.cpu = cpuinfo_init();
+
 	procs_info_t pi;
 
-	pi.num_procs = 0;
 	pi.procs = proclist_init();
 	pi.refresh_rate = 1000 * 100;
-	pi.cpuinfo = cpuinfo_init();
 	pi.selected = pl_cur_init(&pi.procs);
 	pi.selected_index = 0;
+
+	pi.sys = sys;
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
@@ -126,7 +131,7 @@ size_t procs_select(procs_info_t* info, u8 select) {
 		case PROCS_SELECT_LAST:
 			info->selected = pl_cur_init(&info->procs);
 			pl_cur_last(&info->selected);
-			info->selected_index = info->num_procs - 1;
+			info->selected_index = info->sys.num_procs - 1;
 			break;
 
 		// for next and prev we can assume that there is an
@@ -146,7 +151,7 @@ size_t procs_select(procs_info_t* info, u8 select) {
 
 void procs_destroy(procs_info_t* procs) {
 	proclist_destroy(&procs->procs);
-	cpuinfo_destroy(&procs->cpuinfo);
+	cpuinfo_destroy(&procs->sys.cpu);
 }
 
 static int read_cpuinfo(cpuinfo_t* info_ptr) {
@@ -310,8 +315,9 @@ static void proc_untouch(procinfo_t* p) {
 size_t procs_update(procs_info_t *info) {
 
 	size_t num_procs = 0;
+	size_t running_procs = 0;
 
-	read_cpuinfo(&info->cpuinfo);
+	read_cpuinfo(&info->sys.cpu);
 
 	PROCTAB* processes = openproc(
 			PROC_FILLMEM | 
@@ -327,7 +333,7 @@ size_t procs_update(procs_info_t *info) {
 
 		procinfo_t* proc_ptr = NULL;
 
-		ptime_t period = info->cpuinfo.total.total.delta;
+		ptime_t period = info->sys.cpu.total.total.delta;
 
 		if ((proc_ptr = proclist_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
 			proc_updateinfo(proc_ptr, *proc, period);
@@ -338,6 +344,7 @@ size_t procs_update(procs_info_t *info) {
 		proc_touch(proc_ptr);	// mark that the process in the tree has been found this round
 		freeproc(proc);
 		num_procs++;
+		if (proc->state == 'R' || proc->state == 'r') running_procs += 1;
 	}
 
 	closeproc(processes);
@@ -363,7 +370,8 @@ size_t procs_update(procs_info_t *info) {
 		}
 	}
 
-	info->num_procs = num_procs;
+	info->sys.num_procs = num_procs;
+	info->sys.running = running_procs;
 	
 	// after everything has been updated, fill the selected
 	// cursor if it's empty. Set it to the last entry by default
@@ -373,7 +381,7 @@ size_t procs_update(procs_info_t *info) {
 		info->selected_index = procs_select(info, PROCS_SELECT_LAST);
 	}
 
-	return info->num_procs;
+	return info->sys.num_procs;
 }
 
 procinfo_t proc_getinfo(proc_t proc, ptime_t period) {

@@ -67,7 +67,11 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
     return i*step;
 }
 
-void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t c_size) {
+/**
+ * fills a drawbuffer with screen content. 
+ * This is the main screen drawing routine.
+ * */
+void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 
     char buf[info->display_size + 1];
 
@@ -77,11 +81,30 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 		info->draw_offset = info->selected_index - info->real_size + 1;
 	} 
 
-    size_t info_winsz = 3;
+	size_t sys_info_winsz = 1;
+    size_t selected_info_winsz = 3;
+
+	size_t matrix_view_winsz = r_size;
+
+	// eat space from matrix window for
+	// sys info + horizontal sep and 
+	// selected info + horiz sep 
+
+	matrix_view_winsz -= (sys_info_winsz + selected_info_winsz + 2);
 
 // FIXME: builtin color drawing doesnt work :(
 #define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}	
 #define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
+#define DRAW_HORIZONTAL_SEP() {for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');}
+
+	for (size_t i = 0; i < sys_info_winsz; i++) {
+		size_t w = snprintf(buf, info->display_size, "Tasks: %lu/%lu, %lu running", info->selected_index + 1, info->sys.num_procs, info->sys.running);
+		dbuf_addsn(dbuf, buf, w);
+		for (int j = w; j < info->display_size; j++) {
+			dbuf_addc(dbuf, ' ');
+		}
+	}
+	DRAW_HORIZONTAL_SEP();
 
 	proclist_cur_t cursor = pl_cur_init(&info->procs);
 	pl_cur_next(&cursor);
@@ -94,7 +117,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 
     // append matrix rows
 	ssize_t sel_visual_idx = -1;
-    for (size_t r = 0; r < r_size - info_winsz - 1; r++) {  // for row in "window"
+    for (size_t r = 0; r < matrix_view_winsz; r++) {  // for row in "window"
         proclist_cur_t cur = pl_cur_clone(&cursor);
 		sel_visual_idx = -1;
 
@@ -127,17 +150,17 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 			SET_PRIMARYCOLOR();
 			dbuf_addc(dbuf, buf[sel_visual_idx]);
 			SET_SECONDARYCOLOR();
-			dbuf_addsn(dbuf, buf + sel_visual_idx + 1, c_size - sel_visual_idx - 1);
+			dbuf_addsn(dbuf, buf + sel_visual_idx + 1, info->display_size - sel_visual_idx - 1);
 		} else {
-			dbuf_addsn(dbuf, buf, c_size);
+			dbuf_addsn(dbuf, buf, info->display_size);
 		}
     }
 
 	// draw info window (this contains details for
 	// the selected process
-    for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');
+	DRAW_HORIZONTAL_SEP();
     SET_PRIMARYCOLOR();
-    for (size_t i = 0; i < info_winsz; i++) {
+    for (size_t i = 0; i < selected_info_winsz; i++) {
         x_memset(buf, ' ', info->display_size);
         size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
         while (w < info->display_size) {

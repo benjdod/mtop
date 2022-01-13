@@ -10,31 +10,11 @@
 #define PROCS_SELECT_NEXT 	0x3
 #define PROCS_SELECT_PREV   0x4
 
-typedef struct cputimes_t_ {
-	timedelta_t
-		user,
-		nice, 
-		system,
-		idle,
-		iowait,
-		irq,
-		softirq,
-		steal,
-		guest,
-		guest_nice,
-		total;
-} cputimes_t;
-
-typedef struct cpuinfo_t_ {
-	cputimes_t total;
-	u16 num_cores;
-	cputimes_t* cores;
-} cpuinfo_t;
-
 typedef struct procs_info_t_ {
-	size_t num_procs;
+	//size_t num_procs;
+	sysinfo_t sys;
 	proclist_t procs;
-	cpuinfo_t cpuinfo;
+	//cpuinfo_t cpuinfo;
 	uint32_t refresh_rate;
 	proclist_cur_t selected;
 #ifdef MTOP_PROC_DRAW

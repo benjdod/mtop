@@ -34,10 +34,10 @@ typedef struct color_t_ {
         nature;     // normal or bright
 } color_t;
 
-/* draws a color to the buffer according to the draw settings (n must be >= 19 or does nothing.) */
+/* draws a color to the buffer according to the draw settings (n must be >= 20 or does nothing.) */
 size_t draw_color(color_t color, char* buf, size_t n);
 
 size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size_t c_off, int step);
-void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* procs, size_t r_size, size_t c_size);
+void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* procs, size_t r_size);
 
 #endif

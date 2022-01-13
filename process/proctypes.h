@@ -47,6 +47,27 @@ typedef struct proc_cpuavg_t_ {
 		ttime;
 } proc_cpuavg_t;
 
+typedef struct cputimes_t_ {
+	timedelta_t
+		user,
+		nice, 
+		system,
+		idle,
+		iowait,
+		irq,
+		softirq,
+		steal,
+		guest,
+		guest_nice,
+		total;
+} cputimes_t;
+
+typedef struct cpuinfo_t_ {
+	cputimes_t total;
+	u16 num_cores;
+	cputimes_t* cores;
+} cpuinfo_t;
+
 typedef struct procinfo_t_ {
 	uint16_t flags;
 #ifdef MTOP_PROC_DRAW
@@ -69,6 +90,12 @@ typedef struct procinfo_t_ {
 		mem_pct;
 	proc_cpuavg_t cpuavg;
 } procinfo_t;
+
+typedef struct sysinfo_t_ {
+	size_t num_procs;
+	size_t running;
+	cpuinfo_t cpu;
+} sysinfo_t;
 
 #define PROC_PIDOF(PROC) (PROC).tid
 #define PROC_USEROF(PROC) (PROC).ruser

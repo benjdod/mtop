@@ -9,7 +9,7 @@
 #define I_EPS(val, eps) (((val) < (eps)) ? 0 : (val))
 #define F_EPS(val, eps) (((val) < (eps)) ? 0.0F : (val))
 
-char* null_cmd = "\0";
+char* null_cmd = "(nil)";
 
 static long jiffy = 1;
 static long pagesize = 1;
@@ -398,7 +398,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	const char *user_ptr = PROC_USEROF(proc);
 
 	size_t userlen = strlen(user_ptr);
-	p.user 		= (char*) x_malloc((userlen + 1), sizeof(char));
+	p.user 		= (char*) x_calloc((userlen + 1), sizeof(char));
 	p.user[userlen] = '\0';
 	x_strncpy(p.user, user_ptr, userlen);
 
@@ -408,9 +408,8 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 		cmd_ptr = strip_pathinfo(proc.cmd);
 
 		size_t cmd_len = strlen(cmd_ptr);
-		p.cmd = x_malloc((cmd_len + 1), sizeof(char));
+		p.cmd = x_calloc((cmd_len + 1), sizeof(char));
 		x_strncpy(p.cmd, cmd_ptr, cmd_len);
-		//free(*proc.cmdline);
 	} else {
 		p.cmd = null_cmd;
 	}

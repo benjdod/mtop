@@ -187,7 +187,6 @@ int cmtop(int argc, char** argv) {
 #define DO_SLEEP() usleep(opt.refresh_rate * 1000)
 
 #ifdef MTOP_DRAW_COLOR
-	draw_setopts((DRAW_COLOR|DRAW_RGBCOLOR));
 	//tty_writes("\e[32;1m");
 	//tty_writes("\e[38;2;20;220;20m");
 	/*
@@ -258,7 +257,7 @@ int cmtop(int argc, char** argv) {
 		dbuf_flush(&dbuf);
 
 		proclist_foreach(&info.procs, &advance_offset);
-		DO_SLEEP();
+		if (! ch) DO_SLEEP();
 	}
 
 	//while (! tty_readc()) ;

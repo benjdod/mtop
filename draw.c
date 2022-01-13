@@ -8,12 +8,6 @@
 #include "drawbuffer.h"
 #include "opt.h"
 
-static uint16_t flags = 0;
-
-void draw_setopts(uint16_t f) {
-    flags = f;
-}
-
 /*
 static unsigned int isset(unsigned int flag) {
     return flags & flag;
@@ -75,7 +69,7 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
 
 void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t c_size) {
 
-    char buf[c_size+1];
+    char buf[info->display_size + 1];
 
 	if (info->selected_index < info->draw_offset) {
 		info->draw_offset = info->selected_index;
@@ -141,15 +135,15 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size
 
 	// draw info window (this contains details for
 	// the selected process
-    for (size_t i = 0; i < c_size; i++) dbuf_addc(dbuf, '-');
+    for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');
     SET_PRIMARYCOLOR();
     for (size_t i = 0; i < info_winsz; i++) {
-        x_memset(buf, ' ', c_size);
-        size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, c_size, i);
-        while (w < c_size) {
+        x_memset(buf, ' ', info->display_size);
+        size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
+        while (w < info->display_size) {
             buf[w++] = ' ';
         }
-        dbuf_addsn(dbuf, buf, c_size);
+        dbuf_addsn(dbuf, buf, info->display_size);
     }
     SET_SECONDARYCOLOR();
 }

@@ -4,9 +4,6 @@
 #include "proc.h"
 #include "drawbuffer.h"
 
-#define DRAW_COLOR      0x0001
-#define DRAW_RGBCOLOR   0x0002
-
 #define COLOR_BLACK     0
 #define COLOR_RED       1
 #define COLOR_GREEN     2
@@ -36,8 +33,6 @@ typedef struct color_t_ {
         stage,      // foreground or background
         nature;     // normal or bright
 } color_t;
-
-void draw_setopts(uint16_t flags);
 
 /* draws a color to the buffer according to the draw settings (n must be >= 19 or does nothing.) */
 size_t draw_color(color_t color, char* buf, size_t n);

@@ -108,4 +108,5 @@ inline char pd_charat(procinfo_t* p, size_t offset) {
     char out = p->drawdata.cache[idx];
 
     return (out != '\0') ? out : ' ';
+//	return '#';
 }

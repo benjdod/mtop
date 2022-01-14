@@ -9,7 +9,6 @@ add_executable(mtop
 	opt.c
 	mtop.c
 	error.c
-	mtxline.c
 	draw.c
 	xutil.c
 )

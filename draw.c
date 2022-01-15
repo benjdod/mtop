@@ -77,7 +77,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 
 	if (info->selected_index < info->draw_offset) {
 		info->draw_offset = info->selected_index;
-	} else if (info->selected_index > info->draw_offset + info->real_size) {
+	} else if (info->selected_index >= info->draw_offset + info->real_size) {
 		info->draw_offset = info->selected_index - info->real_size + 1;
 	} 
 

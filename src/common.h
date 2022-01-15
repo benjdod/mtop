@@ -36,7 +36,6 @@
 /* FLAGS */
 
 #define MTOP_PROC_DRAW
-#define MTOP_DRAW_COLOR
 
 // XXX: should we make these ourselves?
 

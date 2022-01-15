@@ -18,7 +18,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE. */
 
-#ifndef _COMMON_H
+#ifndef MTOP_COMMON_H
+#define MTOP_COMMON_H
 
 // we include os level dependencies here, and we can also shim missing functionality 
 #include <stdlib.h>
@@ -31,7 +32,6 @@
 #include <proc/readproc.h>	// readproc, openproc, closeproc
 #include <time.h>
 
-#define _COMMON_H
 
 /* FLAGS */
 
@@ -48,6 +48,5 @@ typedef     int8_t      i8;
 typedef     int16_t     i16;
 typedef     int32_t     i32;
 typedef     int64_t     i64;
-
 
 #endif

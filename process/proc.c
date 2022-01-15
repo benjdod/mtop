@@ -360,6 +360,7 @@ size_t procs_update(procs_info_t *info) {
 
 			if (pl_cur_eq(&cur, &info->selected)) {
 				pl_cur_prev(&info->selected);
+				info->selected_index--;
 			}
 
 			pl_cur_remove(&cur, PL_CURSHIFT_RIGHT);

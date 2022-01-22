@@ -82,12 +82,35 @@ typedef struct cputimes_t_ {
 		total;
 } cputimes_t;
 
+/** fields related to CPU and CPU cores state 
+ */
 typedef struct cpuinfo_t_ {
-	cputimes_t total;
+	cputimes_t times;
 	u16 num_cores;
-	cputimes_t* cores;
+	cputimes_t* coretimes;
 } cpuinfo_t;
 
+/** global memory information 
+ */
+typedef struct meminfo_t_ {
+	u64 total;
+	u64 free;
+	u64 available;
+	u64 swap_total;
+	u64 swap_free;
+} meminfo_t;
+
+/** a collection of fields related to the global system state 
+ * */
+typedef struct sysinfo_t_ {
+	size_t num_procs;
+	size_t running;
+	cpuinfo_t cpu;
+	meminfo_t mem;
+} sysinfo_t;
+
+/** internal process information struct!
+ */
 typedef struct procinfo_t_ {
 	uint16_t flags;
 #ifdef MTOP_PROC_DRAW
@@ -111,18 +134,7 @@ typedef struct procinfo_t_ {
 	proc_cpuavg_t cpuavg;
 } procinfo_t;
 
-typedef struct sysinfo_t_ {
-	size_t num_procs;
-	size_t running;
-	cpuinfo_t cpu;
-} sysinfo_t;
-
 #define PROC_PIDOF(PROC) (PROC).tid
 #define PROC_USEROF(PROC) (PROC).ruser
-
-
-//#define TIMEDELTA_SHIFT(TD) {(TD).last = (TD).current;}
-
-
 
 #endif

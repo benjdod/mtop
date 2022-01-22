@@ -255,6 +255,11 @@ void pl_cur_remove(proclist_cur_t* cur, u8 shift_dir) {
         pl_cur_prev(cur);
     } else {
         pl_cur_next(cur);
+		if (cur->current != NULL && cur->current->next == NULL) { // last element in list
+			pl_cur_prev(cur);
+		} else {
+			pl_cur_next(cur);
+		}
     }
 
     proclist_remove(list, rm->pid);

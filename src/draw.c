@@ -28,6 +28,8 @@
 #include "drawbuffer.h"
 #include "opt.h"
 
+#define SYSINFO_MAX_ROWS
+
 /*
 static unsigned int isset(unsigned int flag) {
     return flags & flag;
@@ -87,6 +89,40 @@ size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size
     return i*step;
 }
 
+static size_t draw_system_info(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t rows) {
+
+#define CHECK_RETURN() {if (rows > 0 && rows_printed >= rows ) return rows;}
+	size_t rows_printed = 0;
+	size_t w = 0;
+
+	char buf[r_size + 1];
+
+	meminfo_t* memp = &info->sys.mem;
+
+	// XXX: this smells pretty bad
+
+	w = snprintf(buf, r_size, "Tasks: %lu/%lu, %lu running", info->selected_index + 1, info->sys.num_procs, info->sys.running);
+	dbuf_addsn(dbuf, buf, w);
+	dbuf_addcn(dbuf, ' ', r_size - w);
+
+	rows_printed++;
+	CHECK_RETURN();
+
+	w = snprintf(buf, r_size, "Mem: %lu/%lu, swap: %lu/%lu", memp->free, memp->total, memp->swap_free, memp->swap_total);
+	dbuf_addsn(dbuf, buf, w);
+	dbuf_addcn(dbuf, ' ', r_size - w);
+
+	rows_printed++;
+	CHECK_RETURN();
+	
+	if (rows != 0 && rows > rows_printed) {
+		dbuf_addcn(dbuf, ' ', r_size * (rows - rows_printed));
+		rows_printed += rows - rows_printed;
+	}
+
+	return rows_printed;
+}
+
 /**
  * fills a drawbuffer with screen content. 
  * This is the main screen drawing routine.
@@ -101,7 +137,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 		info->draw_offset = info->selected_index - info->real_size + 1;
 	} 
 
-	size_t sys_info_winsz = 1;
+	size_t sys_info_winsz = 2;
     size_t selected_info_winsz = 3;
 
 	size_t matrix_view_winsz = r_size;
@@ -117,13 +153,9 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 #define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
 #define DRAW_HORIZONTAL_SEP() {for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');}
 
-	for (size_t i = 0; i < sys_info_winsz; i++) {
-		size_t w = snprintf(buf, info->display_size, "Tasks: %lu/%lu, %lu running", info->selected_index + 1, info->sys.num_procs, info->sys.running);
-		dbuf_addsn(dbuf, buf, w);
-		for (int j = w; j < info->display_size; j++) {
-			dbuf_addc(dbuf, ' ');
-		}
-	}
+	// draw system info window
+
+	draw_system_info(dbuf, info, info->display_size, sys_info_winsz);
 	DRAW_HORIZONTAL_SEP();
 
 	proclist_cur_t cursor = pl_cur_init(&info->procs);

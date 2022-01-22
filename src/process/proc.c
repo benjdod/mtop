@@ -92,16 +92,22 @@ size_t proc_state_getstring(char state, char* buf) {
 	return strlen(x_strncpy(buf, proc_state_tostring(state), 13));
 }
 
-cpuinfo_t cpuinfo_init() {
+static cpuinfo_t cpuinfo_init() {
 	cpuinfo_t info;
 	x_memset(&info, 0, sizeof(cpuinfo_t));
 	info.num_cores = (u16) sysconf(_SC_NPROCESSORS_ONLN);
-	info.cores = x_malloc(info.num_cores, sizeof(cputimes_t));
+	info.coretimes = x_malloc(info.num_cores, sizeof(cputimes_t));
 	return info;
 }
 
+static meminfo_t meminfo_init() {
+	meminfo_t out;
+	x_memset(&out, 0, sizeof(meminfo_t));
+	return out;
+}
+
 void cpuinfo_destroy(cpuinfo_t* info) {
-	info->cores = x_free(info->cores);
+	info->coretimes = x_free(info->coretimes);
 }
 
 procs_info_t procs_init() {
@@ -109,6 +115,7 @@ procs_info_t procs_init() {
 	sys.num_procs = 0;
 	sys.running = 0;
 	sys.cpu = cpuinfo_init();
+	sys.mem = meminfo_init();
 
 	procs_info_t pi;
 
@@ -243,7 +250,7 @@ static int read_cpuinfo(cpuinfo_t* info_ptr) {
 	TIMEDELTA_COND_UPDATE(info_ptr->total.guest_nice, guest_nice);
 	TIMEDELTA_COND_UPDATE(info_ptr->total.total, user + nice + system + idle);*/
 
-	CPUTIME_UPDATE(info_ptr->total, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice);
+	CPUTIME_UPDATE(info_ptr->times, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice);
 
 #define SEEK_NEXTLINE(ptr) {while (*ptr != '\n' && *ptr != '\0') ptr++; if (*ptr == '\n') ptr++;}
 
@@ -271,10 +278,39 @@ static int read_cpuinfo(cpuinfo_t* info_ptr) {
 			&guest_nice
 		);
 
-		CPUTIME_UPDATE(info_ptr->cores[i], user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice);
+		CPUTIME_UPDATE(info_ptr->coretimes[i], user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice);
 	}
 
 #undef CPUINFO_BUFSZ
+
+	return 0;
+}
+
+static int read_meminfo(meminfo_t* info_ptr) {
+#define MEMINFO_BUFSZ 1024
+	FILE* proc_mem = fopen("/proc/meminfo", "r");
+	char buf[MEMINFO_BUFSZ];
+
+
+	x_memset(buf, '\0', MEMINFO_BUFSZ);
+	while ((fgets(buf, MEMINFO_BUFSZ - 1, proc_mem)) != 0) {
+		char* value = buf;
+		while (*value != ' ') value++;
+		while (*value == ' ') value++;
+#define FILL_LU_VALUE(field, searchstring) \
+	if (x_strstr(buf, #searchstring) != NULL) { \
+ 		sscanf(value, "%lu", &info_ptr->field); \
+	} else 
+
+		FILL_LU_VALUE(total, MemTotal)
+		FILL_LU_VALUE(free, MemFree)
+		FILL_LU_VALUE(available, MemAvailable)
+		FILL_LU_VALUE(swap_total, SwapTotal)
+		FILL_LU_VALUE(swap_free, SwapFree)
+		{ // final else clause to satisfy the macro
+		  	; 
+		}
+	}
 
 	return 0;
 }
@@ -338,6 +374,7 @@ size_t procs_update(procs_info_t *info) {
 	size_t running_procs = 0;
 
 	read_cpuinfo(&info->sys.cpu);
+	read_meminfo(&info->sys.mem);
 
 	PROCTAB* processes = openproc(
 			PROC_FILLMEM | 
@@ -353,7 +390,7 @@ size_t procs_update(procs_info_t *info) {
 
 		procinfo_t* proc_ptr = NULL;
 
-		ptime_t period = info->sys.cpu.total.total.delta;
+		ptime_t period = info->sys.cpu.times.total.delta;
 
 		if ((proc_ptr = proclist_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
 			proc_updateinfo(proc_ptr, *proc, period);
@@ -379,7 +416,8 @@ size_t procs_update(procs_info_t *info) {
 		if (!(PL_CURVAL(&cur)->flags & PROCINFO_FOUND)) {
 
 			if (pl_cur_eq(&cur, &info->selected)) {
-				pl_cur_prev(&info->selected);
+				//pl_cur_prev(&info->selected);
+				procs_select(info, PROCS_SELECT_PREV);
 				info->selected_index--;
 			}
 
@@ -435,6 +473,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	if (proc.cmdline != NULL) {
 		cmd_ptr = strip_pathinfo(proc.cmd);
+		//cmd_ptr = proc.cmdline[0];
 
 		size_t cmd_len = strlen(cmd_ptr);
 		p.cmd = x_calloc((cmd_len + 1), sizeof(char));
@@ -442,7 +481,6 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	} else {
 		p.cmd = null_cmd;
 	}
-
 
 	proc_updateinfo(&p, proc, period);
 

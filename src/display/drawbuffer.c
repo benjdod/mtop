@@ -103,17 +103,26 @@ void dbuf_adds(drawbuffer_t* dbuf, const char* str) {
 }
 
 void dbuf_addc(drawbuffer_t* dbuf, char c) {
-    BUF_EXPAND(dbuf->chbuf, char, dbuf->chbuf_length, dbuf->chbuf_size, 1);
+	return dbuf_addcn(dbuf, c, 1);
+}
+
+void dbuf_addcn(drawbuffer_t* dbuf, char c, size_t n) {
+	if (n == 0) return;
+    BUF_EXPAND(dbuf->chbuf, char, dbuf->chbuf_length, dbuf->chbuf_size, n);
+	if (n == 1) {
+		dbuf->chbuf[dbuf->chbuf_length] = c;
+	} else {
+		x_memset(dbuf->chbuf + dbuf->chbuf_length, c, n);
+	}
     dbuf->chbuf[dbuf->chbuf_length] = c;
     char* new_str = dbuf->chbuf + dbuf->chbuf_length;
-    dbuf->chbuf_length += 1;
+    dbuf->chbuf_length += n;
 
-        // append to the latest dstring
     if (dbuf->dstrbuf_length > 0 && dbuf->buffer[dbuf->length - 1].type == DITEM_DSTRING) {
         dstring_t* last_string = & (dbuf->dstrbuf[dbuf->buffer[dbuf->length - 1].idx]);
-        last_string->len += 1;
+        last_string->len += n;
     } else {    // add a new one
-        dbuf_add_dstr(dbuf, (dstring_t) {new_str, 1});
+        dbuf_add_dstr(dbuf, (dstring_t) {new_str, n});
     }
 }
 
@@ -152,7 +161,6 @@ size_t dbuf_renderto(drawbuffer_t* dbuf, char* dest, size_t n) {
 
     return i_write;
 }
-
 
 size_t dbuf_draw(drawbuffer_t* dbuf) {
     

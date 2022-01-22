@@ -300,16 +300,16 @@ void print_timedelta(timedelta_t td, const char *title) {
 }
 
 void print_cpuinfo(cpuinfo_t cpuinfo) {
-	print_timedelta(cpuinfo.total.user, "user");
-	print_timedelta(cpuinfo.total.nice, "nice");
-	print_timedelta(cpuinfo.total.system, "system");
-	print_timedelta(cpuinfo.total.idle, "idle");
-	print_timedelta(cpuinfo.total.iowait, "iowait");
-	print_timedelta(cpuinfo.total.irq, "irq");
-	print_timedelta(cpuinfo.total.softirq, "softirq");
-	print_timedelta(cpuinfo.total.steal, "steal");
-	print_timedelta(cpuinfo.total.guest, "guest");
-	print_timedelta(cpuinfo.total.guest_nice, "guest_nice");
+	print_timedelta(cpuinfo.times.user, "user");
+	print_timedelta(cpuinfo.times.nice, "nice");
+	print_timedelta(cpuinfo.times.system, "system");
+	print_timedelta(cpuinfo.times.idle, "idle");
+	print_timedelta(cpuinfo.times.iowait, "iowait");
+	print_timedelta(cpuinfo.times.irq, "irq");
+	print_timedelta(cpuinfo.times.softirq, "softirq");
+	print_timedelta(cpuinfo.times.steal, "steal");
+	print_timedelta(cpuinfo.times.guest, "guest");
+	print_timedelta(cpuinfo.times.guest_nice, "guest_nice");
 	printf("\n");
 }
 

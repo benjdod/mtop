@@ -109,6 +109,11 @@ typedef struct sysinfo_t_ {
 	meminfo_t mem;
 } sysinfo_t;
 
+typedef struct cmdline_args_t_ {
+	int argc;
+	char** argv;
+} cmdline_args_t;
+
 /** internal process information struct!
  */
 typedef struct procinfo_t_ {
@@ -132,6 +137,7 @@ typedef struct procinfo_t_ {
 		cpu_pct,
 		mem_pct;
 	proc_cpuavg_t cpuavg;
+	cmdline_args_t args;
 } procinfo_t;
 
 #define PROC_PIDOF(PROC) (PROC).tid

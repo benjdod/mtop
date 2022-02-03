@@ -55,6 +55,54 @@ static char* strip_pathinfo(char* cmd_path) {
 	return (char*) (cmd_path + last_fslash);
 }
 
+static cmdline_args_t make_cmdline_args(char** argp) {
+	cmdline_args_t args;
+	int arg_idx = 0;
+	int num_args = 0;
+
+	args.argc = 0;
+	args.argv = NULL;
+
+	if (argp == NULL) {
+		return args;
+	}
+
+	while (argp[arg_idx] != NULL && argp[arg_idx][0] != '\0') {
+		arg_idx++; num_args++;
+	}
+
+	args.argc = num_args;
+	args.argv = x_cvalloc(num_args, sizeof(char*), (long) NULL);
+
+	for (int i = 0; i < num_args; i++) {
+		size_t arg_length = x_strlen(argp[i]);
+		args.argv[i] = x_malloc(arg_length + 1, sizeof(char));
+		x_strncpy(args.argv[i], argp[i], arg_length);
+		args.argv[i][arg_length] = '\0';
+	}
+
+	return args;
+
+	/*
+	while (1) {
+		printf("%s\n", p);
+		while (*p != '\0') {
+			p++;
+		}
+		p++;
+
+		if (*p == '\0') break;
+	}
+	*/
+}
+
+static void destroy_cmdline_args(cmdline_args_t* argp) {
+	for (int i = 0; i < argp->argc; i++) {
+		argp->argv[i] = x_free(argp->argv[i]);
+	}
+	argp->argc = 0;
+}
+
 const char* proc_state_tostring(char state) {
 
 	// https://man7.org/linux/man-pages/man5/proc.5.html > /proc/[pid]/stat > state
@@ -482,6 +530,8 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 		p.cmd = null_cmd;
 	}
 
+	p.args = make_cmdline_args(proc.cmdline);
+
 	proc_updateinfo(&p, proc, period);
 
 	return p;
@@ -493,5 +543,13 @@ void proc_freeinfo(procinfo_t* p_info) {
 	if (p_info->cmd != null_cmd) {
 		x_free(p_info->cmd);
 	}
+
+	if (p_info->args.argc > 0) {
+		destroy_cmdline_args(&p_info->args);
+	}
 }
 
+void proc_dummymain() {
+	procs_info_t procs = procs_init();
+	procs_update(&procs);
+}

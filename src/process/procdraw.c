@@ -74,14 +74,14 @@ size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, u8 section) {
 
     switch (section) {
         case 0:
-            w = snprintf(buf, n, "%s - %s (%d) %c (%s)", p->user, p->cmd, p->pid, p->state, proc_state_tostring(p->state));
+            //w = snprintf(buf, n, "%s - %s (%d) %c (%s)", p->user, p->cmd, p->pid, p->state, proc_state_tostring(p->state));
+            w = x_snprintarray(buf, n, p->args.argv, p->args.argc, " ");
             break;
         case 1:
             w = snprintf(buf, n, "%llu, %llu, %llu, %llu - clock ticks of execution (user, sys, cu, cs)", ct.utime.current, ct.stime.current, ct.cutime.current, ct.cstime.current);
             break;
         case 2:
             w = snprintf(buf, n, "%lu %lu %lu %.2f - memory and cpu (res, shared, vsz, cpu %%)", p->res_mem, p->shr_mem, p->virt_mem, p->cpu_pct);
-            //w = snprintf(buf, n, "hello");
             break;
         default:
             return 0;

@@ -13,11 +13,11 @@ add_executable(mtop
 	src/xutil.c
 )
 
-SET(GCC_COMPILE_FLAGS "-g -O2 -Wall")
+SET(GCC_COMPILE_FLAGS "-g -O0 -Wall")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
 SET(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-add_compile_options(-g)
+add_compile_options(-g -O0)
 
 target_link_libraries(mtop
 	PUBLIC display

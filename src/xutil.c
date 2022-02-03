@@ -71,6 +71,39 @@ void* x_memset(void* s, int c, size_t n) {
     return memset(s,c,n);
 }
 
+/**
+ * Print an array of strings seperated by a delimiter to a buffer.
+ * If any char * in the array is NULL it will be skipped.
+ * */
+size_t x_snprintarray(char* dest, size_t n, char** strings, size_t num_strings, const char* delimiter) {
+
+    if (num_strings == 0 || strings == NULL) return 0;
+
+    size_t delim_length = x_strlen(delimiter);
+    size_t offset = 0;
+    size_t copy_bytes = 0;
+
+    for (size_t i = 0; i < num_strings && offset < n; i++) {
+        if (strings[i] == NULL) continue;
+        if (offset < n) {
+            size_t arg_length = x_strlen(strings[i]);
+            copy_bytes = X_MIN(arg_length, n - offset);
+            x_strncpy(&dest[offset], strings[i], copy_bytes);
+            offset += copy_bytes;
+        } 
+        if (offset < n) {
+            copy_bytes = X_MIN(delim_length, n - offset);
+            x_strncpy(&dest[offset], delimiter, copy_bytes);
+            offset += copy_bytes;
+        }
+    }
+
+    if (offset == 0) dest[offset++] = ' '; 
+
+    return offset;
+}
+
+
 // memory functions
 
 void* x_malloc(size_t n, size_t s) {

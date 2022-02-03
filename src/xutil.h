@@ -36,6 +36,7 @@ int x_strncmp(const char* a, const char* b, size_t n);
 size_t x_strlen(const char* s);
 char* x_strncpy(char* dest, const char* src, size_t n);
 void* x_memset(void* s, int c, size_t n);
+size_t x_snprintarray(char* dest, size_t n, char** strings, size_t num_strings, const char* delimiter);
 
 // memory allocation
 

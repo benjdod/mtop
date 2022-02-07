@@ -125,6 +125,7 @@ void pd_updatecache(procinfo_t* p) {
 
 inline char pd_charat(procinfo_t* p, size_t offset) {
 
+	/*
     // XXX: overflows here? 
     // should we modulo after subtracting process offset?
     long idx = ((offset - p->drawdata.offset) % (p->drawdata.length + p->drawdata.padding));
@@ -133,5 +134,17 @@ inline char pd_charat(procinfo_t* p, size_t offset) {
     char out = p->drawdata.cache[idx];
 
     return (out != '\0') ? out : ' ';
-//	return '#';
+	*/
+
+	long span = p->drawdata.length;
+
+//	if (offset >= span) return ' ';
+	long idx = (offset) % span;
+	if (idx < 0) return ' ';
+	
+	char out = p->drawdata.cache[idx];
+
+	long cutover = p->drawdata.offset % span;
+
+	return (cutover < idx && out) ? out : ' ';
 }

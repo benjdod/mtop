@@ -133,18 +133,38 @@ inline char pd_charat(procinfo_t* p, size_t offset) {
 
     char out = p->drawdata.cache[idx];
 
-    return (out != '\0') ? out : ' ';
-	*/
+    //return (out != '\0') ? out : ' ';
+    */
+	
+	long span = p->drawdata.length + p->drawdata.padding;
 
-	long span = p->drawdata.length;
-
-//	if (offset >= span) return ' ';
 	long idx = (offset) % span;
 	if (idx < 0) return ' ';
 	
 	char out = p->drawdata.cache[idx];
 
-	long cutover = p->drawdata.offset % span;
+/*
+	long cutover_lo = (offset - p->drawdata.offset) % (p->drawdata.length + p->drawdata.padding);
+    long cutover_hi = cutover_lo + span;
 
-	return (cutover < idx && out) ? out : ' ';
+    if (cutover_lo < 0) return ' ';
+
+    if (idx > cutover_hi || idx < cutover_lo) return ' ';
+    */
+    
+    //long cutover = p->drawdata.offset;
+    long tail = p->drawdata.offset % span;
+    long head = (p->drawdata.offset + PD_WINSZ) % span;
+
+    // XXX: there should be some logic somewhere in the program that ensures that
+    // head and tail will never equal each other (in other words that 
+    // length + padding != PD_WINSZ for any procinfo_t).
+
+    if (head < tail) { // if head is wrapped around before the tail
+        return ((idx > 0 && idx <= head) || (idx < span && idx >= tail)) ? out : ' ';
+    } else {
+        return (idx >= tail && idx < head) ? out : ' ';
+    }
+
+	//return (out) ? out : ' ';
 }

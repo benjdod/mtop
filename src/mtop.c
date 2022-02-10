@@ -122,8 +122,8 @@ void randomize_drawvalues() {
 	proclist_cur_t cur = pl_cur_init(&info.procs);
 	pl_cur_next(&cur);
 	while (cur.current != NULL) {
-		cur.current->value.drawdata.offset = rand() % 50;
-		cur.current->value.drawdata.padding = 10 + (rand() % 6);
+		cur.current->value.drawdata.offset = 0 - rand() % 10;
+		cur.current->value.drawdata.padding = 0 + (rand() % 6);
 		pl_cur_next(&cur);
 	}
 }

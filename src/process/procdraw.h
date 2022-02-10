@@ -26,6 +26,8 @@
 #include "proctypes.h"
 #include "proc.h"
 
+#define PD_WINSZ 20
+
 size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, u8 section);
 size_t pd_drawcpuinfo(cpuinfo_t cpuinfo, char* buf, size_t n, u8 section);
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n);

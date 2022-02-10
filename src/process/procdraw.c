@@ -161,7 +161,7 @@ inline char pd_charat(procinfo_t* p, size_t offset) {
     // length + padding != PD_WINSZ for any procinfo_t).
 
     if (head < tail) { // if head is wrapped around before the tail
-        return ((idx > 0 && idx <= head) || (idx < span && idx >= tail)) ? out : ' ';
+        return ((idx >= 0 && idx < head) || (idx < span && idx >= tail)) ? out : ' ';
     } else {
         return (idx >= tail && idx < head) ? out : ' ';
     }

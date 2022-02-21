@@ -6,6 +6,6 @@ Because why can't your system be fun and functional at the same time?
 
 ### Building
 
-Build with CMake: `cmake .` The target executable is called `mtop` and will be placed in the root folder. 
+Build with CMake: `cmake . && make` The target executable is called `mtop` and will be placed in the root folder. 
 
 🚨 *This program is still under development and thus is not guaranteed to be stable or even functional. Use at your own risk.*

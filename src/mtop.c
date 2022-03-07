@@ -242,6 +242,12 @@ int cmtop(int argc, char** argv) {
 
 		if (ch) {
 			switch (ch) {
+				case 'o':
+					info.open_windows ^= PROCS_WINDOW_SYSINFO;
+					break;
+				case 'p':
+					info.open_windows ^= PROCS_WINDOW_PROCINFO;
+					break;
 				case 'h':
 					procs_select(&info, PROCS_SELECT_PREV);
 					break;

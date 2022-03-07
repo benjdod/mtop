@@ -137,8 +137,10 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 		info->col_offset = info->selected_index - info->real_size + 1;
 	} 
 
-	size_t sys_info_winsz = 2;
-    size_t selected_info_winsz = 3;
+    // FIXME: builtin color drawing doesnt work :(
+#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}	
+#define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
+#define DRAW_HORIZONTAL_SEP() {for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');}
 
 	size_t matrix_view_winsz = r_size;
 
@@ -146,17 +148,19 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 	// sys info + horizontal sep and 
 	// selected info + horiz sep 
 
-	matrix_view_winsz -= (sys_info_winsz + selected_info_winsz + 2);
+    if (info->open_windows & PROCS_WINDOW_SYSINFO) {
+        size_t sys_info_winsz = 2;
+        matrix_view_winsz -= (sys_info_winsz + 1);
+        // draw system info window
+        draw_system_info(dbuf, info, info->display_size, sys_info_winsz);
+        DRAW_HORIZONTAL_SEP();
+    }
 
-// FIXME: builtin color drawing doesnt work :(
-#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}	
-#define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
-#define DRAW_HORIZONTAL_SEP() {for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');}
+    size_t selected_info_winsz = (info->open_windows & PROCS_WINDOW_PROCINFO) ? 3 : 0;
 
-	// draw system info window
-
-	draw_system_info(dbuf, info, info->display_size, sys_info_winsz);
-	DRAW_HORIZONTAL_SEP();
+    if (selected_info_winsz > 0) {
+        matrix_view_winsz -= (selected_info_winsz + 1);
+    }
 
 	proclist_cur_t cursor = pl_cur_init(&info->procs);
 	pl_cur_next(&cursor);
@@ -210,15 +214,17 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 
 	// draw info window (this contains details for
 	// the selected process
-	DRAW_HORIZONTAL_SEP();
-    SET_PRIMARYCOLOR();
-    for (size_t i = 0; i < selected_info_winsz; i++) {
-        x_memset(buf, ' ', info->display_size);
-        size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
-        /*while (w < info->display_size) {
-            buf[w++] = ' ';
-        }*/
-        dbuf_addsn(dbuf, buf, info->display_size);
+    if (info->open_windows & PROCS_WINDOW_PROCINFO) {
+        DRAW_HORIZONTAL_SEP();
+        SET_PRIMARYCOLOR();
+        for (size_t i = 0; i < selected_info_winsz; i++) {
+            x_memset(buf, ' ', info->display_size);
+            size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
+            /*while (w < info->display_size) {
+                buf[w++] = ' ';
+            }*/
+            dbuf_addsn(dbuf, buf, info->display_size);
+        }
+        SET_SECONDARYCOLOR();
     }
-    SET_SECONDARYCOLOR();
 }

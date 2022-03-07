@@ -30,6 +30,11 @@
 #define PROCS_SELECT_NEXT 	0x3
 #define PROCS_SELECT_PREV   0x4
 
+// window bitflags for the open_windows field
+#define PROCS_WINDOW_NONE 0x0
+#define PROCS_WINDOW_SYSINFO 0x1
+#define PROCS_WINDOW_PROCINFO 0x2
+
 typedef struct procs_info_t_ {
 	//size_t num_procs;
 	sysinfo_t sys;
@@ -41,6 +46,7 @@ typedef struct procs_info_t_ {
 	size_t selected_index;
 	size_t col_offset;
 	size_t row_offset;
+	u16 open_windows;
 
 	// display_size = query_size * step
 	//

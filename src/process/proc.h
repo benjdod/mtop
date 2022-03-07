@@ -39,7 +39,8 @@ typedef struct procs_info_t_ {
 	proclist_cur_t selected;
 #ifdef MTOP_PROC_DRAW
 	size_t selected_index;
-	size_t draw_offset;
+	size_t col_offset;
+	size_t row_offset;
 
 	// display_size = query_size * step
 	//

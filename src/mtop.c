@@ -243,12 +243,16 @@ int cmtop(int argc, char** argv) {
 		if (ch) {
 			switch (ch) {
 				case 'h':
-				case 'j':
 					procs_select(&info, PROCS_SELECT_PREV);
 					break;
-				case 'k':
 				case 'l':
 					procs_select(&info, PROCS_SELECT_NEXT);
+					break;
+				case 'j':
+					info.row_offset += 1;
+					break;
+				case 'k':
+					if (info.row_offset > 0) info.row_offset--;
 					break;
 				case 'g':
 				case '^':

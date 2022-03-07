@@ -131,10 +131,10 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 
     char buf[info->display_size + 1];
 
-	if (info->selected_index < info->draw_offset) {
-		info->draw_offset = info->selected_index;
-	} else if (info->selected_index >= info->draw_offset + info->real_size) {
-		info->draw_offset = info->selected_index - info->real_size + 1;
+	if (info->selected_index < info->col_offset) {
+		info->col_offset = info->selected_index;
+	} else if (info->selected_index >= info->col_offset + info->real_size) {
+		info->col_offset = info->selected_index - info->real_size + 1;
 	} 
 
 	size_t sys_info_winsz = 2;
@@ -161,7 +161,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 	proclist_cur_t cursor = pl_cur_init(&info->procs);
 	pl_cur_next(&cursor);
 	
-	for (size_t i = 0; i < info->draw_offset; i++) {
+	for (size_t i = 0; i < info->col_offset; i++) {
 		pl_cur_next(&cursor);
 	} 
 
@@ -186,7 +186,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
                     if (sel_visual_idx == -1 && pl_cur_eq(&cur, &info->selected)) {
                         sel_visual_idx = c;
                     }
-                    buf[c] = pd_charat(PL_CURVAL(&cur), r /* + r_off */);
+                    buf[c] = pd_charat(PL_CURVAL(&cur), r  + info->row_offset );
 					pl_cur_next(&cur);
                 } else {
                     buf[c] = ' ';

@@ -141,7 +141,9 @@ inline char pd_charat(procinfo_t* p, size_t offset) {
 	long idx = (offset) % span;
 	if (idx < 0) return ' ';
 	
-	char out = p->drawdata.cache[idx];
+	char out = (idx < p->drawdata.length) 
+        ? p->drawdata.cache[idx]
+        : ' ';
 
 /*
 	long cutover_lo = (offset - p->drawdata.offset) % (p->drawdata.length + p->drawdata.padding);

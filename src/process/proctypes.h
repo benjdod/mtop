@@ -40,11 +40,23 @@ typedef struct timedelta_t_ {
 // ..offset...###length#####...padding.....
 // |---|---|---|---|---|---|---|---|---|---
 
-typedef struct drawdata_t_ {
+typedef struct rand_drawctx_t_ {
+	int rand;
+	int index;
 	int offset;
-	size_t
-		length,
-		padding;
+	int visible;
+} rand_drawctx_t;
+
+typedef struct rand_hashdata_t_ {
+	size_t base;
+	size_t salt;
+} rand_hashdata_t;
+
+typedef struct drawdata_t_ {
+	size_t offset;
+	size_t length;
+	rand_hashdata_t hashdata;
+	rand_drawctx_t ctx;
 	char cache[DRAWDATA_CACHE_LENGTH];
 } drawdata_t;
 #endif

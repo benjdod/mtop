@@ -123,14 +123,21 @@ void randomize_drawvalues() {
 	pl_cur_next(&cur);
 	while (cur.current != NULL) {
 		cur.current->value.drawdata.offset = 0 - rand() % 10;
-		cur.current->value.drawdata.padding = 0 + (rand() % 6);
 		pl_cur_next(&cur);
 	}
 }
 
 void advance_offset(procinfo_t* p) {
-	p->drawdata.offset += 1;
-	p->drawdata.offset += ((p->pid) % 2);
+	//p->drawdata.offset += 1;
+	//p->drawdata.offset += ((p->pid) % 2);
+	rand_drawctx_t* ctx = &p->drawdata.ctx;
+	ctx->offset += 1;
+	if (ctx->offset >= ctx->rand) {
+		ctx->index += 1;
+        ctx->rand = pd_get_interval(p->drawdata.hashdata, ctx->index);
+		ctx->offset = 0;
+		ctx->visible = (ctx->visible) ? 0 : 1;
+    }
 }
 
 #ifdef MTOP_DRAW_COLOR
@@ -321,39 +328,6 @@ void print_cpuinfo(cpuinfo_t cpuinfo) {
 	print_timedelta(cpuinfo.times.guest, "guest");
 	print_timedelta(cpuinfo.times.guest_nice, "guest_nice");
 	printf("\n");
-}
-
-int testlist() {
-
-	proclist_t list = proclist_init();
-
-	pid_t pids[] = {
-		1,
-		3,
-		5,
-		17
-	};
-
-	u16 num_pids = sizeof(pids) / sizeof(pid_t);
-
-	for (int i = 0; i < num_pids; i++) {
-		procinfo_t n;
-		n.pid = pids[i];
-		proclist_insert(&list, n);
-	}
-
-	proclist_cur_t cur = pl_cur_init(&list);
-
-	pl_cur_next(&cur);
-
-	while (pl_cur_at(&cur) != NULL) {
-		printf("%d\n", pl_cur_at(&cur)->pid);
-		pl_cur_next(&cur);
-	}
-
-	proclist_destroy(&list);
-
-	return 0;
 }
 
 int main(int argc, char** argv) {

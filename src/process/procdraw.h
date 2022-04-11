@@ -31,7 +31,8 @@
 size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, u8 section);
 size_t pd_drawcpuinfo(cpuinfo_t cpuinfo, char* buf, size_t n, u8 section);
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n);
-char pd_charat(procinfo_t* p, size_t offset);
+char pd_charat(procinfo_t* p, size_t screen_offset);
+int pd_get_interval(rand_hashdata_t hashdata, size_t index);
 void pd_updatecache(procinfo_t* p);
 
 #endif

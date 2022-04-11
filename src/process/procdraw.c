@@ -123,50 +123,38 @@ void pd_updatecache(procinfo_t* p) {
     p->drawdata.length = pd_drawto(p, p->drawdata.cache, DRAWDATA_CACHE_LENGTH);
 }
 
-inline char pd_charat(procinfo_t* p, size_t offset) {
+int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 
-	/*
-    // XXX: overflows here? 
-    // should we modulo after subtracting process offset?
-    long idx = ((offset - p->drawdata.offset) % (p->drawdata.length + p->drawdata.padding));
-    if (idx < 0) return ' ';
+	#define PSEUDORAND_MIN 10
+	#define PSEUDORAND_MAX 50
+	#define PSEUDORAND_WIDTH (PSEUDORAND_MAX - PSEUDORAND_MIN)
+	#define FNV_OFFSET_BASIS 0xcbf29ce484222325
+	#define FNV_PRIME 0x100000001b3
 
-    char out = p->drawdata.cache[idx];
+	size_t hash = FNV_OFFSET_BASIS;
 
-    //return (out != '\0') ? out : ' ';
-    */
-	
-	long span = p->drawdata.length + p->drawdata.padding;
+	size_t input = hashdata.base + hashdata.salt + index;
 
-	long idx = (offset) % span;
-	if (idx < 0) return ' ';
-	
-	char out = (idx < p->drawdata.length) 
-        ? p->drawdata.cache[idx]
-        : ' ';
+	while (input) {
+		hash *= FNV_PRIME;
+		hash ^= (input & 0xF);
+		input = input >> 4;
+	}
 
-/*
-	long cutover_lo = (offset - p->drawdata.offset) % (p->drawdata.length + p->drawdata.padding);
-    long cutover_hi = cutover_lo + span;
+	return PSEUDORAND_MIN + hash % PSEUDORAND_WIDTH;
+}
 
-    if (cutover_lo < 0) return ' ';
+inline char pd_charat(procinfo_t* p, size_t screen_offset) {
+    rand_drawctx_t ctx = p->drawdata.ctx;
+    int width = ctx.rand - ctx.offset;
+	int visible = ctx.visible;
+	int index = ctx.index;
+	while (width < screen_offset) {	// off by one?
+		width += pd_get_interval(p->drawdata.hashdata, index);
+		visible = (visible) ? 0 : 1; 
+	}
 
-    if (idx > cutover_hi || idx < cutover_lo) return ' ';
-    */
-    
-    //long cutover = p->drawdata.offset;
-    long tail = p->drawdata.offset % span;
-    long head = (p->drawdata.offset + PD_WINSZ) % span;
+    char out = p->drawdata.cache[screen_offset % p->drawdata.length];
 
-    // XXX: there should be some logic somewhere in the program that ensures that
-    // head and tail will never equal each other (in other words that 
-    // length + padding != PD_WINSZ for any procinfo_t).
-
-    if (head < tail) { // if head is wrapped around before the tail
-        return ((idx >= 0 && idx < head) || (idx < span && idx >= tail)) ? out : ' ';
-    } else {
-        return (idx >= tail && idx < head) ? out : ' ';
-    }
-
-	//return (out) ? out : ' ';
+	return (visible) ? out : ' ';
 }

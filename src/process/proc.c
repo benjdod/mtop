@@ -23,6 +23,7 @@
 #include "error.h"
 #include "proclist.h"
 #include "proc.h"
+#include "procdraw.h"
 
 #define PROCINFO_BUFSZ 8192
 #define CPU_PERIOD_EPS 1E-6
@@ -505,6 +506,12 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	x_memset(d.cache, '\0', sizeof(d.cache));
 	p.drawdata = d;
 	p.drawdata.offset = 0;
+
+	p.drawdata.hashdata.base = PROC_PIDOF(proc);
+	p.drawdata.hashdata.salt = 0;
+	p.drawdata.ctx.offset = 0;
+	p.drawdata.ctx.index = 0;
+	p.drawdata.ctx.rand = pd_get_interval(p.drawdata.hashdata, p.drawdata.ctx.index);
 #endif
 
 	// reference defn of proc_t:
@@ -513,18 +520,14 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	p.pid 		= PROC_PIDOF(proc);
 
 	const char *user_ptr = PROC_USEROF(proc);
-
 	size_t userlen = strlen(user_ptr);
 	p.user 		= (char*) x_calloc((userlen + 1), sizeof(char));
 	p.user[userlen] = '\0';
 	x_strncpy(p.user, user_ptr, userlen);
 
 	const char *cmd_ptr;
-
 	if (proc.cmdline != NULL) {
 		cmd_ptr = strip_pathinfo(proc.cmd);
-		//cmd_ptr = proc.cmdline[0];
-
 		size_t cmd_len = strlen(cmd_ptr);
 		p.cmd = x_calloc((cmd_len + 1), sizeof(char));
 		x_strncpy(p.cmd, cmd_ptr, cmd_len);
@@ -533,9 +536,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	}
 
 	p.args = make_cmdline_args(proc.cmdline);
-
 	proc_updateinfo(&p, proc, period);
-
 	return p;
 }
 

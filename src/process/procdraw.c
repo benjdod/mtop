@@ -125,15 +125,15 @@ void pd_updatecache(procinfo_t* p) {
 
 int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 
-	#define PSEUDORAND_MIN 10
-	#define PSEUDORAND_MAX 50
+	#define PSEUDORAND_MIN 4
+	#define PSEUDORAND_MAX 20
 	#define PSEUDORAND_WIDTH (PSEUDORAND_MAX - PSEUDORAND_MIN)
 	#define FNV_OFFSET_BASIS 0xcbf29ce484222325
 	#define FNV_PRIME 0x100000001b3
 
 	size_t hash = FNV_OFFSET_BASIS;
 
-	size_t input = hashdata.base + hashdata.salt + index;
+	size_t input = (hashdata.base + hashdata.salt + index + 1) * (index + 1);
 
 	while (input) {
 		hash *= FNV_PRIME;
@@ -144,17 +144,25 @@ int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 	return PSEUDORAND_MIN + hash % PSEUDORAND_WIDTH;
 }
 
-inline char pd_charat(procinfo_t* p, size_t screen_offset) {
-    rand_drawctx_t ctx = p->drawdata.ctx;
+inline int randd_visible(rand_drawctx_t ctx, rand_hashdata_t hashdata, size_t screen_offset) {
     int width = ctx.rand - ctx.offset;
 	int visible = ctx.visible;
 	int index = ctx.index;
-	while (width < screen_offset) {	// off by one?
-		width += pd_get_interval(p->drawdata.hashdata, index);
-		visible = (visible) ? 0 : 1; 
+	while (width <= screen_offset) {	// off by one?
+		width += pd_get_interval(hashdata, ++index);
+        visible = !visible;
 	}
+    return visible;
+}
 
-    char out = p->drawdata.cache[screen_offset % p->drawdata.length];
+inline char pd_charat(procinfo_t* p, size_t screen_offset) {
+#define DRAWCACHE_PADDING 0
 
-	return (visible) ? out : ' ';
+    size_t final_idx = (screen_offset % (p->drawdata.length + DRAWCACHE_PADDING));
+
+    /* If the final index is within the bounds of the draw cache and is visible according to 
+     * the masking algorithm, return it. Otherwise return a space */
+	return ( final_idx < p->drawdata.length && randd_visible(p->drawdata.ctx, p->drawdata.hashdata, screen_offset))
+        ? p->drawdata.cache[final_idx]
+        : ' ';
 }

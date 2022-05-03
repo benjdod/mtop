@@ -40,13 +40,21 @@ typedef struct timedelta_t_ {
 // ..offset...###length#####...padding.....
 // |---|---|---|---|---|---|---|---|---|---
 
+/** These fields contain information about a
+ * process's generated masking interval
+ */
 typedef struct rand_drawctx_t_ {
+	// the value (length) of the current interval
 	int rand;
+	// index of the current interval
 	int index;
+	// offset into the current interval
 	int offset;
+	// whether or not the current interval is visible
 	int visible;
 } rand_drawctx_t;
 
+/** Process-specific hashdata to randomize interval generation */
 typedef struct rand_hashdata_t_ {
 	size_t base;
 	size_t salt;

@@ -127,17 +127,20 @@ void randomize_drawvalues() {
 	}
 }
 
-void advance_offset(procinfo_t* p) {
-	//p->drawdata.offset += 1;
-	//p->drawdata.offset += ((p->pid) % 2);
-	rand_drawctx_t* ctx = &p->drawdata.ctx;
+void advance_context_offset(rand_drawctx_t* ctx, rand_hashdata_t hashdata) {
 	ctx->offset += 1;
 	if (ctx->offset >= ctx->rand) {
 		ctx->index += 1;
-        ctx->rand = pd_get_interval(p->drawdata.hashdata, ctx->index);
+        ctx->rand = pd_get_interval(hashdata, ctx->index);
 		ctx->offset = 0;
 		ctx->visible = (ctx->visible) ? 0 : 1;
     }
+}
+
+void advance_offset(procinfo_t* p) {
+	//p->drawdata.offset += 1;
+	//p->drawdata.offset += ((p->pid) % 2);
+	advance_context_offset(&p->drawdata.ctx, p->drawdata.hashdata);
 }
 
 #ifdef MTOP_DRAW_COLOR
@@ -330,7 +333,37 @@ void print_cpuinfo(cpuinfo_t cpuinfo) {
 	printf("\n");
 }
 
+int test_matrix_lines() {
+	rand_drawctx_t ctx;
+	ctx.index = 0;
+	ctx.offset = 6;
+	ctx.visible = 1;
+	ctx.rand = 0;
+	rand_hashdata_t hd;
+	hd.base = 1;
+	hd.salt = 1;
+	ctx.rand = pd_get_interval(hd, ctx.index);
+
+	int num_lines = 10;
+	char* lines_str = getenv("COLUMNS");
+	num_lines = lines_str ? atoi(lines_str) : 100;
+
+	while (1) {
+		for (int i = 0; i < num_lines; i++) {
+			putchar(randd_visible(ctx, hd, i) ? '#' : '.');
+		}
+
+		printf("\t%d %d %d %d\n", ctx.index, ctx.offset, ctx.rand, ctx.visible);
+		advance_context_offset(&ctx, hd);
+		///sleep(1);
+		usleep(10000);
+	}
+
+
+	return 0;
+}
+
 int main(int argc, char** argv) {
 	return cmtop(argc, argv);
-	//return testlist();
+	//return test_matrix_lines();
 }

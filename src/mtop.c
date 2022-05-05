@@ -122,25 +122,17 @@ void randomize_drawvalues() {
 	proclist_cur_t cur = pl_cur_init(&info.procs);
 	pl_cur_next(&cur);
 	while (cur.current != NULL) {
-		cur.current->value.drawdata.offset = 0 - rand() % 10;
+		procinfo_t* proc = &cur.current->value;
+		pd_random_drawctx(&proc->drawdata.ctx);
+		proc->drawdata.offset = rand() % 20;
 		pl_cur_next(&cur);
 	}
-}
-
-void advance_context_offset(rand_drawctx_t* ctx, rand_hashdata_t hashdata) {
-	ctx->offset += 1;
-	if (ctx->offset >= ctx->rand) {
-		ctx->index += 1;
-        ctx->rand = pd_get_interval(hashdata, ctx->index);
-		ctx->offset = 0;
-		ctx->visible = (ctx->visible) ? 0 : 1;
-    }
 }
 
 void advance_offset(procinfo_t* p) {
 	//p->drawdata.offset += 1;
 	//p->drawdata.offset += ((p->pid) % 2);
-	advance_context_offset(&p->drawdata.ctx, p->drawdata.hashdata);
+	pd_advance_drawctx(&p->drawdata.ctx);
 }
 
 #ifdef MTOP_DRAW_COLOR
@@ -339,10 +331,9 @@ int test_matrix_lines() {
 	ctx.offset = 6;
 	ctx.visible = 1;
 	ctx.rand = 0;
-	rand_hashdata_t hd;
-	hd.base = 1;
-	hd.salt = 1;
-	ctx.rand = pd_get_interval(hd, ctx.index);
+	ctx.hashdata.base = 1;
+	ctx.hashdata.salt = 1;
+	ctx.rand = pd_get_interval(ctx.hashdata, ctx.index);
 
 	int num_lines = 10;
 	char* lines_str = getenv("COLUMNS");
@@ -350,15 +341,14 @@ int test_matrix_lines() {
 
 	while (1) {
 		for (int i = 0; i < num_lines; i++) {
-			putchar(randd_visible(ctx, hd, i) ? '#' : '.');
+			putchar(randd_visible(ctx, i) ? '#' : '.');
 		}
 
 		printf("\t%d %d %d %d\n", ctx.index, ctx.offset, ctx.rand, ctx.visible);
-		advance_context_offset(&ctx, hd);
+		pd_advance_drawctx(&ctx);
 		///sleep(1);
 		usleep(10000);
 	}
-
 
 	return 0;
 }

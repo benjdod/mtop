@@ -507,11 +507,7 @@ procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 	p.drawdata = d;
 	p.drawdata.offset = 0;
 
-	p.drawdata.hashdata.base = PROC_PIDOF(proc);
-	p.drawdata.hashdata.salt = 0;
-	p.drawdata.ctx.offset = 0;
-	p.drawdata.ctx.index = 0;
-	p.drawdata.ctx.rand = pd_get_interval(p.drawdata.hashdata, p.drawdata.ctx.index);
+	p.drawdata.ctx = pd_init_drawctx(PROC_PIDOF(proc));
 #endif
 
 	// reference defn of proc_t:

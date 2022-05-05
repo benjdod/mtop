@@ -144,25 +144,63 @@ int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 	return PSEUDORAND_MIN + hash % PSEUDORAND_WIDTH;
 }
 
-inline int randd_visible(rand_drawctx_t ctx, rand_hashdata_t hashdata, size_t screen_offset) {
+rand_hashdata_t pd_init_hashdata(pid_t pid) {
+	rand_hashdata_t hd =  {
+		pid, 	// base
+		0 		// salt
+	};
+	return hd;
+}
+
+rand_drawctx_t pd_init_drawctx(pid_t pid) {
+	rand_drawctx_t ctx;
+	ctx.hashdata = pd_init_hashdata(pid);
+	ctx.offset = 0;
+	ctx.index = 0;
+	ctx.rand = pd_get_interval(ctx.hashdata, ctx.index);
+	return ctx;
+}
+
+void pd_advance_drawctx_interval(rand_drawctx_t* ctx) {
+	ctx->index += 1;
+	ctx->rand = pd_get_interval(ctx->hashdata, ctx->index);
+	ctx->offset = 0;
+	ctx->visible = (ctx->visible) ? 0 : 1;
+}
+
+void pd_advance_drawctx(rand_drawctx_t* ctx) {
+	ctx->offset += 1;
+	if (ctx->offset >= ctx->rand) {
+		pd_advance_drawctx_interval(ctx);
+	}
+}
+
+void pd_random_drawctx(rand_drawctx_t* ctx) {
+	while (rand() < RAND_MAX / 3) {
+		pd_advance_drawctx_interval(ctx);
+	}
+	ctx->offset = (rand() + ctx->hashdata.base) % ctx->rand;
+}
+
+inline int randd_visible(rand_drawctx_t ctx, size_t screen_offset) {
     int width = ctx.rand - ctx.offset;
 	int visible = ctx.visible;
 	int index = ctx.index;
 	while (width <= screen_offset) {	// off by one?
-		width += pd_get_interval(hashdata, ++index);
+		width += pd_get_interval(ctx.hashdata, ++index);
         visible = !visible;
 	}
     return visible;
 }
 
 inline char pd_charat(procinfo_t* p, size_t screen_offset) {
-#define DRAWCACHE_PADDING 0
+#define DRAWCACHE_PADDING 1
 
-    size_t final_idx = (screen_offset % (p->drawdata.length + DRAWCACHE_PADDING));
+    size_t final_idx = ((screen_offset + p->drawdata.offset) % (p->drawdata.length + DRAWCACHE_PADDING));
 
     /* If the final index is within the bounds of the draw cache and is visible according to 
      * the masking algorithm, return it. Otherwise return a space */
-	return ( final_idx < p->drawdata.length && randd_visible(p->drawdata.ctx, p->drawdata.hashdata, screen_offset))
+	return ( final_idx < p->drawdata.length && randd_visible(p->drawdata.ctx, screen_offset))
         ? p->drawdata.cache[final_idx]
         : ' ';
 }

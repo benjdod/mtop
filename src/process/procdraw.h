@@ -34,6 +34,8 @@ size_t pd_drawto(procinfo_t* p, char* buf, size_t n);
 rand_drawctx_t pd_init_drawctx(pid_t pid);
 void pd_advance_drawctx(rand_drawctx_t* ctx);
 void pd_advance_drawctx_interval(rand_drawctx_t* ctx);
+void pd_retract_drawctx(rand_drawctx_t* ctx);
+void pd_retract_drawctx_interval(rand_drawctx_t* ctx);
 void pd_random_drawctx(rand_drawctx_t* ctx);
 int randd_visible(rand_drawctx_t ctx, size_t screen_offset);
 char pd_charat(procinfo_t* p, size_t screen_offset);

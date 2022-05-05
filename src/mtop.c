@@ -132,7 +132,7 @@ void randomize_drawvalues() {
 void advance_offset(procinfo_t* p) {
 	//p->drawdata.offset += 1;
 	//p->drawdata.offset += ((p->pid) % 2);
-	pd_advance_drawctx(&p->drawdata.ctx);
+	pd_retract_drawctx(&p->drawdata.ctx);
 }
 
 #ifdef MTOP_DRAW_COLOR

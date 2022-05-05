@@ -125,8 +125,8 @@ void pd_updatecache(procinfo_t* p) {
 
 int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 
-	#define PSEUDORAND_MIN 4
-	#define PSEUDORAND_MAX 20
+	#define PSEUDORAND_MIN 25
+	#define PSEUDORAND_MAX 60
 	#define PSEUDORAND_WIDTH (PSEUDORAND_MAX - PSEUDORAND_MIN)
 	#define FNV_OFFSET_BASIS 0xcbf29ce484222325
 	#define FNV_PRIME 0x100000001b3
@@ -172,6 +172,21 @@ void pd_advance_drawctx(rand_drawctx_t* ctx) {
 	ctx->offset += 1;
 	if (ctx->offset >= ctx->rand) {
 		pd_advance_drawctx_interval(ctx);
+	}
+}
+
+void pd_retract_drawctx_interval(rand_drawctx_t* ctx) {
+	ctx->index -= 1;
+	ctx->rand = pd_get_interval(ctx->hashdata, ctx->index);
+	ctx->offset = ctx->rand - 1;
+	ctx->visible = ! ctx->visible;
+}
+
+void pd_retract_drawctx(rand_drawctx_t* ctx) {
+	if (ctx->offset == 0) {
+		pd_retract_drawctx_interval(ctx);
+	} else {
+		ctx->offset -= 1;
 	}
 }
 

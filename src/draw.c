@@ -219,7 +219,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
         SET_PRIMARYCOLOR();
         for (size_t i = 0; i < selected_info_winsz; i++) {
             x_memset(buf, ' ', info->display_size);
-            size_t w = pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
+            pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
             /*while (w < info->display_size) {
                 buf[w++] = ' ';
             }*/

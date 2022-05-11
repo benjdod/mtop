@@ -209,7 +209,7 @@ inline int randd_visible(rand_drawctx_t ctx, size_t screen_offset) {
 }
 
 inline char pd_charat(procinfo_t* p, size_t screen_offset) {
-#define DRAWCACHE_PADDING 1
+#define DRAWCACHE_PADDING 6
 
     size_t final_idx = ((screen_offset + p->drawdata.offset) % (p->drawdata.length + DRAWCACHE_PADDING));
 

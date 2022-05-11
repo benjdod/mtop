@@ -343,8 +343,13 @@ int test_matrix_lines() {
 			putchar(randd_visible(ctx, i) ? '#' : '.');
 		}
 
-		printf("\t%lu %lu %d %d\n", ctx.index, ctx.offset, ctx.rand, ctx.visible);
+<<<<<<< Updated upstream
+		printf("\t%d %d %d %d\n", ctx.index, ctx.offset, ctx.rand, ctx.visible);
 		pd_advance_drawctx(&ctx);
+=======
+		printf("\t%lu %lu %d %d\n", ctx.index, ctx.offset, ctx.rand, ctx.visible);
+		retract_context_offset(&ctx, hd);
+>>>>>>> Stashed changes
 		///sleep(1);
 		usleep(10000);
 	}

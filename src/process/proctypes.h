@@ -53,9 +53,9 @@ typedef struct rand_drawctx_t_ {
 	// the value (length) of the current interval
 	int rand;
 	// index of the current interval
-	int index;
+	size_t index;
 	// offset into the current interval
-	int offset;
+	size_t offset;
 	// whether or not the current interval is visible
 	int visible;
 } rand_drawctx_t;

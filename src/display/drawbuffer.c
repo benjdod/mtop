@@ -30,70 +30,52 @@
 
 drawbuffer_t dbuf_init() {
     drawbuffer_t dbuf;
-
-#define DBUF_INIT_BUFSZ 16
-
-    dbuf.buffer = x_calloc(DBUF_INIT_BUFSZ, sizeof(drawitem_t));
-    dbuf.size = DBUF_INIT_BUFSZ;
-    dbuf.length = 0;
-
-    dbuf.colorbuf = x_calloc(DBUF_INIT_BUFSZ, sizeof(dcolor_t));
-    dbuf.colorbuf_size = DBUF_INIT_BUFSZ;
-    dbuf.length = 0;
-
-    dbuf.dstrbuf = x_calloc(DBUF_INIT_BUFSZ, sizeof(dstring_t));
-    dbuf.dstrbuf_size = DBUF_INIT_BUFSZ;
-    dbuf.dstrbuf_length = 0;
-
-    dbuf.chbuf = x_calloc(DBUF_INIT_BUFSZ, sizeof(char));
-    dbuf.chbuf_size = DBUF_INIT_BUFSZ;
-    dbuf.chbuf_length = 0;
-
+	generic_buffer_init(dbuf.color_buffer, dcolor_t);
+	generic_buffer_init(dbuf.string_buffer, char);
+	generic_buffer_init(dbuf.drawitem_buffer, drawitem_t);
     dbuf.checksum = 0;
-
-#undef DBUF_INIT_BUFSZ
-
     return dbuf;
 }
 
 static void dbuf_additem(drawbuffer_t* dbuf, drawitem_t item) {
-    BUF_EXPAND(dbuf->buffer, drawitem_t, dbuf->length, dbuf->size, 1);
-    dbuf->buffer[dbuf->length++] = item;
+	generic_buffer_insert(dbuf->drawitem_buffer, item);
     dbuf->checksum += 1;
 }
 
-static void dbuf_add_dstr(drawbuffer_t* dbuf, dstring_t dstr) {
-    BUF_EXPAND(dbuf->dstrbuf, drawitem_t, dbuf->dstrbuf_length, dbuf->dstrbuf_size, 1);
-    dbuf->dstrbuf[dbuf->dstrbuf_length] = dstr;
-    dbuf_additem(dbuf, (drawitem_t) {
-        dbuf->dstrbuf_length,
-        DITEM_DSTRING
-    });
-    dbuf->dstrbuf_length += 1;
+void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color) {
+	drawitem_t i;
+	i.idx = generic_buffer_length(dbuf->color_buffer);
+	i.type = DITEM_DCOLOR;
+	i.length = 0;
+	dbuf_additem(dbuf, i);
+
+	generic_buffer_insert(dbuf->color_buffer, color);
 }
 
-void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color) {
-    BUF_EXPAND(dbuf->colorbuf, dcolor_t, dbuf->colorbuf_length, dbuf->colorbuf_size, 1);
-    dbuf->colorbuf[dbuf->colorbuf_length] = color;
-    dbuf_additem(dbuf, (drawitem_t) {
-        dbuf->colorbuf_length,
-        DITEM_DCOLOR 
-    });
-    dbuf->colorbuf_length += 1;
+static void dbuf_push_string(drawbuffer_t* dbuf, u64 index, size_t length) {
+	if (
+			generic_buffer_length(dbuf->drawitem_buffer) > 0 &&
+			generic_buffer_last(dbuf->drawitem_buffer).type == DITEM_DSTRING) 
+	{
+		// if last item is a string, just expand its length to encompass 
+		// extra characters we already added
+		drawitem_t* last_item = generic_buffer_lastp(dbuf->drawitem_buffer);
+		last_item->length += length;
+	} else {
+		// otherwise, append a new string item
+		drawitem_t i;
+		i.type = DITEM_DSTRING;
+		i.length = length;
+		i.idx = index;
+		dbuf_additem(dbuf, i);
+	}
 }
 
 void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n) {
-    BUF_EXPAND(dbuf->chbuf, char, dbuf->chbuf_length, dbuf->chbuf_size, n);
-    char* new_str = x_strncpy(dbuf->chbuf + dbuf->chbuf_length, str, n);
-    dbuf->chbuf_length += n;
-
-    // append to the latest dstring
-    if (dbuf->dstrbuf_length > 0 && dbuf->buffer[dbuf->length - 1].type == DITEM_DSTRING) {
-        dstring_t* last_string = & (dbuf->dstrbuf[dbuf->buffer[dbuf->length - 1].idx]);
-        last_string->len += n;
-    } else {    // add a new one
-        dbuf_add_dstr(dbuf, (dstring_t) {new_str, n});
-    }
+	char* new_string;
+	generic_buffer_insert_np(dbuf->string_buffer, n, str, new_string);
+	u64 new_index = (u64) new_string - generic_buffer_first(dbuf->string_buffer);
+	dbuf_push_string(dbuf, new_index, n);
 }
 
 void dbuf_adds(drawbuffer_t* dbuf, const char* str) {
@@ -106,23 +88,13 @@ void dbuf_addc(drawbuffer_t* dbuf, char c) {
 }
 
 void dbuf_addcn(drawbuffer_t* dbuf, char c, size_t n) {
-	if (n == 0) return;
-    BUF_EXPAND(dbuf->chbuf, char, dbuf->chbuf_length, dbuf->chbuf_size, n);
-	if (n == 1) {
-		dbuf->chbuf[dbuf->chbuf_length] = c;
-	} else {
-		x_memset(dbuf->chbuf + dbuf->chbuf_length, c, n);
-	}
-    dbuf->chbuf[dbuf->chbuf_length] = c;
-    char* new_str = dbuf->chbuf + dbuf->chbuf_length;
-    dbuf->chbuf_length += n;
-
-    if (dbuf->dstrbuf_length > 0 && dbuf->buffer[dbuf->length - 1].type == DITEM_DSTRING) {
-        dstring_t* last_string = & (dbuf->dstrbuf[dbuf->buffer[dbuf->length - 1].idx]);
-        last_string->len += n;
-    } else {    // add a new one
-        dbuf_add_dstr(dbuf, (dstring_t) {new_str, n});
-    }
+	char* new_string;
+	generic_buffer_insert_nrp(dbuf->string_buffer, n, c, new_string);
+	dbuf_push_string(
+		dbuf, 
+		(u64) new_string - generic_buffer_first(dbuf->string_buffer), 
+		n
+	);
 }
 
 size_t dbuf_renderto(drawbuffer_t* dbuf, char* dest, size_t n) {
@@ -132,23 +104,29 @@ size_t dbuf_renderto(drawbuffer_t* dbuf, char* dest, size_t n) {
         i_write = 0;
 
     char cbuf[20];
+
+	drawitem_t* raw_buffer = generic_buffer_firstp(dbuf->drawitem_buffer);
+	u64 raw_buffer_length = generic_buffer_length(dbuf->drawitem_buffer);
+
+	char* raw_string_buffer = generic_buffer_firstp(dbuf->string_buffer);
+	dcolor_t* raw_color_buffer = generic_buffer_firstp(dbuf->color_buffer);
     
     while (1) {
-        if (i_item >= dbuf->length) break;
+        if (i_item >= raw_buffer_length) break;
 
-        drawitem_t item = dbuf->buffer[i_item];
+        drawitem_t item = raw_buffer[i_item];
 
         size_t bytes_left = (n > 0) ? n - i_write : SIZE_MAX;
         size_t writelen = 0;
 
         if (item.type == DITEM_DSTRING) {
-            dstring_t* data = &dbuf->dstrbuf[item.idx];
-            writelen = X_MIN(data->len, bytes_left);
-            x_strncpy(dest + i_write, data->start, writelen);
+			char* writing_string = raw_string_buffer + item.length;
+            writelen = X_MIN(item.length, bytes_left);
+            x_strncpy(dest + i_write, writing_string, writelen);
             i_write += writelen;
         } else if (item.type == DITEM_DCOLOR) {
             x_memset(cbuf, '\0', 20);
-            dcolor_t* color = &dbuf->colorbuf[item.idx];
+            dcolor_t* color = raw_color_buffer + item.idx;
             size_t w = dcolor_write(*color, cbuf, 20);
             writelen = X_MIN(w, bytes_left);
             x_strncpy(dest + i_write, cbuf, writelen);
@@ -168,20 +146,20 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
         i_write = 0;
 
     char cbuf[20];
-    
-    
-    while (i_item < dbuf->length) {
 
-        drawitem_t item = dbuf->buffer[i_item];
+    while (i_item < generic_buffer_length(dbuf->drawitem_buffer)) {
+
+		drawitem_t item = *(generic_buffer_p_at(dbuf->drawitem_buffer, i_item));
 
         if (item.type == DITEM_DSTRING) {
-            dstring_t* data = &dbuf->dstrbuf[item.idx];
-            tty_writesn(data->start, data->len);
-            i_write += data->len;
+			char* string = generic_buffer_p_at(dbuf->string_buffer, item.idx);
+			u64 length = item.length;
+            tty_writesn(string, length);
+            i_write += length;
         } else if (item.type == DITEM_DCOLOR) {
             x_memset(cbuf, '\0', 20);
-            // dcolor_t* color = &dbuf->colorbuf[item.idx];
-            size_t w = dcolor_write(dbuf->colorbuf[item.idx], cbuf, 20);
+			dcolor_t color = *(generic_buffer_p_at(dbuf->color_buffer, i_item));
+            size_t w = dcolor_write(color, cbuf, 20);
             tty_writesn(cbuf, w);
             i_write += w;
         }
@@ -193,10 +171,9 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
 }
 
 void dbuf_clear(drawbuffer_t* dbuf) {
-    dbuf->chbuf_length = 0;
-    dbuf->dstrbuf_length = 0;
-    dbuf->colorbuf_length = 0;
-    dbuf->length = 0;
+	generic_buffer_clear(dbuf->color_buffer);
+	generic_buffer_clear(dbuf->drawitem_buffer);
+	generic_buffer_clear(dbuf->string_buffer);
     return;
 }
 
@@ -210,3 +187,6 @@ size_t dbuf_flushto(drawbuffer_t* dbuf, char* dest, size_t n) {
     dbuf_clear(dbuf);
     return out;
 }
+
+#undef BUF_EXPAND
+#undef LAST_ITEM

@@ -24,38 +24,35 @@
 #include "common.h"
 #include "dstring.h"
 #include "dcolor.h"
+#include "xutil.h"
 
 #define DITEM_DCOLOR     0x0    // dcolor_t
 #define DITEM_DSTRING   0x1     // dstring_t
 
-typedef struct {
-    u32 idx;
+typedef struct drawitem_t_ {
+	// index of the item in the respective memory buffer
+    u64 idx;
+	// length of the item (only applies to strings)
+	u64 length;
+	// type of the item (string | color)
     u8 type;
 } drawitem_t;
 
-typedef struct {
+generic_buffer_typedef(dcolor_t, colorbuffer);
+generic_buffer_typedef(drawitem_t, drawitembuffer);
+generic_buffer_typedef(char, charbuffer);
 
-    // string buffer
-    char* chbuf;
-    u32 chbuf_length;
-    u32 chbuf_size;
+typedef struct drawbuffer_t_ {
 
-    // color buffer
-    dcolor_t* colorbuf;
-    u32 colorbuf_length;
-    u32 colorbuf_size;
+	charbuffer string_buffer;
+	colorbuffer color_buffer;
 
-    // drawstring buffer
-    dstring_t* dstrbuf;
-    u32 dstrbuf_length;
-    u32 dstrbuf_size;
-
-    // top level item buffer 
-    drawitem_t* buffer;
-    u32 length;
-    u32 size;
+	// this contains drawitems which are references to 
+	// items in string or color buffers respectively
+	drawitembuffer drawitem_buffer;
 
     u32 checksum;
+
 } drawbuffer_t;
 
 /*  TODO: implement cache? Uses checksum field to invalidate cache
@@ -77,6 +74,5 @@ void dbuf_adds(drawbuffer_t* dbuf, const char* str);
 void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n);
 void dbuf_addc(drawbuffer_t* dbuf, char c);
 void dbuf_addcn(drawbuffer_t* dbuf, char c, size_t n);
-
 
 #endif

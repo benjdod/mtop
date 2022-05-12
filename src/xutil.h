@@ -61,4 +61,74 @@ void* x_realloc(void* ptr, size_t n, size_t s);
 #define X_MIN(a,b) ((a) < (b) ? (a) : (b))
 #define X_MAX(a,b) ((a) > (b) ? (a) : (b))
 
+// A cheeky little generic buffer. Good for most ailments
+
+#define generic_buffer_typedef(T, NAME) \
+	typedef struct { \
+		u32 capacity; \
+		u32 length; \
+		u8 elt_size; \
+		T* first; \
+		T* last; \
+	} NAME 
+
+#define generic_buffer_init(BUF, T) \
+	BUF.length = 0; \
+	BUF.elt_size = sizeof(T); \
+	BUF.capacity = 8; \
+	BUF.first = (T*) x_malloc(BUF.capacity, sizeof(T)); \
+	BUF.last = BUF.first;
+
+#define generic_buffer_destroy(BUF) (BUF-first = x_free(BUF->first))
+
+#define generic_buffer_expand(BUF, N) \
+	while ((BUF.length + N) > BUF.capacity) { \
+		BUF.capacity *= 1.5; \
+		BUF.first = x_realloc(BUF.first, BUF.capacity, BUF.elt_size); \
+	}
+
+/** insert ITEM to BUF */
+#define generic_buffer_insert(BUF, ITEM) \
+	generic_buffer_expand(BUF, 1); \
+	BUF.last += BUF.elt_size;\
+	*(BUF.last) = ITEM; \
+	BUF.length += 1;
+
+/** insert an array of ITEMS of length N and return the front of the 
+ * newly inserted array in RET_PTR */
+#define generic_buffer_insert_np(BUF, N, ITEMS, RET_PTR) \
+	generic_buffer_expand(BUF, N); \
+	RET_PTR = BUF.last + 1; \
+	for (int i = 0; i < N; i++) { \
+		BUF.last[i * BUF.elt_size] = ITEMS[i]; \
+	} \
+	BUF.last += N * BUF.elt_size;\
+	BUF.length += N;
+
+/** insert ITEM N times and return the front of the newly inserted 
+ * array in RET_PTR */
+#define generic_buffer_insert_nrp(BUF, N, ITEM, RET_PTR) \
+	generic_buffer_expand(BUF,N); \
+	RET_PTR = BUF.last+1; \
+	for (int i = 0; i < N; i++) { \
+		BUF.last[i * BUF.elt_size] = ITEM; \
+	} \
+	BUF.last += N * BUF.elt_size; \
+	BUF.length += N;
+
+#define generic_buffer_remove(BUF, N) \
+	BUF.last -= N * BUF.elt_size;\
+	BUF.length -= N;
+
+#define generic_buffer_clear(BUF) \
+	BUF.length = 0; \
+	BUF.last = BUF.first;
+
+#define generic_buffer_length(BUF) (BUF.length)
+#define generic_buffer_last(BUF) (*BUF.last)
+#define generic_buffer_first(BUF) (*BUF.first)
+#define generic_buffer_lastp(BUF) (BUF.last)
+#define generic_buffer_firstp(BUF) (BUF.first)
+#define generic_buffer_p_at(BUF, I) ((I < BUF.length && I >= 0) ? BUF.first + I : NULL)
+
 #endif

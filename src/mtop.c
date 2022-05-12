@@ -352,7 +352,19 @@ int test_matrix_lines() {
 	return 0;
 }
 
+int test_drawbuffer() {
+	screen_open();
+	drawbuffer_t db = dbuf_init();
+	dbuf_adds(&db, "hello there");
+	dbuf_adds(&db, " you ugly fart~!");
+	dbuf_draw(&db);
+	sleep(1);
+	screen_exit();
+	return 0;
+}
+
 int main(int argc, char** argv) {
-	return cmtop(argc, argv);
+	//return cmtop(argc, argv);
+	return test_drawbuffer();
 	//return test_matrix_lines();
 }

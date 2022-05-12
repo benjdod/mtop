@@ -30,10 +30,19 @@
 
 #define SYSINFO_MAX_ROWS
 
-/*
-static unsigned int isset(unsigned int flag) {
-    return flags & flag;
-} */
+const static dcolor_t HIGHLIGHT_COLOR = (dcolor_t) {
+    {0,200,0},
+    DCOLOR_GREEN,
+    DCOLOR_FG,
+    DCOLOR_NORMAL
+};
+
+const static dcolor_t BASE_COLOR = (dcolor_t) {
+    {50,50,50},
+    DCOLOR_WHITE,
+    DCOLOR_FG,
+    DCOLOR_NORMAL
+};
 
 static char randchar() {
     char r_chars[] = {
@@ -141,6 +150,9 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 #define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[38;2;0;200;0m");}	
 #define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_adds(dbuf, "\e[0m\e[38;5;242m");}
 #define DRAW_HORIZONTAL_SEP() {for (size_t i = 0; i < info->display_size; i++) dbuf_addc(dbuf, '-');}
+//#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_addcolor(dbuf, HIGHLIGHT_COLOR);}
+//#define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_addcolor(dbuf, BASE_COLOR);}
+//#define DRAW_HORIZONTAL_SEP() dbuf_addcn(dbuf, '-', info->display_size)
 
 	size_t matrix_view_winsz = r_size;
 

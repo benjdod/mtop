@@ -33,11 +33,15 @@
 #define DCOLOR_CYAN      6
 #define DCOLOR_WHITE     7
 
-#define DCOLOR_FG        30
-#define DCOLOR_BG        40  
-#define DCOLOR_NORMAL    0
-#define DCOLOR_RESET     1
-#define DCOLOR_BRIGHT    60
+// stage (either foreground or background)
+#define DCOLOR_FG        30     // foreground
+#define DCOLOR_BG        40     // background
+
+// nature (or mode)
+#define DCOLOR_NORMAL    0      // normal
+#define DCOLOR_UNSET     1      // inactive color. does not draw
+#define DCOLOR_RESET     2      // sends a reset sequence
+#define DCOLOR_BRIGHT    60     // bright color
 
 typedef struct drgb_t_ {
     u8 r,g,b;
@@ -51,8 +55,12 @@ typedef struct dcolor_t_ {
     u8
         hue,     
         stage,      // foreground or background
-        nature;     // normal or bright
+        nature;     // normal, bright, reset, or unset
 } dcolor_t;
+
+#define DCOLOR_SAMPLE_GREEN_FG  ((dcolor_t) {{0,255,0},     DCOLOR_GREEN,   DCOLOR_FG,  DCOLOR_NORMAL})
+#define DCOLOR_SAMPLE_BLUE_FG   ((dcolor_t) {{0,0,255},     DCOLOR_BLUE,    DCOLOR_FG,  DCOLOR_NORMAL})
+#define DCOLOR_SAMPLE_RESET     ((dcolor_t) {{0,0,0},       DCOLOR_UNSET,   DCOLOR_FG,  DCOLOR_RESET})
 
 size_t dcolor_write(dcolor_t color, char* buf, size_t n);
 

@@ -27,7 +27,7 @@
 size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 
     // buf must be at least 20 to accomodate "\e[38;2;255;255;255m" + '\0';
-    if (n < 20 || !(DCOLOR_USECOLOR | DCOLOR_USETRUECOLOR)) return 0;  
+    if (n < 20 || !(DCOLOR_USECOLOR | DCOLOR_USETRUECOLOR) || color.nature == DCOLOR_UNSET) return 0;  
 
     if (color.nature == DCOLOR_RESET) {
         x_strncpy(buf, "\e[0m", 4);

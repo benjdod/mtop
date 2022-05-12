@@ -43,13 +43,20 @@ static void dbuf_additem(drawbuffer_t* dbuf, drawitem_t item) {
 }
 
 void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color) {
-	drawitem_t i;
-	i.idx = generic_buffer_length(dbuf->color_buffer);
-	i.type = DITEM_DCOLOR;
-	i.length = 0;
-	dbuf_additem(dbuf, i);
-
-	generic_buffer_insert(dbuf->color_buffer, color);
+	if (0) {
+		char cb[20];
+		x_memset(cb, 1, 20);
+		size_t wl = dcolor_write(color, cb, 20);
+		dbuf_addsn(dbuf, cb, wl);
+	} else {
+		// FIXME: this doesn't work if we don't bake the color into the buffer...
+		drawitem_t i;
+		i.idx = generic_buffer_length(dbuf->color_buffer);
+		i.type = DITEM_DCOLOR;
+		i.length = 0;
+		dbuf_additem(dbuf, i);
+		generic_buffer_insert(dbuf->color_buffer, color);
+	}
 }
 
 static void dbuf_push_string(drawbuffer_t* dbuf, u64 index, size_t length) {
@@ -74,9 +81,9 @@ static void dbuf_push_string(drawbuffer_t* dbuf, u64 index, size_t length) {
 
 void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n) {
 	char* new_string;
+	u64 index = generic_buffer_length(dbuf->string_buffer);
 	generic_buffer_insert_np(dbuf->string_buffer, n, str, new_string);
-	u64 new_index = (u64) (new_string - generic_buffer_firstp(dbuf->string_buffer));
-	dbuf_push_string(dbuf, new_index, n);
+	dbuf_push_string(dbuf, index, n);
 }
 
 void dbuf_adds(drawbuffer_t* dbuf, const char* str) {

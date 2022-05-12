@@ -22,7 +22,7 @@
 #include "xutil.h"
 
 #define DCOLOR_USECOLOR 1
-#define DCOLOR_USETRUECOLOR 0
+#define DCOLOR_USETRUECOLOR 1
 
 size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 
@@ -33,9 +33,13 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
         x_strncpy(buf, "\e[0m", 4);
         return 4;
     } else if (DCOLOR_USETRUECOLOR) {
-        return (size_t) snprintf(buf, 19, "\e[38;2;%d;%d;%dm", color.rgb.r, color.rgb.g, color.rgb.b);
+		// normal:   <esc>[38;2;<r>;<g>;<b>m
+		// bright:   <esc>[48;2;<r>;<g>;<b>m
+        return (size_t) snprintf(buf, 20, "\e[%d;2;%d;%d;%dm", 
+				(color.nature == DCOLOR_BRIGHT) ? 48 : 38,
+				color.rgb.r, color.rgb.g, color.rgb.b);
     } else {
         char colorcode = color.hue + color.nature + color.stage;
-        return (size_t) snprintf(buf, 19, "\e[%dm", colorcode);
+        return (size_t) snprintf(buf, 20, "\e[%dm", colorcode);
     }
 }

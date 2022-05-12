@@ -89,11 +89,11 @@ void* x_realloc(void* ptr, size_t n, size_t s);
  * newly inserted array in RET_PTR */
 #define generic_buffer_insert_np(BUF, N, ITEMS, RET_PTR) \
 	generic_buffer_expand(BUF, N); \
-	RET_PTR = &(BUF.head[BUF.length]); \
 	for (BUF.idx = 0; BUF.idx < N; BUF.idx += 1) { \
 		BUF.head[BUF.length + BUF.idx] = ITEMS[BUF.idx]; \
 	} \
 	BUF.idx = 0; \
+	RET_PTR = &(BUF.head[BUF.length]); \
 	BUF.length += N;
 
 /** insert ITEM N times and return the front of the newly inserted 

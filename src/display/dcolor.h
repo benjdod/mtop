@@ -60,7 +60,10 @@ typedef struct dcolor_t_ {
 
 #define DCOLOR_SAMPLE_GREEN_FG  ((dcolor_t) {{0,255,0},     DCOLOR_GREEN,   DCOLOR_FG,  DCOLOR_NORMAL})
 #define DCOLOR_SAMPLE_BLUE_FG   ((dcolor_t) {{0,0,255},     DCOLOR_BLUE,    DCOLOR_FG,  DCOLOR_NORMAL})
-#define DCOLOR_SAMPLE_RESET     ((dcolor_t) {{0,0,0},       DCOLOR_UNSET,   DCOLOR_FG,  DCOLOR_RESET})
+#define DCOLOR_SAMPLE_RESET     ((dcolor_t) {{0,0,0},       DCOLOR_WHITE,   DCOLOR_FG,  DCOLOR_RESET})
+#define DCOLOR_SAMPLE_UNSET 	((dcolor_t) {{0,0,0}, 		DCOLOR_WHITE,   DCOLOR_FG,  DCOLOR_UNSET})
+#define HIGHLIGHT_COLOR ((dcolor_t) {(drgb_t) {0,200,0}, DCOLOR_GREEN, DCOLOR_FG, DCOLOR_NORMAL})
+#define BASE_COLOR ((dcolor_t) {(drgb_t) {100,100,100}, DCOLOR_WHITE, DCOLOR_FG, DCOLOR_NORMAL})
 
 size_t dcolor_write(dcolor_t color, char* buf, size_t n);
 

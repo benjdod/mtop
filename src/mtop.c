@@ -353,29 +353,17 @@ int test_matrix_lines() {
 }
 
 int test_drawbuffer() {
-
-	dcolor_t color;
-	color.nature = DCOLOR_NORMAL;
-	color.stage = DCOLOR_BG;
-	color.hue = DCOLOR_GREEN;
-	color.rgb = (drgb_t) {0,200,0};
-
-	dcolor_t reset_color;
-	reset_color.nature = DCOLOR_RESET;
-
 	screen_open();
 	drawbuffer_t dbuf = dbuf_init();
-	dbuf_adds(&dbuf, "hello");
-	dbuf_addcolor(&dbuf, color);
-	dbuf_adds(&dbuf, " there you!");
-	dbuf_draw(&dbuf);
-	sleep(1);
-	screen_clear();
-	dbuf_clear(&dbuf);
-	dbuf_adds(&dbuf, "there it");
-	dbuf_addcolor(&dbuf, reset_color);
-	dbuf_adds(&dbuf, " is....");
-	dbuf_draw(&dbuf);
+	drawbuffer_t *d = &dbuf;
+	dbuf_addcolor(d, BASE_COLOR);
+	dbuf_adds(d, "hello");
+	dbuf_addcolor(d, HIGHLIGHT_COLOR);
+	dbuf_adds(d, " there you!");
+	dbuf_addcolor(d, BASE_COLOR);
+	dbuf_adds(d, "this is a string of stuff");
+	dbuf_adds(d, " so don't get it twisted");
+	dbuf_draw(d);
 	sleep(1);
 	screen_exit();
 	return 0;

@@ -62,7 +62,6 @@ static void dbuf_additem(drawbuffer_t* dbuf, drawitem_t item) {
     dbuf->checksum += 1;
 }
 
-
 static void dbuf_add_dstr(drawbuffer_t* dbuf, dstring_t dstr) {
     BUF_EXPAND(dbuf->dstrbuf, drawitem_t, dbuf->dstrbuf_length, dbuf->dstrbuf_size, 1);
     dbuf->dstrbuf[dbuf->dstrbuf_length] = dstr;

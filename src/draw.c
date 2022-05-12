@@ -165,6 +165,8 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 	proclist_cur_t cursor = pl_cur_init(&info->procs);
 	pl_cur_next(&cursor);
 	
+	// FIXME: something gets messed up here where the col_offset gets flipped to be way more
+	// which causes an infinite loop
 	for (size_t i = 0; i < info->col_offset; i++) {
 		pl_cur_next(&cursor);
 	} 

@@ -65,6 +65,11 @@ typedef struct dcolor_t_ {
 #define HIGHLIGHT_COLOR ((dcolor_t) {(drgb_t) {0,200,0}, DCOLOR_GREEN, DCOLOR_FG, DCOLOR_NORMAL})
 #define BASE_COLOR ((dcolor_t) {(drgb_t) {100,100,100}, DCOLOR_WHITE, DCOLOR_FG, DCOLOR_NORMAL})
 
+#define DCOLOR_WRITEBUFFER_LENGTH 24
+#define DCOLOR_WRITEBUFFER_CALLED(NAME) char NAME[DCOLOR_WRITEBUFFER_LENGTH]; x_memset(NAME, 0, sizeof(NAME))
+#define DCOLOR_WRITEBUFFER_CLEAR(NAME) x_memset(NAME, 0, sizeof(NAME))
+
 size_t dcolor_write(dcolor_t color, char* buf, size_t n);
+int dcolor_eq(dcolor_t a, dcolor_t b);
 
 #endif

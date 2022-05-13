@@ -43,19 +43,21 @@ static void dbuf_additem(drawbuffer_t* dbuf, drawitem_t item) {
 }
 
 void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color) {
+
+	if (generic_buffer_length(dbuf->color_buffer) > 0 &&
+		dcolor_eq(generic_buffer_last(dbuf->color_buffer), color)) return;
+
 	if (0) {
-		char cb[20];
-		x_memset(cb, 1, 20);
-		size_t wl = dcolor_write(color, cb, 20);
+		DCOLOR_WRITEBUFFER_CALLED(cb);
+		size_t wl = dcolor_write(color, cb, DCOLOR_WRITEBUFFER_LENGTH);
 		dbuf_addsn(dbuf, cb, wl);
 	} else {
-		// FIXME: this doesn't work if we don't bake the color into the buffer...
-		drawitem_t i;
-		i.idx = generic_buffer_length(dbuf->color_buffer);
-		i.type = DITEM_DCOLOR;
-		i.length = 0;
-		dbuf_additem(dbuf, i);
 		generic_buffer_insert(dbuf->color_buffer, color);
+		drawitem_t i;
+		i.idx = generic_buffer_length(dbuf->color_buffer) - 1;
+		i.type = DITEM_DCOLOR;
+		i.length = 0; 		// doesn't mean anything.
+		dbuf_additem(dbuf, i);
 	}
 }
 
@@ -80,9 +82,9 @@ static void dbuf_push_string(drawbuffer_t* dbuf, u64 index, size_t length) {
 }
 
 void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n) {
-	char* new_string;
-	u64 index = generic_buffer_length(dbuf->string_buffer);
-	generic_buffer_insert_np(dbuf->string_buffer, n, str, new_string);
+	char* string_p;
+	u64 index = (u64) (generic_buffer_length(dbuf->string_buffer));
+	generic_buffer_insert_np(dbuf->string_buffer, n, str, string_p);
 	dbuf_push_string(dbuf, index, n);
 }
 
@@ -97,45 +99,49 @@ void dbuf_addc(drawbuffer_t* dbuf, char c) {
 
 void dbuf_addcn(drawbuffer_t* dbuf, char c, size_t n) {
 	char* new_string;
+	u64 index = (u64) (generic_buffer_length(dbuf->string_buffer));
 	generic_buffer_insert_nrp(dbuf->string_buffer, n, c, new_string);
 	dbuf_push_string(
 		dbuf, 
-		(u64) new_string - generic_buffer_first(dbuf->string_buffer), 
+		index,
 		n
 	);
 }
 
 size_t dbuf_renderto(drawbuffer_t* dbuf, char* dest, size_t n) {
 
+	if (n == 0) return 0;
+
     size_t
         i_item = 0,
         i_write = 0;
 
-    char cbuf[20];
+    char cbuf[DCOLOR_WRITEBUFFER_LENGTH];
 
 	u64 raw_buffer_length = generic_buffer_length(dbuf->drawitem_buffer);
     
-    while (1) {
-        if (i_item >= raw_buffer_length) break;
+    while (i_item < raw_buffer_length) {
 
         drawitem_t item = generic_buffer_firstp(dbuf->drawitem_buffer)[i_item];
 
         size_t bytes_left = (n > 0) ? n - i_write : SIZE_MAX;
         size_t writelen = 0;
 
+		if (bytes_left == SIZE_MAX) break;
+
         if (item.type == DITEM_DSTRING) {
             char* writing_string = generic_buffer_p_at(dbuf->string_buffer, item.idx);
             writelen = X_MIN(item.length, bytes_left);
             x_strncpy(dest + i_write, writing_string, writelen);
-            i_write += writelen;
         } else if (item.type == DITEM_DCOLOR) {
-            x_memset(cbuf, '\0', 20);
+            x_memset(cbuf, '\0', 24);
             dcolor_t* color = generic_buffer_p_at(dbuf->color_buffer, item.idx);
-            size_t w = dcolor_write(*color, cbuf, 20);
+            size_t w = dcolor_write(*color, cbuf, DCOLOR_WRITEBUFFER_LENGTH);
             writelen = X_MIN(w, bytes_left);
             x_strncpy(dest + i_write, cbuf, writelen);
-            i_write += writelen;
         }
+		i_write += writelen;
+
 
         i_item++;
     }
@@ -149,7 +155,7 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
         i_item = 0,
         i_write = 0;
 
-    char cbuf[20];
+	DCOLOR_WRITEBUFFER_CALLED(cb);
 
     while (i_item < generic_buffer_length(dbuf->drawitem_buffer)) {
 
@@ -161,10 +167,10 @@ size_t dbuf_draw(drawbuffer_t* dbuf) {
             tty_writesn(string, length);
             i_write += length;
         } else if (item.type == DITEM_DCOLOR) {
-            x_memset(cbuf, '\0', 20);
+			DCOLOR_WRITEBUFFER_CLEAR(cb);
 			dcolor_t color = generic_buffer_firstp(dbuf->color_buffer)[item.idx];
-            size_t w = dcolor_write(color, cbuf, 20);
-            tty_writesn(cbuf, w);
+            size_t w = dcolor_write(color, cb, DCOLOR_WRITEBUFFER_LENGTH);
+            tty_writesn(cb, w);
             i_write += w;
         }
 

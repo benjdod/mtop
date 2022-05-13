@@ -21,6 +21,8 @@
 #include "procdraw.h"
 #include "proc.h"
 
+#define DRAWCACHE_PADDING 1
+
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
 
@@ -144,7 +146,7 @@ int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 	return PSEUDORAND_MIN + hash % PSEUDORAND_WIDTH;
 }
 
-rand_hashdata_t pd_init_hashdata(pid_t pid) {
+static rand_hashdata_t pd_init_hashdata(pid_t pid) {
 	rand_hashdata_t hd =  {
 		pid, 	// base
 		0 		// salt
@@ -197,19 +199,36 @@ void pd_random_drawctx(rand_drawctx_t* ctx) {
 	ctx->offset = (rand() + ctx->hashdata.base) % ctx->rand;
 }
 
+
 inline int randd_visible(rand_drawctx_t ctx, size_t screen_offset) {
     int width = ctx.rand - ctx.offset;
 	int visible = ctx.visible;
 	int index = ctx.index;
-	while (width <= screen_offset) {	// off by one?
+	while (width <= screen_offset) {
 		width += pd_get_interval(ctx.hashdata, ++index);
         visible = !visible;
 	}
     return visible;
 }
 
+static rand_drawctx_t advance_ctx_by(rand_drawctx_t ctx, size_t offset) {
+	rand_drawctx_t out = ctx;
+	while (offset > ctx.rand) {
+		offset -= (ctx.rand - ctx.offset);
+		pd_advance_drawctx_interval(&out);
+	}
+	for (size_t i = 0; i < offset; i++) {
+		pd_advance_drawctx(&out);
+	}
+	return out;
+}
+
+static int randd_stop(rand_drawctx_t ctx, size_t screen_offset, int stops) {
+	ctx = advance_ctx_by(ctx, screen_offset);
+	return (int) (((double)ctx.offset) / ((double) ctx.rand) * stops);
+}
+
 inline char pd_charat(procinfo_t* p, size_t screen_offset) {
-#define DRAWCACHE_PADDING 6
 
     size_t final_idx = ((screen_offset + p->drawdata.offset) % (p->drawdata.length + DRAWCACHE_PADDING));
 
@@ -219,3 +238,53 @@ inline char pd_charat(procinfo_t* p, size_t screen_offset) {
         ? p->drawdata.cache[final_idx]
         : ' ';
 }
+
+inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
+    size_t final_idx = ((screen_offset + p->drawdata.offset) % (p->drawdata.length + DRAWCACHE_PADDING));
+
+    /* If the final index is within the bounds of the draw cache and is visible according to 
+     * the masking algorithm, return it. Otherwise return a space */
+	char final_char = ( final_idx < p->drawdata.length && randd_visible(p->drawdata.ctx, screen_offset))
+        ? p->drawdata.cache[final_idx]
+        : ' ';
+
+	dcolor_t colors[2];
+
+	colors[0] = (dcolor_t) {
+		{0,100,0},
+		DCOLOR_GREEN,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	};
+
+	colors[1] = (dcolor_t) {
+		{0,255,0},
+		DCOLOR_GREEN,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	};
+
+	dcolor_t bright_white = (dcolor_t) {
+		{255,255,255},
+		DCOLOR_WHITE,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	};
+
+	cchar_t out;
+	out.c = final_char;
+
+	rand_drawctx_t ctx = advance_ctx_by(p->drawdata.ctx, screen_offset);
+
+	if (final_char == ' ') {
+		out.color = DCOLOR_SAMPLE_UNSET;
+	} else if (ctx.offset == ctx.rand - 1) {
+		out.color = bright_white;
+	} else {
+		out.color = colors[randd_stop(p->drawdata.ctx, screen_offset, 2)];
+	}
+
+	return out;
+}
+
+#undef DRAWCACHE_PADDING

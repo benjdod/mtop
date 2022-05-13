@@ -49,10 +49,17 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 }
 
 int dcolor_eq(dcolor_t a, dcolor_t b) {
-	return (a.rgb.r == b.rgb.r &&
-			a.rgb.g == b.rgb.g &&
-			a.rgb.b == b.rgb.b &&
-			a.hue   == b.hue   &&
-			a.nature== b.nature&&
-			a.stage == b.stage) ? 1 : 0;
+	if (opt.colormode == OPT_DRAWCOLOR_NONE) return 1;
+	else if (opt.colormode == OPT_DRAWCOLOR_ANSI) {
+		return (a.nature == b.nature &&
+				a.hue == b.hue &&
+				a.stage == b.stage);
+	} else {
+		return (a.nature== b.nature&&
+				a.rgb.r == b.rgb.r &&
+				a.rgb.g == b.rgb.g &&
+				a.rgb.b == b.rgb.b &&
+				a.hue   == b.hue   &&
+				a.stage == b.stage) ? 1 : 0;
+	}
 }

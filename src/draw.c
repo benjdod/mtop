@@ -28,8 +28,6 @@
 #include "drawbuffer.h"
 #include "opt.h"
 
-#define SYSINFO_MAX_ROWS
-
 static char randchar() {
     char r_chars[] = {
         '\'',
@@ -41,47 +39,6 @@ static char randchar() {
     u8 rselect = (rand() % (sizeof(r_chars) * 3));
 
     return (rselect < sizeof(r_chars)) ? r_chars[rselect] : ' ';
-}
-
-size_t draw_color(color_t color, char* buf, size_t n) {
-    //"\e[38;2;255;255;255m";     // 19 chars!
-
-    if (n < 19 || opt.colormode == OPT_DRAWCOLOR_NONE) return 0;
-
-    if (color.nature == COLOR_RESET) {
-        x_strncpy(buf, "\e[0m", 4);
-        return 4;
-    } else if (opt.colormode == OPT_DRAWCOLOR_24BIT) {
-        return snprintf(buf, 19, "\e[38;2;%d;%d;%dm", color.rgb.r, color.rgb.g, color.rgb.b);
-    } else {
-        char colorcode = color.hue + color.nature + color.stage;
-        return snprintf(buf, 19, "\e[%dm", colorcode);
-    }
-}
-
-size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size_t c_off, int step) {
-
-    size_t i = 0;
-
-    if (step < 1) step = 1;
-
-    proclist_cur_t cur = pl_cur_init(&info->procs);
-    pl_cur_next(&cur);
-
-    for (size_t j = 0; j < c_off; j++) { pl_cur_next(&cur); }
-
-    while (cur.current != NULL && i < n) {
-        buf[i*step] = pd_charat(&(cur.current->value), r_off);
-        pl_cur_next(&cur);
-        i++;
-    }
-
-    while (i < n) {
-        buf[i*step] = '-';
-        i++;
-    }
-
-    return i*step;
 }
 
 static size_t draw_system_info(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t rows) {
@@ -180,6 +137,9 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
         u8 on_step = 0;
 
         for (size_t c = 0; c < info->display_size; c++) {   // for column in row
+			cchar_t cchar;
+			cchar.c = ' ';
+			cchar.color = DCOLOR_SAMPLE_UNSET;
 			if (skip_drawing) {
 				buf[c] = ' ';
 				continue;
@@ -190,7 +150,9 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
                     if (sel_visual_idx == -1 && pl_cur_eq(&cur, &info->selected)) {
                         sel_visual_idx = c;
                     }
-                    buf[c] = pd_charat(PL_CURVAL(&cur), r  + info->row_offset );
+					cchar = pd_ccharat(PL_CURVAL(&cur), r  + info->row_offset);
+                    // buf[c] = pd_charat(PL_CURVAL(&cur), r  + info->row_offset );
+					buf[c] = cchar.c;
 					pl_cur_next(&cur);
                 } else {
                     buf[c] = ' ';
@@ -198,9 +160,13 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
             } else {
                 buf[c] = (on_step && opt.draw_static) ? randchar() : ' ';
             }
-            
+
+			if (cchar.color.nature != DCOLOR_UNSET)
+				dbuf_addcolor(dbuf, cchar.color);
+			dbuf_addc(dbuf, buf[c]);
         }
 
+		/*
 		if (sel_visual_idx != -1) {
 			dbuf_addsn(dbuf, buf, sel_visual_idx);
 			SET_PRIMARYCOLOR();
@@ -209,7 +175,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 			dbuf_addsn(dbuf, buf + sel_visual_idx + 1, info->display_size - sel_visual_idx - 1);
 		} else {
 			dbuf_addsn(dbuf, buf, info->display_size);
-		}
+		} */
     }
 
 	// draw info window (this contains details for

@@ -213,9 +213,8 @@ int cmtop(int argc, char** argv) {
 	u8 flushbreak = 5;
 
 	char ch  ='\0';
-	u8 quit_now = 0;
 
-	while (1) {
+while (1) {
 
 		ch = tty_readc();
 
@@ -248,12 +247,9 @@ int cmtop(int argc, char** argv) {
 					procs_select(&info, PROCS_SELECT_LAST);
 					break;
 				case 'q':
-					quit_now = 1;
-					break;
+					goto exit_main;
 			}
 		}
-
-		if (quit_now) break;
 
 		if (flushcount == flushbreak) {
 			tty_oflush();
@@ -276,6 +272,8 @@ int cmtop(int argc, char** argv) {
 	}
 
 	//while (! tty_readc()) ;
+	
+exit_main:
 
 	screen_showcursor();
 	graceful_exit("exiting normally.");

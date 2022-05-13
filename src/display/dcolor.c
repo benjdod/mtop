@@ -20,22 +20,39 @@
 
 #include "dcolor.h"
 #include "xutil.h"
-
-#define DCOLOR_USECOLOR 1
-#define DCOLOR_USETRUECOLOR 0
+#include "opt.h"
 
 size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 
-    // buf must be at least 20 to accomodate "\e[38;2;255;255;255m" + '\0';
-    if (n < 20 || !(DCOLOR_USECOLOR | DCOLOR_USETRUECOLOR)) return 0;  
+    // buf must be at least 24 to safely accomodate "\e[38;2;255;255;255m" + '\0';
+	// colormode must be turned on
+	// color nature must not be unset
+    if (n < DCOLOR_WRITEBUFFER_LENGTH || opt.colormode == OPT_DRAWCOLOR_NONE || color.nature == DCOLOR_UNSET) return 0;  
 
+	// RESET supercedes all 
     if (color.nature == DCOLOR_RESET) {
         x_strncpy(buf, "\e[0m", 4);
         return 4;
-    } else if (DCOLOR_USETRUECOLOR) {
-        return (size_t) snprintf(buf, 19, "\e[38;2;%d;%d;%dm", color.rgb.r, color.rgb.g, color.rgb.b);
+    } 
+	
+	// write according to colormode
+	if (opt.colormode==OPT_DRAWCOLOR_24BIT) {
+		// normal:   <esc>[38;2;<r>;<g>;<b>m
+		// bright:   <esc>[48;2;<r>;<g>;<b>m
+        return (size_t) snprintf(buf, 24, "\e[%d;2;%d;%d;%dm", 
+				(color.nature == DCOLOR_BRIGHT) ? 48 : 38,
+				color.rgb.r, color.rgb.g, color.rgb.b);
     } else {
         char colorcode = color.hue + color.nature + color.stage;
-        return (size_t) snprintf(buf, 19, "\e[%dm", colorcode);
+        return (size_t) snprintf(buf, 24, "\e[%dm", colorcode);
     }
+}
+
+int dcolor_eq(dcolor_t a, dcolor_t b) {
+	return (a.rgb.r == b.rgb.r &&
+			a.rgb.g == b.rgb.g &&
+			a.rgb.b == b.rgb.b &&
+			a.hue   == b.hue   &&
+			a.nature== b.nature&&
+			a.stage == b.stage) ? 1 : 0;
 }

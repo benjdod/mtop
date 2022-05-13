@@ -19,7 +19,6 @@
  * DEALINGS IN THE SOFTWARE. */
 
 #include "common.h"
-#include <signal.h>
 #include "screen.h"
 #include "tty.h"
 #include "proc.h"
@@ -35,11 +34,7 @@
 procs_info_t info;
 screensize_t ssz;
 
-#ifdef MTOP_DRAW_COLOR
-color_t current_color;
-#endif
-
-// ARG PARSING
+// arg parsing
 
 /**
  * Parse command line arguments and set corresponding options.
@@ -93,6 +88,8 @@ void parse_args(int argc, char** argv) {
 	}
 }
 
+// process list related functions
+
 /**
  * Updates procs list and renews all drawcaches
  * */
@@ -134,18 +131,35 @@ void advance_offset(procinfo_t* p) {
 	//p->drawdata.offset += ((p->pid) % 2);
 	pd_retract_drawctx(&p->drawdata.ctx);
 }
-#ifdef MTOP_DRAW_COLOR
-void write_currentcolor() {
-	char buf[20];
-	x_memset(buf, '\0', 20);
-	int w = draw_color(current_color, buf, 20);
-	tty_writesn(buf, w);
+
+// signals and terminating functions
+
+void forceful_exit() {
+	exit(1);
 }
 
-void set_color(color_t color) {
-	current_color = color;
+void graceful_exit(const char* msg) {
+	procs_destroy(&info);
+	screen_exit();
+	if (msg != NULL) printf("%s\n", msg);
+	exit(0);
 }
-#endif
+
+void abnormal_exit(const char* msg) {
+	procs_destroy(&info);
+	screen_exit();
+	if (msg != NULL) printf("%s\n", msg);
+	exit(0);
+}
+
+void sigint_handler() {
+	signal(SIGINT, &forceful_exit);
+	abnormal_exit("received INT signal, exiting.");
+}
+
+void sigterm_handler() {
+	graceful_exit("received TERM signal, exiting.");
+}
 
 void sigwinch_handler() {
 	// update stored screen size and do a "hard" reset
@@ -159,30 +173,6 @@ void sigwinch_handler() {
 	screen_setcursor((rowcol_t) {0,0});
 	procs_set_drawopts(&info, info.step, ssz.rows, ssz.cols);
 	screen_clear();
-#ifdef MTOP_DRAW_COLOR
-	write_currentcolor();
-#endif
-}
-
-void forceful_exit() {
-	exit(1);
-}
-
-void graceful_exit() {
-	procs_destroy(&info);
-	screen_exit();
-	printf("exiting.\n");
-	exit(0);
-}
-
-void sigint_handler() {
-	signal(SIGINT, &forceful_exit);
-	graceful_exit();
-}
-
-void sigterm_handler() {
-	signal(SIGTERM, &forceful_exit);
-	graceful_exit();
 }
 
 void segfault() {
@@ -190,6 +180,8 @@ void segfault() {
 	printf("program encountered a segmentation fault, exiting.\n");
 	exit(1);
 }
+
+// main functions
 
 int cmtop(int argc, char** argv) {
 
@@ -213,20 +205,6 @@ int cmtop(int argc, char** argv) {
 
 #define DO_SLEEP() usleep(opt.refresh_rate * 1000)
 
-#ifdef MTOP_DRAW_COLOR
-	//tty_writes("\e[32;1m");
-	//tty_writes("\e[38;2;20;220;20m");
-	/*
-	color_t color;
-	color.rgb = (rgb_t) {40,240,40};
-	color.hue = COLOR_GREEN;
-	color.stage = COLOR_FG;
-	color.nature = COLOR_BRIGHT;
-	set_color(color);
-	write_currentcolor();
-	*/
-#endif
-
 	drawbuffer_t dbuf = dbuf_init();
 
 	tty_clear();
@@ -236,6 +214,10 @@ int cmtop(int argc, char** argv) {
 
 	char ch  ='\0';
 	u8 quit_now = 0;
+
+	size_t dest_size = 0xffff;
+	char dest[dest_size];
+	size_t written = 0;  
 
 	while (1) {
 
@@ -291,7 +273,10 @@ int cmtop(int argc, char** argv) {
 		
 		// draw procs info at current state and flush to screen
 		draw_fillbuffer(&dbuf, &info, ssz.rows);
+		//written = dbuf_renderto(&dbuf, dest, dest_size);
+		//tty_writesn(dest, written);
 		dbuf_flush(&dbuf);
+
 
 		proclist_foreach(&info.procs, &advance_offset);
 		if (! ch) DO_SLEEP();
@@ -300,10 +285,12 @@ int cmtop(int argc, char** argv) {
 	//while (! tty_readc()) ;
 
 	screen_showcursor();
-	graceful_exit();
+	graceful_exit("exiting normally.");
 
 	return 0;
 }
+
+// debugging functions
 
 void print_timedelta(timedelta_t td, const char *title) {
 	if (title != NULL) printf("%s: ", title);
@@ -352,7 +339,30 @@ int test_matrix_lines() {
 	return 0;
 }
 
+int test_drawbuffer() {
+	signal(SIGINT, &sigint_handler);
+	opt_default();
+	screen_open();
+	drawbuffer_t dbuf = dbuf_init();
+	drawbuffer_t *d = &dbuf;
+	dbuf_addcolor(d, BASE_COLOR);
+	dbuf_adds(d, "this is a string of stuff");
+	dbuf_addcolor(d, HIGHLIGHT_COLOR);
+	dbuf_adds(d, " so don't get it twisted");
+	dbuf_addcolor(d, BASE_COLOR);
+	dbuf_adds(d, " you stinky fella");
+
+	size_t n = 2048;
+	char dest[n];
+	size_t written = dbuf_renderto(d, dest, n);
+	tty_writesn(dest, written);
+	sleep(100);
+	screen_exit();
+	return 0;
+}
+
 int main(int argc, char** argv) {
 	return cmtop(argc, argv);
+	//return test_drawbuffer();
 	//return test_matrix_lines();
 }

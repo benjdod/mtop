@@ -25,19 +25,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>	// struct sysinfo, sysinfo()
 #include <proc/readproc.h>	// readproc, openproc, closeproc
+#include <signal.h>
+#include <termios.h>
 #include <time.h>
+#include <unistd.h>
 
-
-/* FLAGS */
+// flags
 
 #define MTOP_PROC_DRAW
-
-// XXX: should we make these ourselves?
 
 typedef     uint8_t     u8;
 typedef     uint16_t    u16;

@@ -215,10 +215,6 @@ int cmtop(int argc, char** argv) {
 	char ch  ='\0';
 	u8 quit_now = 0;
 
-	size_t dest_size = 0xffff;
-	char dest[dest_size];
-	size_t written = 0;  
-
 	while (1) {
 
 		ch = tty_readc();
@@ -273,10 +269,7 @@ int cmtop(int argc, char** argv) {
 		
 		// draw procs info at current state and flush to screen
 		draw_fillbuffer(&dbuf, &info, ssz.rows);
-		//written = dbuf_renderto(&dbuf, dest, dest_size);
-		//tty_writesn(dest, written);
 		dbuf_flush(&dbuf);
-
 
 		proclist_foreach(&info.procs, &advance_offset);
 		if (! ch) DO_SLEEP();

@@ -85,6 +85,15 @@ void* x_realloc(void* ptr, size_t n, size_t s);
 	generic_buffer_expand(BUF, 1); \
 	BUF.head[BUF.length++] = ITEM;
 
+/** insert an array of ITEMS of length N */
+#define generic_buffer_insert_n(BUF, N, ITEMS) \
+	generic_buffer_expand(BUF, N); \
+	for (BUF.idx = 0; BUF.idx < N; BUF.idx += 1) { \
+		BUF.head[BUF.length + BUF.idx] = ITEMS[BUF.idx]; \
+	} \
+	BUF.idx = 0; \
+	BUF.length += N;
+
 /** insert an array of ITEMS of length N and return the front of the 
  * newly inserted array in RET_PTR */
 #define generic_buffer_insert_np(BUF, N, ITEMS, RET_PTR) \
@@ -94,6 +103,15 @@ void* x_realloc(void* ptr, size_t n, size_t s);
 	} \
 	BUF.idx = 0; \
 	RET_PTR = &(BUF.head[BUF.length]); \
+	BUF.length += N;
+
+/** insert ITEM to BUF N times */
+#define generic_buffer_insert_nr(BUF, N, ITEM) \
+	generic_buffer_expand(BUF,N); \
+	for (BUF.idx = 0; BUF.idx < N; BUF.idx += 1) { \
+		BUF.head[BUF.length + BUF.idx] = ITEM; \
+	} \
+	BUF.idx = 0; \
 	BUF.length += N;
 
 /** insert ITEM N times and return the front of the newly inserted 

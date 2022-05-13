@@ -82,9 +82,8 @@ static void dbuf_push_string(drawbuffer_t* dbuf, u64 index, size_t length) {
 }
 
 void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n) {
-	char* string_p;
 	u64 index = (u64) (generic_buffer_length(dbuf->string_buffer));
-	generic_buffer_insert_np(dbuf->string_buffer, n, str, string_p);
+	generic_buffer_insert_n(dbuf->string_buffer, n, str);
 	dbuf_push_string(dbuf, index, n);
 }
 
@@ -98,9 +97,8 @@ void dbuf_addc(drawbuffer_t* dbuf, char c) {
 }
 
 void dbuf_addcn(drawbuffer_t* dbuf, char c, size_t n) {
-	char* new_string;
 	u64 index = (u64) (generic_buffer_length(dbuf->string_buffer));
-	generic_buffer_insert_nrp(dbuf->string_buffer, n, c, new_string);
+	generic_buffer_insert_nr(dbuf->string_buffer, n, c);
 	dbuf_push_string(
 		dbuf, 
 		index,

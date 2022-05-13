@@ -248,16 +248,23 @@ inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
         ? p->drawdata.cache[final_idx]
         : ' ';
 
-	dcolor_t colors[2];
+	dcolor_t colors[3];
 
 	colors[0] = (dcolor_t) {
-		{0,100,0},
+		{0,80,0},
 		DCOLOR_GREEN,
 		DCOLOR_FG,
 		DCOLOR_NORMAL
 	};
 
 	colors[1] = (dcolor_t) {
+		{0,138,0},
+		DCOLOR_GREEN,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	};
+
+	colors[2] = (dcolor_t) {
 		{0,255,0},
 		DCOLOR_GREEN,
 		DCOLOR_FG,
@@ -281,7 +288,7 @@ inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
 	} else if (ctx.offset == ctx.rand - 1) {
 		out.color = bright_white;
 	} else {
-		out.color = colors[randd_stop(p->drawdata.ctx, screen_offset, 2)];
+		out.color = colors[randd_stop(p->drawdata.ctx, screen_offset, 3)];
 	}
 
 	return out;

@@ -104,6 +104,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 	// selected info + horiz sep 
 
     if (info->open_windows & PROCS_WINDOW_SYSINFO) {
+		SET_SECONDARYCOLOR();
         size_t sys_info_winsz = 2;
         matrix_view_winsz -= (sys_info_winsz + 1);
         // draw system info window
@@ -161,9 +162,19 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
                 buf[c] = (on_step && opt.draw_static) ? randchar() : ' ';
             }
 
-			if (cchar.color.nature != DCOLOR_UNSET)
-				dbuf_addcolor(dbuf, cchar.color);
+			int draw_as_selected = (sel_visual_idx == c && 
+					info->open_windows & PROCS_WINDOW_PROCINFO);
+
+			if (draw_as_selected) {
+				dbuf_addcolor(dbuf, DCOLOR_SAMPLE_GREEN_BG);
+			}
+
+			if (cchar.color.nature != DCOLOR_UNSET) dbuf_addcolor(dbuf, cchar.color);
 			dbuf_addc(dbuf, buf[c]);
+
+			if (draw_as_selected) {
+				dbuf_addcolor(dbuf, DCOLOR_SAMPLE_RESET);
+			}
         }
 
 		/*
@@ -181,8 +192,8 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 	// draw info window (this contains details for
 	// the selected process
     if (info->open_windows & PROCS_WINDOW_PROCINFO) {
+        SET_SECONDARYCOLOR();
         DRAW_HORIZONTAL_SEP();
-        SET_PRIMARYCOLOR();
         for (size_t i = 0; i < selected_info_winsz; i++) {
             x_memset(buf, ' ', info->display_size);
             pd_drawinfo(pl_cur_at(&info->selected), buf, info->display_size, i);
@@ -191,6 +202,5 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
             }*/
             dbuf_addsn(dbuf, buf, info->display_size);
         }
-        SET_SECONDARYCOLOR();
     }
 }

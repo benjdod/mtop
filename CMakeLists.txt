@@ -23,6 +23,7 @@ target_link_libraries(mtop
 	PUBLIC display
 	PUBLIC process
 	-lprocps
+	-lm
 )
 
 target_include_directories(mtop PUBLIC

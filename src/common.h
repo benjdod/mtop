@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>	// struct sysinfo, sysinfo()
 #include <proc/readproc.h>	// readproc, openproc, closeproc

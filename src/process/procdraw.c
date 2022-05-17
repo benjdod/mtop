@@ -22,6 +22,7 @@
 #include "proc.h"
 
 #define DRAWCACHE_PADDING 1
+#define COLOR_FALLOFF_POWER 1.5
 
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
@@ -225,7 +226,8 @@ static rand_drawctx_t advance_ctx_by(rand_drawctx_t ctx, size_t offset) {
 
 static int randd_stop(rand_drawctx_t ctx, size_t screen_offset, int stops) {
 	ctx = advance_ctx_by(ctx, screen_offset);
-	return (int) (((double)ctx.offset) / ((double) ctx.rand) * stops);
+	double pct = ((double) ctx.offset) / ((double) ctx.rand);
+	return (int) (pow(pct, (double) COLOR_FALLOFF_POWER) * stops);
 }
 
 inline char pd_charat(procinfo_t* p, size_t screen_offset) {
@@ -295,3 +297,4 @@ inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
 }
 
 #undef DRAWCACHE_PADDING
+#undef COLOR_FALLOFF_POWER

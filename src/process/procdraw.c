@@ -24,6 +24,30 @@
 #define DRAWCACHE_PADDING 1
 #define COLOR_FALLOFF_POWER 1.5
 
+static const dcolor_t colors[] = {
+	{
+		{0,80,0},
+		DCOLOR_GREEN,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	},
+
+	{
+		{0,138,0},
+		DCOLOR_GREEN,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	},
+	{
+		{0,255,0},
+		DCOLOR_GREEN,
+		DCOLOR_FG,
+		DCOLOR_NORMAL
+	}
+};
+
+static const int num_colors = sizeof(colors) / sizeof(dcolor_t);
+
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
 
@@ -250,29 +274,6 @@ inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
         ? p->drawdata.cache[final_idx]
         : ' ';
 
-	dcolor_t colors[3];
-
-	colors[0] = (dcolor_t) {
-		{0,80,0},
-		DCOLOR_GREEN,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	};
-
-	colors[1] = (dcolor_t) {
-		{0,138,0},
-		DCOLOR_GREEN,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	};
-
-	colors[2] = (dcolor_t) {
-		{0,255,0},
-		DCOLOR_GREEN,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	};
-
 	dcolor_t bright_white = (dcolor_t) {
 		{255,255,255},
 		DCOLOR_WHITE,
@@ -290,7 +291,7 @@ inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
 	} else if (ctx.offset == ctx.rand - 1) {
 		out.color = bright_white;
 	} else {
-		out.color = colors[randd_stop(p->drawdata.ctx, screen_offset, 3)];
+		out.color = colors[randd_stop(p->drawdata.ctx, screen_offset, num_colors)];
 	}
 
 	return out;

@@ -37,10 +37,10 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 	
 	// write according to colormode
 	if (opt.colormode==OPT_DRAWCOLOR_24BIT) {
-		// normal:   <esc>[38;2;<r>;<g>;<b>m
-		// bright:   <esc>[48;2;<r>;<g>;<b>m
+		// foreground:   <esc>[38;2;<r>;<g>;<b>m
+		// background:   <esc>[48;2;<r>;<g>;<b>m
         return (size_t) snprintf(buf, 24, "\e[%d;2;%d;%d;%dm", 
-				(color.nature == DCOLOR_BRIGHT) ? 48 : 38,
+				(color.stage == DCOLOR_BG) ? 48 : 38,
 				color.rgb.r, color.rgb.g, color.rgb.b);
     } else {
         char colorcode = color.hue + color.nature + color.stage;
@@ -49,10 +49,17 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 }
 
 int dcolor_eq(dcolor_t a, dcolor_t b) {
-	return (a.rgb.r == b.rgb.r &&
-			a.rgb.g == b.rgb.g &&
-			a.rgb.b == b.rgb.b &&
-			a.hue   == b.hue   &&
-			a.nature== b.nature&&
-			a.stage == b.stage) ? 1 : 0;
+	if (opt.colormode == OPT_DRAWCOLOR_NONE) return 1;
+	else if (opt.colormode == OPT_DRAWCOLOR_ANSI) {
+		return (a.nature == b.nature &&
+				a.hue == b.hue &&
+				a.stage == b.stage);
+	} else {
+		return (a.nature== b.nature&&
+				a.rgb.r == b.rgb.r &&
+				a.rgb.g == b.rgb.g &&
+				a.rgb.b == b.rgb.b &&
+				a.hue   == b.hue   &&
+				a.stage == b.stage) ? 1 : 0;
+	}
 }

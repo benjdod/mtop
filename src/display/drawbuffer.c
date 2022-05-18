@@ -47,6 +47,8 @@ void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color) {
 	if (generic_buffer_length(dbuf->color_buffer) > 0 &&
 		dcolor_eq(generic_buffer_last(dbuf->color_buffer), color)) return;
 
+    if (color.nature == DCOLOR_UNSET) return;
+
 	if (0) {
 		DCOLOR_WRITEBUFFER_CALLED(cb);
 		size_t wl = dcolor_write(color, cb, DCOLOR_WRITEBUFFER_LENGTH);

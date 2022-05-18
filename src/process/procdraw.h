@@ -25,8 +25,12 @@
 
 #include "proctypes.h"
 #include "proc.h"
+#include "display/dcolor.h"
 
-#define PD_WINSZ 20
+typedef struct cchar_t_ {
+	dcolor_t color;
+	char c;
+} cchar_t;
 
 size_t pd_drawinfo(procinfo_t* p, char* buf, size_t n, u8 section);
 size_t pd_drawcpuinfo(cpuinfo_t cpuinfo, char* buf, size_t n, u8 section);
@@ -39,6 +43,7 @@ void pd_retract_drawctx_interval(rand_drawctx_t* ctx);
 void pd_random_drawctx(rand_drawctx_t* ctx);
 int randd_visible(rand_drawctx_t ctx, size_t screen_offset);
 char pd_charat(procinfo_t* p, size_t screen_offset);
+cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset);
 int pd_get_interval(rand_hashdata_t hashdata, size_t index);
 void pd_updatecache(procinfo_t* p);
 

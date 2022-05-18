@@ -39,25 +39,6 @@
 #define COLOR_RESET     1
 #define COLOR_BRIGHT    60
 
-typedef struct rgb_t_ {
-    unsigned char r,g,b;
-} rgb_t;
-
-typedef struct color_t_ {
-    rgb_t rgb;
-
-    // intended to represent the ansi set
-    // https://en.wikipedia.org/wiki/ANSI_escape_code
-    unsigned char
-        hue,     
-        stage,      // foreground or background
-        nature;     // normal or bright
-} color_t;
-
-/* draws a color to the buffer according to the draw settings (n must be >= 20 or does nothing.) */
-size_t draw_color(color_t color, char* buf, size_t n);
-
-size_t draw_queryrow(procs_info_t* info, char* buf, size_t n, size_t r_off, size_t c_off, int step);
 void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* procs, size_t r_size);
 
 #endif

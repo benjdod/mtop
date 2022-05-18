@@ -39,6 +39,7 @@ struct procnode_t_ {
 struct proclist_cur_t_ {
     proclist_t* list;
     procnode_t* current;
+	size_t index;
     u8 pos;
 };
 
@@ -48,7 +49,6 @@ struct proclist_t_ {
         *tail;
     size_t size;
 };
-
 
 proclist_t proclist_init();
 void proclist_destroy(proclist_t* list);

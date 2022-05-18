@@ -342,7 +342,6 @@ static int read_meminfo(meminfo_t* info_ptr) {
 	FILE* proc_mem = fopen("/proc/meminfo", "r");
 	char buf[MEMINFO_BUFSZ];
 
-
 	x_memset(buf, '\0', MEMINFO_BUFSZ);
 	while ((fgets(buf, MEMINFO_BUFSZ - 1, proc_mem)) != 0) {
 		char* value = buf;
@@ -362,6 +361,8 @@ static int read_meminfo(meminfo_t* info_ptr) {
 		  	; 
 		}
 	}
+
+	fclose(proc_mem);
 
 	return 0;
 }
@@ -435,6 +436,10 @@ size_t procs_update(procs_info_t *info) {
 			PROC_FILLCOM
 		);
 
+	// sometimes openproc doesn't seem to work, and 
+	// since there's no ERRNO 
+	if (processes == NULL) return info->sys.num_procs;
+
 	proc_t *proc;
 
 	while ((proc = readproc(processes, NULL)) != NULL)  {
@@ -462,12 +467,12 @@ size_t procs_update(procs_info_t *info) {
 	// not listed in the read of the latest PROCTAB
 
 	proclist_cur_t cur = pl_cur_init(&info->procs);
-	pl_cur_next(&cur);
-	while (cur.current != NULL) {
-		if (!(PL_CURVAL(&cur)->flags & PROCINFO_FOUND)) {
+	procinfo_t* pi = NULL;
+	while ((pi = pl_cur_next(&cur)) != NULL) {
+		if (! (pi->flags & PROCINFO_FOUND)) {
 
-			if (pl_cur_eq(&cur, &info->selected)) {
-				//pl_cur_prev(&info->selected);
+			// if the current procinfo is selected
+			if (pi == &info->selected.current->value) {
 				procs_select(info, PROCS_SELECT_PREV);
 				info->selected_index--;
 			}
@@ -476,7 +481,6 @@ size_t procs_update(procs_info_t *info) {
 			num_procs--;
 		} else {
 			proc_untouch(&cur.current->value);
-			pl_cur_next(&cur);
 		}
 	}
 

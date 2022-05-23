@@ -22,7 +22,6 @@
 #define MTOP_DISPLAY_DCOLOR_H
 
 #include "common.h"
-#include "dstring.h"
 
 #define DCOLOR_BLACK     0
 #define DCOLOR_RED       1

@@ -9,7 +9,6 @@ add_executable(mtop
 	src/opt.c
 	src/mtop.c
 	src/error.c
-	src/draw.c
 	src/xutil.c
 )
 

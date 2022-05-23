@@ -21,21 +21,278 @@
 #include "common.h"
 #include "xutil.h"
 #include "error.h"
-#include "proclist.h"
 #include "proc.h"
-#include "procdraw.h"
+#include "draw.h"
 
 #define PROCINFO_BUFSZ 8192
 #define CPU_PERIOD_EPS 1E-6
-#define I_EPS(val, eps) (((val) < (eps)) ? 0 : (val))
-#define F_EPS(val, eps) (((val) < (eps)) ? 0.0F : (val))
 
 char* null_cmd = "(nil)";
 
 static long jiffy = 1;
 static long pagesize = 1;
 
-#define PROCINFO_FOUND 0x00001
+#define PROCINFO_NONE 	0x0
+#define PROCINFO_FOUND 	0x1
+#define PROCINFO_ACTIVE	0x2	// 0x001 is the found flag, defined in proc.c
+
+/* procinfo list functions:
+ * collection of procs is implemented as a linked list. */
+
+static drawdata_t drawdata_init(pid_t pid) {
+	drawdata_t dd;
+	dd.offset = 0;
+	dd.length = 0;	// set by updatecache?
+	x_memset(dd.cache, '\0', sizeof(dd.cache));
+	dd.ctx = pd_init_drawctx(pid);
+	return dd;
+}
+
+static procnode_t* pl_makenode(procnode_t* prev, procinfo_t info, procnode_t* next) {
+    procnode_t* out = (procnode_t*) x_malloc(1, sizeof(procnode_t));
+    out->value = info;
+    out->next = next;
+    out->prev = prev;
+	out->flags = PROCINFO_NONE;
+	out->dd = drawdata_init(info.pid);
+    return out;
+}
+
+static void pl_freenode(procnode_t* node) {
+    x_free(node);
+}
+
+// list methods
+
+static proclist_t pl_init() {
+    proclist_t list;
+
+    list.head = list.tail = NULL;
+    list.size = 0;
+
+    return list;
+}
+
+static void pl_destroy(proclist_t* list) {
+    procnode_t  
+        *current = list->head,
+        *del = list->head;
+
+    while (current != NULL) {
+        current = current->next;
+        del = current;
+        pl_freenode(del);
+    }
+
+    pl_freenode(del);
+}
+
+static procnode_t* pl_append(proclist_t* list, procinfo_t info) {
+    if (list->head == NULL) {   // size of 0
+        list->head = list->tail = pl_makenode(NULL, info, NULL);
+        list->size += 1;
+        return list->head;
+    } else {    // size > 0
+        procnode_t* newnode = pl_makenode( list->tail, info, NULL);
+        list->tail->next = newnode;
+        list->tail = newnode;
+        list->size += 1;
+        return list->tail;
+    }
+}
+
+static procnode_t* pl_prepend(proclist_t* list, procinfo_t info) {
+    if (list->head == NULL) {   // size of 0
+        list->head = list->tail = pl_makenode(NULL, info, NULL);
+    } else {    // size > 0
+        procnode_t* newnode = pl_makenode( NULL, info, list->head);
+        list->head->prev = newnode;
+        list->head = newnode;
+    }
+
+    list->size += 1;
+    return list->head;
+}
+
+static procnode_t* pl_insert(proclist_t* list, procinfo_t info) {
+    if (list->head == NULL) return pl_append(list, info);
+    pid_t pid = info.pid;
+    procnode_t* before = list->head;
+
+    while (before != NULL) {
+        if (pid > before->value.pid) before = before->next;
+        else {
+            if (before != list->head) {
+                before = before->prev;
+                break;
+            } else {
+                return pl_prepend(list, info);
+            }
+        }
+    }
+
+    if (before == list->tail || before == NULL) return pl_append(list, info);
+
+    procnode_t* after = before->next;
+
+    procnode_t* newnode = pl_makenode(before, info, after);
+
+    before->next = newnode;
+    after->prev = newnode;
+
+    return newnode;
+}
+
+static procnode_t* pl_findnode(proclist_t* list, pid_t pid) {
+    if (list->head == NULL) return NULL;
+
+    procnode_t* current = list->head;
+
+    while (current != NULL) {
+        if (current->value.pid == pid) break;
+        current = current->next;
+    }
+
+    return current;
+}
+
+static void pl_remove(proclist_t* list, pid_t pid) {
+    procnode_t* target = pl_findnode(list, pid);
+    if (target == NULL) return;
+
+    procnode_t* before = target->prev;
+    procnode_t* after  = target->next;
+
+    if (before) before->next = after;
+    if (after)  after->prev = before;
+
+    if (target == list->head) list->head = after;
+    else 
+    if (target == list->tail) list->tail = before;
+
+    return;
+}
+
+static void pl_foreach (proclist_t* list, void (*on_value)(procinfo_t*)) {
+    if (list->head == NULL) return;
+
+    procnode_t* current = list->head;
+
+    while (current != NULL) {
+        on_value(&current->value);
+        current = current->next;
+    }
+}
+
+static void pl_foreachnode(proclist_t* list, void(*on_value)(procnode_t*)) {
+	if (list->head == NULL) return;
+
+	procnode_t* current = list->head;
+
+	while (current != NULL) {
+		on_value(current);
+		current = current->next;
+	}
+}
+
+/* cursor operations */
+
+#define PL_CUR_IN       0x0     // cursor is in the list
+#define PL_CUR_BEFORE   0x1     // cursor is before first element
+#define PL_CUR_AFTER    0x2     // cursor is after last element
+
+proclist_cur_t pl_cur_init(proclist_t* list) {
+    proclist_cur_t cursor;
+
+    cursor.list = list;
+    cursor.current = NULL;
+    cursor.pos = PL_CUR_BEFORE;
+
+    return cursor;
+}
+proclist_cur_t pl_cur_clone(proclist_cur_t* cur) {
+	proclist_cur_t cursor = *cur;
+
+	/*
+	cursor.list = cur->list;
+	cursor.current = cur->current;
+	cursor.pos = cur->pos;
+	*/
+
+	return cursor;
+}
+u8 pl_cur_hasnext(proclist_cur_t* cur) {
+    if (cur->current)
+        return (cur->current->next != NULL) ? 1 : 0;
+    else 
+        return (cur->pos == PL_CUR_BEFORE) ? 1 : 0;
+}
+u8 pl_cur_hasprev(proclist_cur_t* cur) {
+    if (cur->current)
+        return (cur->current->prev != NULL) ? 1 : 0;
+    else 
+        return (cur->pos == PL_CUR_AFTER) ? 1 : 0;
+}
+u8 pl_cur_eq(proclist_cur_t* a, proclist_cur_t* b) {
+    // XXX: hmmmm
+    return (a->current == b->current && a->pos == b->pos)
+        ? 1 
+        : 0;
+}
+procnode_t* pl_cur_at(proclist_cur_t* cur) {
+    return cur->current;
+}
+procnode_t* pl_cur_next(proclist_cur_t* cur) {
+	if (cur->pos == PL_CUR_AFTER) return NULL;
+    cur->current = (cur->pos == PL_CUR_BEFORE)
+        ? cur->list->head
+        : cur->current->next;
+    cur->pos = (cur->current == NULL)
+        ? PL_CUR_AFTER
+        : PL_CUR_IN;
+    return cur->current;
+}
+procnode_t* pl_cur_prev(proclist_cur_t* cur) {
+	if (cur->pos == PL_CUR_BEFORE) return NULL;
+	cur->current = (cur->pos == PL_CUR_AFTER)
+		? cur->list->tail
+		: cur->current->prev;
+	cur->pos = (cur->current == NULL)
+		? PL_CUR_BEFORE
+		: PL_CUR_IN;
+	return cur->current;
+}
+procnode_t* pl_cur_first(proclist_cur_t* cur) {
+    cur->current = cur->list->head;
+    cur->pos = PL_CUR_IN;
+    return cur->current;
+}
+procnode_t* pl_cur_last(proclist_cur_t* cur) {
+    cur->current = cur->list->tail;
+    cur->pos = PL_CUR_IN;
+    return cur->current;
+}
+void pl_cur_remove(proclist_cur_t* cur, proclist_cur_shift direction) {
+    proclist_t* list = cur->list;
+
+    procinfo_t* rm = &(cur->current->value);
+
+    if (rm == NULL) return;
+
+    if (direction == CUR_SHIFT_LEFT) {
+        pl_cur_prev(cur);
+    } else {
+        pl_cur_next(cur);
+		if (cur->current != NULL && cur->current->next == NULL) { // last element in list
+			pl_cur_prev(cur);
+		} else {
+			pl_cur_next(cur);
+		}
+    }
+
+    pl_remove(list, rm->pid);
+}
+
 
 static inline ptime_t adjust_time(ptime_t time) {
 	// this function probably won't do anything if the 
@@ -83,18 +340,6 @@ static cmdline_args_t make_cmdline_args(char** argp) {
 	}
 
 	return args;
-
-	/*
-	while (1) {
-		printf("%s\n", p);
-		while (*p != '\0') {
-			p++;
-		}
-		p++;
-
-		if (*p == '\0') break;
-	}
-	*/
 }
 
 static void destroy_cmdline_args(cmdline_args_t* argp) {
@@ -102,6 +347,14 @@ static void destroy_cmdline_args(cmdline_args_t* argp) {
 		argp->argv[i] = x_free(argp->argv[i]);
 	}
 	argp->argc = 0;
+}
+
+void procs_foreachnode(procs_info_t* info, void (*on_value)(procnode_t*)) {
+	pl_foreachnode(&info->procs, on_value);
+}
+
+void procs_foreach(procs_info_t* info, void (*on_value)(procinfo_t*)) {
+	pl_foreach(&info->procs, on_value);
 }
 
 const char* proc_state_tostring(char state) {
@@ -149,38 +402,45 @@ static cpuinfo_t cpuinfo_init() {
 	return info;
 }
 
+void cpuinfo_destroy(cpuinfo_t* info) {
+	info->coretimes = x_free(info->coretimes);
+}
+
 static meminfo_t meminfo_init() {
 	meminfo_t out;
 	x_memset(&out, 0, sizeof(meminfo_t));
 	return out;
 }
 
-void cpuinfo_destroy(cpuinfo_t* info) {
-	info->coretimes = x_free(info->coretimes);
-}
-
-procs_info_t procs_init() {
+static inline sysinfo_t sysinfo_init() {
 	sysinfo_t sys;
 	sys.num_procs = 0;
 	sys.running = 0;
 	sys.cpu = cpuinfo_init();
 	sys.mem = meminfo_init();
+	return sys;
+}
+
+static void sysinfo_destroy(sysinfo_t* info) {
+	cpuinfo_destroy(&info->cpu);
+}
+
+procs_info_t procs_init() {
 
 	procs_info_t pi;
 
-	pi.procs = proclist_init();
+	pi.procs = pl_init();
 	pi.refresh_rate = 1000 * 100;
 	pi.selected = pl_cur_init(&pi.procs);
 	pi.selected_index = 0;
 
-	pi.sys = sys;
+	pi.sys = sysinfo_init();
 
 	jiffy = sysconf(_SC_CLK_TCK);
 	pagesize = sysconf(_SC_PAGESIZE);
 	return pi;
 }
 
-#ifdef MTOP_PROC_DRAW
 void procs_set_drawopts(procs_info_t* info, size_t step, size_t rsize, size_t csize) {
 	// info->selected_index = 0;
 	info->col_offset = 0;
@@ -190,7 +450,6 @@ void procs_set_drawopts(procs_info_t* info, size_t step, size_t rsize, size_t cs
 	info->step = step;
 	info->real_size = csize / info->step + (csize % info->step ? 1 : 0);
 }
-#endif
 
 size_t procs_select(procs_info_t* info, u8 select) {
 
@@ -214,6 +473,7 @@ size_t procs_select(procs_info_t* info, u8 select) {
 
 		// for next and prev we can assume that there is an
 		// active cursor
+		// TODO: should these wrap around? 
 		case PROCS_SELECT_NEXT:
 			if (pl_cur_next(&info->selected) != NULL) info->selected_index += 1;
 			else pl_cur_prev(&info->selected);
@@ -228,8 +488,8 @@ size_t procs_select(procs_info_t* info, u8 select) {
 }
 
 void procs_destroy(procs_info_t* procs) {
-	proclist_destroy(&procs->procs);
-	cpuinfo_destroy(&procs->sys.cpu);
+	pl_destroy(&procs->procs);
+	sysinfo_destroy(&procs->sys);
 }
 
 static int read_cpuinfo(cpuinfo_t* info_ptr) {
@@ -383,9 +643,11 @@ void proc_updateinfo(procinfo_t* p, proc_t proc, ptime_t period) {
 	p->shr_mem		= proc.share * pagesize / 1024;
 
 	p->state		= proc.state;
+	p->start_time	= proc.start_time;
+
+	// calculate these next
 	p->cpu_pct		= 0;
 	p->mem_pct		= 0;
-	p->start_time	= proc.start_time;
 
 	TIMEDELTA_UPDATE(p->cpuavg.stime, adjust_time(proc.stime));
 	TIMEDELTA_UPDATE(p->cpuavg.utime, adjust_time(proc.utime));
@@ -412,15 +674,10 @@ void proc_updateinfo(procinfo_t* p, proc_t proc, ptime_t period) {
 	return;
 }
 
-static void proc_touch(procinfo_t* p) {
-	p->flags |= PROCINFO_FOUND;
-}
-
-static void proc_untouch(procinfo_t* p) {
-	p->flags &= ~(PROCINFO_FOUND);
-}
-
 size_t procs_update(procs_info_t *info) {
+
+	#define proc_touch(P) (P)->flags |= PROCINFO_FOUND
+	#define proc_untouch(P) (P)->flags &= ~(PROCINFO_FOUND)
 
 	size_t num_procs = 0;
 	size_t running_procs = 0;
@@ -444,17 +701,17 @@ size_t procs_update(procs_info_t *info) {
 
 	while ((proc = readproc(processes, NULL)) != NULL)  {
 
-		procinfo_t* proc_ptr = NULL;
+		procnode_t* node = NULL;
 
 		ptime_t period = info->sys.cpu.times.total.delta;
 
-		if ((proc_ptr = proclist_find(&info->procs, PROC_PIDOF(*proc))) != NULL) {
-			proc_updateinfo(proc_ptr, *proc, period);
+		if ((node = pl_findnode(&info->procs, PROC_PIDOF(*proc))) != NULL) {
+			proc_updateinfo(&node->value, *proc, period);
 		} else {
-			proc_ptr = proclist_insert(&info->procs, proc_getinfo(*proc, period));
+			node = pl_insert(&info->procs, proc_getinfo(*proc, period));
 		}
 
-		proc_touch(proc_ptr);	// mark that the process in the tree has been found this round
+		proc_touch(node);	// mark that the process in the tree has been found this round
 		freeproc(proc);
 		num_procs++;
 		if (proc->state == 'R' || proc->state == 'r') running_procs += 1;
@@ -467,20 +724,20 @@ size_t procs_update(procs_info_t *info) {
 	// not listed in the read of the latest PROCTAB
 
 	proclist_cur_t cur = pl_cur_init(&info->procs);
-	procinfo_t* pi = NULL;
-	while ((pi = pl_cur_next(&cur)) != NULL) {
-		if (! (pi->flags & PROCINFO_FOUND)) {
+	procnode_t* node = NULL;
+	while ((node = pl_cur_next(&cur)) != NULL) {
+		if (! (cur.current->flags & PROCINFO_FOUND)) {
 
 			// if the current procinfo is selected
-			if (pi == &info->selected.current->value) {
+			if (&node->value == &info->selected.current->value) {
 				procs_select(info, PROCS_SELECT_PREV);
 				info->selected_index--;
 			}
 
-			pl_cur_remove(&cur, PL_CURSHIFT_RIGHT);
+			pl_cur_remove(&cur, CUR_SHIFT_RIGHT);
 			num_procs--;
 		} else {
-			proc_untouch(&cur.current->value);
+			proc_untouch(cur.current);
 		}
 	}
 
@@ -496,23 +753,14 @@ size_t procs_update(procs_info_t *info) {
 	}
 
 	return info->sys.num_procs;
+
+	#undef proc_touch
+	#undef proc_untouch
 }
 
 procinfo_t proc_getinfo(proc_t proc, ptime_t period) {
 
 	procinfo_t p;
-
-	p.flags = 0;
-
-#ifdef MTOP_PROC_DRAW
-	drawdata_t d;
-	d.offset = 0;
-	x_memset(d.cache, '\0', sizeof(d.cache));
-	p.drawdata = d;
-	p.drawdata.offset = 0;
-
-	p.drawdata.ctx = pd_init_drawctx(PROC_PIDOF(proc));
-#endif
 
 	// reference defn of proc_t:
 	// https://github.com/thlorenz/procps/blob/master/deps/procps/proc/readproc.h

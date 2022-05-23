@@ -4,8 +4,7 @@ project(process)
 
 add_library(process STATIC 
     proc.c
-    proclist.c
-    procdraw.c
+    draw.c
 )
 
 target_include_directories(process

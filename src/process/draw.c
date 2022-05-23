@@ -18,8 +18,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE. */
 
-#include "procdraw.h"
+#include "draw.h"
 #include "proc.h"
+#include "xutil.h"
 
 #define DRAWCACHE_PADDING 1
 #define COLOR_FALLOFF_POWER 1.5
@@ -145,9 +146,9 @@ size_t pd_drawcpuinfo(cpuinfo_t cpuinfo, char* buf, size_t n, u8 section) {
     return n;
 }
 
-void pd_updatecache(procinfo_t* p) {
+void pd_updatecache(procnode_t* p) {
    // printf("updating cache at %p\n", p->drawdata.cache);
-    p->drawdata.length = pd_drawto(p, p->drawdata.cache, DRAWDATA_CACHE_LENGTH);
+    p->dd.length = pd_drawto(&p->value, p->dd.cache, DRAWDATA_CACHE_LENGTH);
 }
 
 int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
@@ -254,24 +255,24 @@ static int randd_stop(rand_drawctx_t ctx, size_t screen_offset, int stops) {
 	return (int) (pow(pct, (double) COLOR_FALLOFF_POWER) * stops);
 }
 
-inline char pd_charat(procinfo_t* p, size_t screen_offset) {
+inline char pd_charat(procnode_t* p, size_t screen_offset) {
 
-    size_t final_idx = ((screen_offset + p->drawdata.offset) % (p->drawdata.length + DRAWCACHE_PADDING));
+    size_t final_idx = ((screen_offset + p->dd.offset) % (p->dd.length + DRAWCACHE_PADDING));
 
     /* If the final index is within the bounds of the draw cache and is visible according to 
      * the masking algorithm, return it. Otherwise return a space */
-	return ( final_idx < p->drawdata.length && randd_visible(p->drawdata.ctx, screen_offset))
-        ? p->drawdata.cache[final_idx]
+	return ( final_idx < p->dd.length && randd_visible(p->dd.ctx, screen_offset))
+        ? p->dd.cache[final_idx]
         : ' ';
 }
 
-inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
-    size_t final_idx = ((screen_offset + p->drawdata.offset) % (p->drawdata.length + DRAWCACHE_PADDING));
+inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
+    size_t final_idx = ((screen_offset + p->dd.offset) % (p->dd.length + DRAWCACHE_PADDING));
 
     /* If the final index is within the bounds of the draw cache and is visible according to 
      * the masking algorithm, return it. Otherwise return a space */
-	char final_char = ( final_idx < p->drawdata.length && randd_visible(p->drawdata.ctx, screen_offset))
-        ? p->drawdata.cache[final_idx]
+	char final_char = ( final_idx < p->dd.length && randd_visible(p->dd.ctx, screen_offset))
+        ? p->dd.cache[final_idx]
         : ' ';
 
 	dcolor_t bright_white = (dcolor_t) {
@@ -284,14 +285,14 @@ inline cchar_t pd_ccharat(procinfo_t* p, size_t screen_offset) {
 	cchar_t out;
 	out.c = final_char;
 
-	rand_drawctx_t ctx = advance_ctx_by(p->drawdata.ctx, screen_offset);
+	rand_drawctx_t ctx = advance_ctx_by(p->dd.ctx, screen_offset);
 
 	if (final_char == ' ') {
 		out.color = DCOLOR_SAMPLE_UNSET;
 	} else if (ctx.offset == ctx.rand - 1) {
 		out.color = bright_white;
 	} else {
-		out.color = colors[randd_stop(p->drawdata.ctx, screen_offset, num_colors)];
+		out.color = colors[randd_stop(p->dd.ctx, screen_offset, num_colors)];
 	}
 
 	return out;

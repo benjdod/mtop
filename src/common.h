@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
+#include <string.h>
 #include <math.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>	// struct sysinfo, sysinfo()
@@ -34,14 +36,10 @@
 #include <time.h>
 #include <unistd.h>
 
-// flags
-
-#define MTOP_PROC_DRAW
-
 typedef     uint8_t     u8;
 typedef     uint16_t    u16;
 typedef     uint32_t    u32;
-typedef     uint64_t    u64;
+typedef     uint64_t    u64; 
 typedef     int8_t      i8;
 typedef     int16_t     i16;
 typedef     int32_t     i32;

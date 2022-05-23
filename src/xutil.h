@@ -23,9 +23,6 @@
 
 #include "common.h"
 
-#include <string.h>
-#include <stdlib.h>
-
 ssize_t x_readfile(const char* path, char* buf, ssize_t n);
 
 // strings 

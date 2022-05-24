@@ -303,7 +303,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
                     if (sel_visual_idx == -1 && pl_cur_eq(&cur, &info->selected)) {
                         sel_visual_idx = c;
                     }
-					cchar = pd_ccharat(cur.current, r  + info->row_offset);
+					cchar = pd_ccharat(cur.current, r + info->row_offset);
 					buf[c] = cchar.c;
 					pl_cur_next(&cur);
                 } else {

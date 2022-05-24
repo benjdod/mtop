@@ -49,6 +49,13 @@ static const dcolor_t colors[] = {
 
 static const int num_colors = sizeof(colors) / sizeof(dcolor_t);
 
+static const dcolor_t bright_white = (dcolor_t) {
+	{255,255,255},
+	DCOLOR_WHITE,
+	DCOLOR_FG,
+	DCOLOR_NORMAL
+};
+
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
 
@@ -60,15 +67,19 @@ size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
     int written = snprintf(
 		buf,
         n,
-		"%s (%d) %c %llu %llu %llu %llu %.2f", 
+		"%s %d %c %llu %llu %llu %llu %.2f %lu %lu %lu", 
 		cmd_str, 
 		p->pid,
 		p->state,
+
 		cpuavg.utime.current,
 		cpuavg.stime.current,
 		cpuavg.cutime.current,
 		cpuavg.cstime.current,
-        p->cpu_pct
+        p->cpu_pct,
+		p->virt_mem,
+		p->res_mem,
+		p->shr_mem
 	);
 
     return (written >= n) ? n : ((size_t) written);
@@ -238,19 +249,16 @@ inline int randd_visible(rand_drawctx_t ctx, size_t screen_offset) {
 }
 
 static rand_drawctx_t advance_ctx_by(rand_drawctx_t ctx, size_t offset) {
-	rand_drawctx_t out = ctx;
-	while (offset > ctx.rand) {
+	while (offset >= ctx.rand) {
 		offset -= (ctx.rand - ctx.offset);
-		pd_advance_drawctx_interval(&out);
-	}
-	for (size_t i = 0; i < offset; i++) {
-		pd_advance_drawctx(&out);
-	}
-	return out;
+		pd_advance_drawctx_interval(&ctx);
+	}	
+	for (size_t i = 0; i < offset; i++) pd_advance_drawctx(&ctx);
+	return ctx;
 }
 
 static int randd_stop(rand_drawctx_t ctx, size_t screen_offset, int stops) {
-	ctx = advance_ctx_by(ctx, screen_offset);
+	//ctx = advance_ctx_by(ctx, screen_offset);
 	double pct = ((double) ctx.offset) / ((double) ctx.rand);
 	return (int) (pow(pct, (double) COLOR_FALLOFF_POWER) * stops);
 }
@@ -275,13 +283,6 @@ inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
         ? p->dd.cache[final_idx]
         : ' ';
 
-	dcolor_t bright_white = (dcolor_t) {
-		{255,255,255},
-		DCOLOR_WHITE,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	};
-
 	cchar_t out;
 	out.c = final_char;
 
@@ -292,7 +293,7 @@ inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
 	} else if (ctx.offset == ctx.rand - 1) {
 		out.color = bright_white;
 	} else {
-		out.color = colors[randd_stop(p->dd.ctx, screen_offset, num_colors)];
+		out.color = colors[randd_stop(ctx, screen_offset, num_colors)];
 	}
 
 	return out;

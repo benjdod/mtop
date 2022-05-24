@@ -475,12 +475,22 @@ size_t procs_select(procs_info_t* info, u8 select) {
 		// active cursor
 		// TODO: should these wrap around? 
 		case PROCS_SELECT_NEXT:
+			if (pl_cur_hasnext(&info->selected)) {
+				pl_cur_next(&info->selected);
+				info->selected_index += 1;
+			}
+			/*
 			if (pl_cur_next(&info->selected) != NULL) info->selected_index += 1;
-			else pl_cur_prev(&info->selected);
+			else pl_cur_prev(&info->selected);*/
 			break;
 		case PROCS_SELECT_PREV:
+			if (pl_cur_hasprev(&info->selected)) {
+				pl_cur_prev(&info->selected);
+				info->selected_index -= 1;
+			}
+			/*
 			if (pl_cur_prev(&info->selected) != NULL) info->selected_index -= 1;
-			else pl_cur_next(&info->selected);
+			else pl_cur_next(&info->selected);*/
 			break;
 	}
 
@@ -731,6 +741,8 @@ size_t procs_update(procs_info_t *info) {
 			// if the current procinfo is selected
 			if (&node->value == &info->selected.current->value) {
 				procs_select(info, PROCS_SELECT_PREV);
+				//info->selected_index--;
+			} else if (&node->value.pid < &info->selected.current->value.pid) {
 				info->selected_index--;
 			}
 

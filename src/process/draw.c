@@ -67,7 +67,7 @@ size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
     int written = snprintf(
 		buf,
         n,
-		"%s %d %c %llu %llu %llu %llu %.2f %lu %lu %lu", 
+		"%s (%d) %c [%llu %llu %llu %llu %.2f] {%lu %lu %lu}", 
 		cmd_str, 
 		p->pid,
 		p->state,

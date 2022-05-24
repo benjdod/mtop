@@ -212,7 +212,7 @@ static size_t draw_system_info(drawbuffer_t* dbuf, procs_info_t* info, size_t r_
 	rows_printed++;
 	CHECK_RETURN();
 
-	w = snprintf(buf, r_size, "Mem: %lu/%lu, swap: %lu/%lu", memp->free, memp->total, memp->swap_free, memp->swap_total);
+	w = snprintf(buf, r_size, "Mem: %lu/%lu kB, swap: %lu/%lu kB", memp->free, memp->total, memp->swap_free, memp->swap_total);
 	dbuf_addsn(dbuf, buf, w);
 	dbuf_addcn(dbuf, ' ', r_size - w);
 
@@ -393,6 +393,7 @@ int cmtop(int argc, char** argv) {
 
 	screen_open();
 	info.step = 2;
+	info.open_windows = PROCS_WINDOW_NONE;
 	sigwinch_handler();
 	screen_hidecursor();
 

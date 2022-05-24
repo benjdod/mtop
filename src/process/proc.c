@@ -445,7 +445,6 @@ void procs_set_drawopts(procs_info_t* info, size_t step, size_t rsize, size_t cs
 	// info->selected_index = 0;
 	info->col_offset = 0;
 	info->row_offset = 0;
-	info->open_windows = PROCS_WINDOW_NONE;
 	info->display_size = csize;
 	info->step = step;
 	info->real_size = csize / info->step + (csize % info->step ? 1 : 0);

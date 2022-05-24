@@ -31,10 +31,17 @@
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>	// struct sysinfo, sysinfo()
 #include <proc/readproc.h>	// readproc, openproc, closeproc
+#include <pthread.h>
 #include <signal.h>
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
+
+// compile flags
+
+#define MTOP_MULTITHREAD 
+
+// integer typedefs for sanity :)
 
 typedef     uint8_t     u8;
 typedef     uint16_t    u16;

@@ -31,6 +31,14 @@
 procs_info_t info;
 screensize_t ssz;
 
+#ifdef MTOP_MULTITHREAD
+pthread_t 
+	input_thread = 0,
+	clock_thread = 0;
+pthread_mutex_t evt_queue_lock;
+u8 running = 1;
+#endif
+
 // arg parsing
 
 /**
@@ -372,6 +380,120 @@ int readkey() {
 	}
 }
 
+#ifdef MTOP_MULTITHREAD
+
+typedef enum qevent_type_t_ {
+	QEVENT_NONE,
+	QEVENT_CLOCK,
+	QEVENT_INPUT
+} qevent_type_t;
+
+typedef struct qevent_t_ {
+	qevent_type_t type;
+	int key;
+} qevent_t;
+
+typedef struct eq_node_ eq_node;
+typedef struct eq_node_ {
+	qevent_t event;
+	eq_node
+		*prev,
+		*next;
+} eq_node;
+
+typedef struct event_queue_t_ {
+	size_t size;
+	eq_node
+		*head,
+		*tail;
+} event_queue_t;
+
+event_queue_t eventqueue;
+
+eq_node* eq_makenode(qevent_t evt, eq_node* prev, eq_node* next) {
+	eq_node* out = x_malloc(1, sizeof(eq_node));
+	out->event = evt;
+	out->prev = prev;
+	out->next = next;
+	return out;
+}
+
+void eq_freenode(eq_node* node) {
+	x_free(node);
+}
+
+void eq_append(qevent_t evt) {
+	pthread_mutex_lock(&evt_queue_lock);
+
+    if (eventqueue.head == NULL) {
+        eventqueue.head = eventqueue.tail = eq_makenode(evt, NULL, NULL);
+    } else {
+        eq_node* node = eq_makenode(evt, eventqueue.tail, NULL);
+        eventqueue.tail->next = node;
+    }
+    eventqueue.size += 1;
+
+    pthread_mutex_unlock(&evt_queue_lock);
+}
+
+qevent_t eq_take() {
+	pthread_mutex_lock(&evt_queue_lock);
+
+    qevent_t out;
+
+    if (eventqueue.head == NULL && eventqueue.tail == NULL) {
+        eventqueue.size = 0;
+        out = (qevent_t) { QEVENT_NONE, 0 };
+    } else if (eventqueue.head == eventqueue.tail) {
+        out = eventqueue.head->event;
+        eq_freenode(eventqueue.head);
+        eventqueue.head = eventqueue.tail = NULL;
+        eventqueue.size = 0;
+    } else {
+        eq_node* outnode = eventqueue.head;
+        eventqueue.head = eventqueue.head->next;
+        out = outnode->event;
+        eventqueue.size -= 1;
+        eq_freenode(outnode);
+    }
+    pthread_mutex_unlock(&evt_queue_lock);
+    return out;
+}
+
+void* input_thread_exec(void* arg) {
+	int key = '\0';
+	while (running) {
+		key = readkey();
+		if (key) eq_append((qevent_t) {QEVENT_INPUT, key});
+	}
+	pthread_exit(NULL);
+	return NULL;
+}
+
+void* clock_thread_exec(void* arg) {
+	while (running) {
+		eq_append((qevent_t) {QEVENT_CLOCK, 0});
+		usleep(1000 * opt.refresh_rate);
+	}
+	pthread_exit(NULL);
+	return NULL;
+}
+
+void init_threads() {
+	pthread_mutex_init(&evt_queue_lock, NULL);
+	pthread_create(&input_thread, NULL, input_thread_exec, NULL);
+	pthread_create(&clock_thread, NULL, clock_thread_exec, NULL);
+}
+
+void terminate() {
+	running = 0;
+	pthread_join(input_thread, NULL);
+	pthread_join(clock_thread, NULL);
+	screen_showcursor();
+	graceful_exit("exiting multithreaded normally.");
+}
+#endif
+
 int cmtop(int argc, char** argv) {
 
 	opt_default();
@@ -384,7 +506,6 @@ int cmtop(int argc, char** argv) {
 	signal(SIGTERM, &sigterm_handler);
 
 	fill_procs();
-	//procs_set_drawopts(&info, 2, ssz.rows, ssz.cols);
 	randomize_drawvalues();
 
 	screen_open();
@@ -393,8 +514,6 @@ int cmtop(int argc, char** argv) {
 	sigwinch_handler();
 	screen_hidecursor();
 
-#define DO_SLEEP() usleep(opt.refresh_rate * 1000)
-
 	drawbuffer_t dbuf = dbuf_init();
 
 	tty_clear();
@@ -402,11 +521,89 @@ int cmtop(int argc, char** argv) {
 	u8 flushcount = 0;
 	u8 flushbreak = 5;
 
-	int key  ='\0';
+	init_threads();
 
-while (1) {
+#ifdef MTOP_MULTITHREAD
+	while (running) {
 
-		key = readkey();
+		qevent_t event = eq_take();
+
+		u8 update = 0;
+		u8 redraw = 0;
+
+		if (event.type == QEVENT_INPUT) {
+
+			switch (event.key) {
+				case 'o':
+					info.open_windows ^= PROCS_WINDOW_SYSINFO;
+					redraw = 1;
+					break;
+				case 'p':
+					info.open_windows ^= PROCS_WINDOW_PROCINFO;
+					redraw = 1;
+					break;
+				case 'h':
+				case KEY_ARROW_LEFT:
+					procs_select(&info, PROCS_SELECT_PREV);
+					redraw = (info.open_windows & PROCS_WINDOW_PROCINFO);
+					break;
+				case 'l':
+				case KEY_ARROW_RIGHT:
+					procs_select(&info, PROCS_SELECT_NEXT);
+					redraw = (info.open_windows & PROCS_WINDOW_PROCINFO);
+					break;
+				case 'j':
+				case KEY_ARROW_DOWN:
+					info.row_offset += 1;
+					redraw = 1;
+					break;
+				case 'k':
+				case KEY_ARROW_UP:
+					if (info.row_offset > 0) info.row_offset--;
+					redraw = 1;
+					break;
+				case 'g':
+				case '^':
+					procs_select(&info, PROCS_SELECT_FIRST);
+					redraw = 1;
+					break;
+				case 'G':
+				case '$':
+					procs_select(&info, PROCS_SELECT_LAST);
+					redraw = 1;
+					break;
+				case 'q':
+					terminate();
+			}
+
+		} else if (event.type == QEVENT_CLOCK) {
+			redraw = update = 1;
+		}
+
+		if (redraw) {
+			if (flushcount == flushbreak) {
+				tty_oflush();
+				tty_iflush();
+			}
+
+			flushcount += 1; 
+			flushcount %= flushbreak;
+
+			screen_setcursor((rowcol_t) {0,0});
+			if (update) update_procs();
+
+			draw_fillbuffer(&dbuf, &info, ssz.rows);
+			dbuf_flush(&dbuf);
+
+			if (update) procs_foreachnode(&info, &advance_offset);
+		}
+	} 
+
+#else	// single threaded mode
+
+	while (1) {
+
+		int key = readkey();
 
 		if (key) {
 			switch (key) {
@@ -462,15 +659,16 @@ while (1) {
 		dbuf_flush(&dbuf);
 
 		procs_foreachnode(&info, &advance_offset);
-		if (! key) DO_SLEEP();
-	}
-
-	//while (! tty_readc()) ;
+		if (! key) usleep(opt.refresh_rate * 1000);
+	} 
 	
 exit_main:
 
 	screen_showcursor();
 	graceful_exit("exiting normally.");
+
+
+#endif
 
 	return 0;
 }
@@ -484,6 +682,4 @@ void print_timedelta(timedelta_t td, const char *title) {
 
 int main(int argc, char** argv) {
 	return cmtop(argc, argv);
-	//return test_drawbuffer();
-	//return test_matrix_lines();
 }

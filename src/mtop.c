@@ -348,6 +348,34 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 
 // MAIN
 
+#define KEY_ARROW_UP		1000
+#define KEY_ARROW_DOWN		1001
+#define KEY_ARROW_LEFT		1002
+#define KEY_ARROW_RIGHT		1003
+
+int readkey() {
+	char c = tty_readc();
+
+	switch (c) {
+		case '\e': {
+			if ((c = tty_readc()) == '[') {
+				switch (c = tty_readc()) {
+					case 'A':
+						return KEY_ARROW_UP;
+					case 'B':
+						return KEY_ARROW_DOWN;
+					case 'C':
+						return KEY_ARROW_RIGHT;
+					case 'D':
+						return KEY_ARROW_LEFT;
+				}
+			} else return c;
+		}
+		default:
+			return (int) c;
+	}
+}
+
 int cmtop(int argc, char** argv) {
 
 	opt_default();
@@ -377,14 +405,14 @@ int cmtop(int argc, char** argv) {
 	u8 flushcount = 0;
 	u8 flushbreak = 5;
 
-	char ch  ='\0';
+	int key  ='\0';
 
 while (1) {
 
-		ch = tty_readc();
+		key = readkey();
 
-		if (ch) {
-			switch (ch) {
+		if (key) {
+			switch (key) {
 				case 'o':
 					info.open_windows ^= PROCS_WINDOW_SYSINFO;
 					break;
@@ -392,15 +420,19 @@ while (1) {
 					info.open_windows ^= PROCS_WINDOW_PROCINFO;
 					break;
 				case 'h':
+				case KEY_ARROW_LEFT:
 					procs_select(&info, PROCS_SELECT_PREV);
 					break;
 				case 'l':
+				case KEY_ARROW_RIGHT:
 					procs_select(&info, PROCS_SELECT_NEXT);
 					break;
 				case 'j':
+				case KEY_ARROW_DOWN:
 					info.row_offset += 1;
 					break;
 				case 'k':
+				case KEY_ARROW_UP:
 					if (info.row_offset > 0) info.row_offset--;
 					break;
 				case 'g':
@@ -433,7 +465,7 @@ while (1) {
 		dbuf_flush(&dbuf);
 
 		procs_foreachnode(&info, &advance_offset);
-		if (! ch) DO_SLEEP();
+		if (! key) DO_SLEEP();
 	}
 
 	//while (! tty_readc()) ;

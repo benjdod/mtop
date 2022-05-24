@@ -122,6 +122,15 @@ void* x_realloc(void* ptr, size_t n, size_t s);
 	RET_PTR = &(BUF.head[BUF.length]); \
 	BUF.length += N;
 
+/** repeatedly insert an array of ITEMS of length N R times */
+#define generic_buffer_insert_nnr(BUF, N, ITEMS, R) \
+	generic_buffer_expand(BUF, N * R); \
+	for (BUF.idx = 0; BUF.idx < N * R; BUF.idx += 1) { \
+		BUF.head[BUF.length + BUF.idx] = ITEMS[BUF.idx % N]; \
+	} \
+	BUF.idx = 0; \
+	BUF.length += N*R;
+
 /** remove N items from BUF */
 #define generic_buffer_remove(BUF, N) BUF.length -= N;
 

@@ -72,6 +72,8 @@ void dbuf_flush(drawbuffer_t* dbuf);
 void dbuf_addcolor(drawbuffer_t* dbuf, dcolor_t color);
 void dbuf_adds(drawbuffer_t* dbuf, const char* str);
 void dbuf_addsn(drawbuffer_t* dbuf, const char* str, size_t n);
+void dbuf_addsr(drawbuffer_t* dbuf, const char* str, size_t r);
+void dbuf_addsnr(drawbuffer_t* dbuf, const char* str, size_t n, size_t r);
 void dbuf_addc(drawbuffer_t* dbuf, char c);
 void dbuf_addcn(drawbuffer_t* dbuf, char c, size_t n);
 

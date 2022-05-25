@@ -62,7 +62,7 @@ void parse_args(int argc, char** argv) {
 			ARG_SHIFT();
 			u32 r = atol(*args);
 			if (r == 0) error(-1, "invalid value for field -r.");
-			SET_OPT(refresh_rate, r);
+			set_opt(refresh_rate, r);
 
 		} else if (ARG_EQ_SL("-c", "--color")) {
 			ARG_SHIFT();
@@ -73,19 +73,19 @@ void parse_args(int argc, char** argv) {
 			} else */
 
 			if (ARG_EQ("none")) {
-				SET_OPT(colormode, OPT_DRAWCOLOR_NONE);
+				set_opt(color.mode, OPT_DRAWCOLOR_NONE);
 			} else if (ARG_EQ("ansi")) {
-				SET_OPT(colormode, OPT_DRAWCOLOR_ANSI);
+				set_opt(color.mode, OPT_DRAWCOLOR_ANSI);
 			} else if (ARG_EQ_SL("8bit", "256")) {
-				SET_OPT(colormode, OPT_DRAWCOLOR_8BIT);
+				set_opt(color.mode, OPT_DRAWCOLOR_8BIT);
 			} else if (ARG_EQ("24bit")) {
-				SET_OPT(colormode, OPT_DRAWCOLOR_24BIT);
+				set_opt(color.mode, OPT_DRAWCOLOR_24BIT);
 			} else {
 				error(-1, "invalid argument for color.");
 			}
 
 		} else if (ARG_EQ_SL("-s", "--static")) {
-			SET_OPT(draw_static, OPT_YES);
+			set_opt(draw_static, OPT_YES);
 		} else {
 			error(-1, "invalid option '%s'. Type --help for more info.", *args);
 		}
@@ -250,8 +250,8 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 		info->col_offset = info->selected_index - info->real_size + 1;
 	} 
 
-#define SET_PRIMARYCOLOR() if (opt.colormode) {dbuf_addcolor(dbuf, HIGHLIGHT_COLOR);}
-#define SET_SECONDARYCOLOR() if (opt.colormode) {dbuf_addcolor(dbuf, DCOLOR_SAMPLE_RESET); dbuf_addcolor(dbuf, BASE_COLOR);}
+#define SET_PRIMARYCOLOR() if (get_opt(color.mode)) {dbuf_addcolor(dbuf, HIGHLIGHT_COLOR);}
+#define SET_SECONDARYCOLOR() if (get_opt(color.mode)) {dbuf_addcolor(dbuf, DCOLOR_SAMPLE_RESET); dbuf_addcolor(dbuf, BASE_COLOR);}
 #define DRAW_HORIZONTAL_SEP() dbuf_addsr(dbuf, "\u2500", info->display_size)
 
 	size_t matrix_view_winsz = r_size;

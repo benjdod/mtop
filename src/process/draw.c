@@ -21,33 +21,9 @@
 #include "draw.h"
 #include "proc.h"
 #include "xutil.h"
+#include "opt.h"
 
 #define DRAWCACHE_PADDING 1
-#define COLOR_FALLOFF_POWER 1.5
-
-static const dcolor_t colors[] = {
-	{
-		{0,80,0},
-		DCOLOR_GREEN,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	},
-
-	{
-		{0,138,0},
-		DCOLOR_GREEN,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	},
-	{
-		{0,255,0},
-		DCOLOR_GREEN,
-		DCOLOR_FG,
-		DCOLOR_NORMAL
-	}
-};
-
-static const int num_colors = sizeof(colors) / sizeof(dcolor_t);
 
 static const dcolor_t bright_white = (dcolor_t) {
 	{255,255,255},
@@ -258,9 +234,8 @@ static rand_drawctx_t advance_ctx_by(rand_drawctx_t ctx, size_t offset) {
 }
 
 static int randd_stop(rand_drawctx_t ctx, size_t screen_offset, int stops) {
-	//ctx = advance_ctx_by(ctx, screen_offset);
 	double pct = ((double) ctx.offset) / ((double) ctx.rand);
-	return (int) (pow(pct, (double) COLOR_FALLOFF_POWER) * stops);
+	return (int) (pow(pct, get_opt(falloff)) * stops);
 }
 
 inline char pd_charat(procnode_t* p, size_t screen_offset) {
@@ -293,11 +268,10 @@ inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
 	} else if (ctx.offset == ctx.rand - 1) {
 		out.color = bright_white;
 	} else {
-		out.color = colors[randd_stop(ctx, screen_offset, num_colors)];
+		out.color = get_opt(color.stops)[randd_stop(ctx, screen_offset, get_opt(color.num_stops))];
 	}
 
 	return out;
 }
 
 #undef DRAWCACHE_PADDING
-#undef COLOR_FALLOFF_POWER

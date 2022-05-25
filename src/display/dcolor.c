@@ -27,7 +27,7 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
     // buf must be at least 24 to safely accomodate "\e[38;2;255;255;255m" + '\0';
 	// colormode must be turned on
 	// color nature must not be unset
-    if (n < DCOLOR_WRITEBUFFER_LENGTH || opt.colormode == OPT_DRAWCOLOR_NONE || color.nature == DCOLOR_UNSET) return 0;  
+    if (n < DCOLOR_WRITEBUFFER_LENGTH || get_opt(color.mode) == OPT_DRAWCOLOR_NONE || color.nature == DCOLOR_UNSET) return 0;  
 
 	// RESET supercedes all 
     if (color.nature == DCOLOR_RESET) {
@@ -36,7 +36,7 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
     } 
 	
 	// write according to colormode
-	if (opt.colormode==OPT_DRAWCOLOR_24BIT) {
+	if ( get_opt(color.mode) ==OPT_DRAWCOLOR_24BIT) {
 		// foreground:   <esc>[38;2;<r>;<g>;<b>m
 		// background:   <esc>[48;2;<r>;<g>;<b>m
         return (size_t) snprintf(buf, 24, "\e[%d;2;%d;%d;%dm", 
@@ -49,8 +49,8 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 }
 
 int dcolor_eq(dcolor_t a, dcolor_t b) {
-	if (opt.colormode == OPT_DRAWCOLOR_NONE) return 1;
-	else if (opt.colormode == OPT_DRAWCOLOR_ANSI) {
+	if (get_opt(color.mode) == OPT_DRAWCOLOR_NONE) return 1;
+	else if (get_opt(color.mode) == OPT_DRAWCOLOR_ANSI) {
 		return (a.nature == b.nature &&
 				a.hue == b.hue &&
 				a.stage == b.stage);

@@ -21,24 +21,37 @@
 #ifndef MTOP_OPT_H
 #define MTOP_OPT_H
 
+#include "display/dcolor.h"
 #include "common.h"
 
 #define OPT_YES 0x1
 #define OPT_NO  0x0
+
+typedef struct color_opt_t_ {
+    u8 mode;
+    dcolor_t stops[8];
+    u32 num_stops;
+    dcolor_t 
+        head,
+        base,
+        highlight;
+} color_opt_t;
 
 typedef struct mtop_opt_t_ {
 #define OPT_DRAWCOLOR_NONE     0x0
 #define OPT_DRAWCOLOR_ANSI     0x1
 #define OPT_DRAWCOLOR_8BIT     0x2
 #define OPT_DRAWCOLOR_24BIT    0x3
-    u8 colormode;
     u8 draw_static;
     u32 refresh_rate;
+    color_opt_t color;  
+    double falloff;
 } mtop_opt_t;
 
 extern mtop_opt_t opt;
 
-#define SET_OPT(FIELD, VALUE) {opt.FIELD = VALUE;}
+#define get_opt(FIELD) (opt.FIELD)
+#define set_opt(FIELD, VALUE) {opt.FIELD = VALUE;}
 
 void opt_default();
 void opt_print();

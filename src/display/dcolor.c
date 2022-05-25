@@ -22,6 +22,30 @@
 #include "xutil.h"
 #include "opt.h"
 
+
+
+static int adjust_range(int val, int old_high, int new_high) {
+	double d = (double) val;
+	d /= (double) old_high;
+	d *= (double) new_high ;
+	return (int) floor(d);
+}
+
+static u8 rgb_to_256(drgb_t rgb) {
+
+	if (rgb.r == rgb.g && rgb.g == rgb.b) {	// if grayscale
+		u8 reduced = adjust_range(rgb.r, 256, 26);
+		if (reduced == 25) return 231;	// white
+		else if (reduced == 0) return 16;	// black
+		return 232 + reduced - 1;	// gradient
+	}
+
+	return 16 + 
+		(36 * adjust_range(rgb.r,256,6)) + 
+		(6 * adjust_range(rgb.g, 256,6)) + 
+		(adjust_range(rgb.b, 256, 6));
+}
+
 size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
 
     // buf must be at least 24 to safely accomodate "\e[38;2;255;255;255m" + '\0';
@@ -42,11 +66,17 @@ size_t dcolor_write(dcolor_t color, char* buf, size_t n) {
         return (size_t) snprintf(buf, 24, "\e[%d;2;%d;%d;%dm", 
 				(color.stage == DCOLOR_BG) ? 48 : 38,
 				color.rgb.r, color.rgb.g, color.rgb.b);
-    } else {
+    } else if ( get_opt(color.mode) == OPT_DRAWCOLOR_8BIT) {
+		return (size_t) snprintf(buf, 24, "\e[%d;5;%dm",
+			(color.stage == DCOLOR_BG ? 48 : 38),
+			rgb_to_256(color.rgb)
+		);
+	} else {
         char colorcode = color.hue + color.nature + color.stage;
         return (size_t) snprintf(buf, 24, "\e[%dm", colorcode);
     }
 }
+
 
 int dcolor_eq(dcolor_t a, dcolor_t b) {
 	if (get_opt(color.mode) == OPT_DRAWCOLOR_NONE) return 1;

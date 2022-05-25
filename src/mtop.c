@@ -527,9 +527,10 @@ int cmtop(int argc, char** argv) {
 	u8 flushcount = 0;
 	u8 flushbreak = 5;
 
+#ifdef MTOP_MULTITHREAD
+
 	init_threads();
 
-#ifdef MTOP_MULTITHREAD
 	while (1) {
 
 		qevent_t event = eq_take();

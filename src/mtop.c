@@ -42,6 +42,39 @@ u8 running = 1;
 
 // arg parsing
 
+
+void print_oflag(const char* cmd, const char* description) {
+	printf("    [%s] %s\n", cmd, description);
+}
+
+void print_option(const char* cmd, const char* description, ...) {
+	printf("    [%s] %s\n", cmd, description);
+	va_list args;
+	va_start(args, description);
+	char* option_str = va_arg(args, char*);
+	do {
+		printf("        %s\n", option_str);
+	} while ((option_str = va_arg(args, char*)) != NULL);
+	va_end(args);
+}
+
+void print_version() {
+	printf("mtop 0.10\n");
+}
+
+/* print help */
+void print_help() {
+	print_version();
+	printf("Options:\n");
+	print_option("-c | --color", "color mode for the host terminal", "none", "ansi | 8", "8bit | 256", "24bit", NULL);
+	print_oflag ("-r | --refresh-rate", "screen refresh rate in milliseconds");
+	print_oflag ("-s | --static", "draw static in empty space (kinda cool looking)");
+	print_oflag ("-V | --verbose", "increased output");
+	print_oflag ("-VV | --debug", "greatly increased output (debug levels)");
+	print_oflag ("-h | --help", "print this message and exit");
+	print_oflag ("-v | --version", "print version and exit");
+}
+
 /**
  * Parse command line arguments and set corresponding options.
  * If bad args are provided, this function will call the appropriate 
@@ -57,7 +90,13 @@ void parse_args(int argc, char** argv) {
 #define ARG_SHIFT() {args++; n--;}
 
 	while (n) {
-		if (ARG_EQ_SL("-r", "--refresh-rate")) {
+		if (ARG_EQ_SL("-h", "--help")) {
+			print_help();
+			exit(0);
+		} else if (ARG_EQ_SL("-v", "--version")) {
+			print_version();
+			exit(0);
+		} else if (ARG_EQ_SL("-r", "--refresh-rate")) {
 
 			ARG_SHIFT();
 			u32 r = atol(*args);
@@ -74,7 +113,7 @@ void parse_args(int argc, char** argv) {
 
 			if (ARG_EQ("none")) {
 				set_opt(color.mode, OPT_DRAWCOLOR_NONE);
-			} else if (ARG_EQ("ansi")) {
+			} else if (ARG_EQ_SL("ansi", "8")) {
 				set_opt(color.mode, OPT_DRAWCOLOR_ANSI);
 			} else if (ARG_EQ_SL("8bit", "256")) {
 				set_opt(color.mode, OPT_DRAWCOLOR_8BIT);
@@ -86,9 +125,9 @@ void parse_args(int argc, char** argv) {
 
 		} else if (ARG_EQ_SL("-s", "--static")) {
 			set_opt(draw_static, OPT_YES);
-		} else if (ARG_EQ("--verbose")) {
+		} else if (ARG_EQ_SL("-V", "--verbose")) {
 			set_opt(logging, OPT_LOG_VERBOSE);
-		} else if (ARG_EQ("--debug")) {
+		} else if (ARG_EQ_SL("-VV", "--debug")) {
 			set_opt(logging, OPT_LOG_DEBUG);
 		} else {
 			error(-1, "invalid option '%s'. Type --help for more info.", *args);
@@ -97,6 +136,7 @@ void parse_args(int argc, char** argv) {
 		ARG_SHIFT();
 	}
 }
+
 
 // process list related functions
 

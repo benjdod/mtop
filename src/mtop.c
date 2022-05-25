@@ -36,6 +36,7 @@ pthread_t
 	input_thread = 0,
 	clock_thread = 0;
 pthread_mutex_t evt_queue_lock;
+pthread_cond_t evt_exists_cond;
 u8 running = 1;
 #endif
 
@@ -434,10 +435,12 @@ void eq_append(qevent_t evt) {
     eventqueue.size += 1;
 
     pthread_mutex_unlock(&evt_queue_lock);
+	pthread_cond_signal(&evt_exists_cond);
 }
 
 qevent_t eq_take() {
 	pthread_mutex_lock(&evt_queue_lock);
+	pthread_cond_wait(&evt_exists_cond, &evt_queue_lock);
 
     qevent_t out;
 
@@ -481,6 +484,7 @@ void* clock_thread_exec(void* arg) {
 
 void init_threads() {
 	pthread_mutex_init(&evt_queue_lock, NULL);
+	pthread_cond_init(&evt_exists_cond, NULL);
 	pthread_create(&input_thread, NULL, input_thread_exec, NULL);
 	pthread_create(&clock_thread, NULL, clock_thread_exec, NULL);
 }
@@ -489,6 +493,8 @@ void terminate() {
 	running = 0;
 	pthread_join(input_thread, NULL);
 	pthread_join(clock_thread, NULL);
+	pthread_mutex_destroy(&evt_queue_lock);
+	pthread_cond_destroy(&evt_exists_cond);
 	screen_showcursor();
 	graceful_exit("exiting multithreaded normally.");
 }
@@ -524,9 +530,11 @@ int cmtop(int argc, char** argv) {
 	init_threads();
 
 #ifdef MTOP_MULTITHREAD
-	while (running) {
+	while (1) {
 
 		qevent_t event = eq_take();
+
+		if (event.type == QEVENT_NONE) continue;
 
 		u8 update = 0;
 		u8 redraw = 0;

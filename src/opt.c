@@ -25,18 +25,16 @@ mtop_opt_t opt;	// global options struct
 void opt_default() {
     opt.draw_static     = OPT_NO;
     opt.refresh_rate    = 100;
-
+    opt.logging         = OPT_LOG_NONE;
     opt.falloff = 1.5;
 
     opt.color.mode       = OPT_DRAWCOLOR_24BIT;
-
     opt.color.head = (dcolor_t) {
         {255,255,255},
         DCOLOR_WHITE,
         DCOLOR_FG,
         DCOLOR_BRIGHT
     };
-
     opt.color.stops[0] = (dcolor_t) {
             {0,80,0},
             DCOLOR_GREEN,
@@ -55,9 +53,7 @@ void opt_default() {
             DCOLOR_FG,
             DCOLOR_BRIGHT
         };
-
     opt.color.num_stops = 3;
-
     opt.color.base = (dcolor_t) {(drgb_t) {100,100,100}, DCOLOR_WHITE, DCOLOR_FG, DCOLOR_NORMAL};
     opt.color.highlight = (dcolor_t) {(drgb_t) {0,200,0}, DCOLOR_GREEN, DCOLOR_FG, DCOLOR_NORMAL};
 }

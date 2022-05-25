@@ -19,7 +19,7 @@
  * DEALINGS IN THE SOFTWARE. */
 
 #include "common.h"
-
+#include "opt.h"
 #include "error.h"
 #include "tty.h"
 
@@ -116,4 +116,20 @@ void warn(char *msg) {
 
 void notify(char *msg) {
 	fatal(2000,msg);
+}
+
+void verbose(const char* format, ...) {
+	if (get_opt(logging) < OPT_LOG_VERBOSE) return;
+	va_list args;
+	va_start(args, format);
+	vprintf(format, args);
+	va_end(args);
+}
+
+void debug(const char* format, ...) {
+	if (get_opt(logging) < OPT_LOG_DEBUG) return;
+	va_list args;
+	va_start(args, format);
+	vprintf(format, args);
+	va_end(args);
 }

@@ -86,6 +86,10 @@ void parse_args(int argc, char** argv) {
 
 		} else if (ARG_EQ_SL("-s", "--static")) {
 			set_opt(draw_static, OPT_YES);
+		} else if (ARG_EQ("--verbose")) {
+			set_opt(logging, OPT_LOG_VERBOSE);
+		} else if (ARG_EQ("--debug")) {
+			set_opt(logging, OPT_LOG_DEBUG);
 		} else {
 			error(-1, "invalid option '%s'. Type --help for more info.", *args);
 		}
@@ -146,20 +150,20 @@ void forceful_exit() {
 void graceful_exit(const char* msg) {
 	procs_destroy(&info);
 	screen_exit();
-	if (msg != NULL) printf("%s\n", msg);
+	if (msg != NULL) debug("%s\n", msg);
 	exit(0);
 }
 
 void abnormal_exit(const char* msg) {
 	procs_destroy(&info);
 	screen_exit();
-	if (msg != NULL) printf("%s\n", msg);
-	exit(0);
+	if (msg != NULL) verbose("%s\n", msg);
+	exit(1);
 }
 
 void sigint_handler() {
 	signal(SIGINT, &forceful_exit);
-	abnormal_exit("received INT signal, exiting.");
+	graceful_exit("interrupted, exiting.");
 }
 
 void sigterm_handler() {
@@ -169,10 +173,6 @@ void sigterm_handler() {
 void sigwinch_handler() {
 	// update stored screen size and do a "hard" reset
 	// of the screen (erase everything and wati for the next write)
-	//
-	// TODO: update with better logic to draw a new screen 
-	// immediately instead of waiting for the loop to come around 
-	// again
 
 	ssz = get_screensize();
 	screen_setcursor((rowcol_t) {0,0});
@@ -263,9 +263,7 @@ void draw_fillbuffer(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size) {
 
 	proclist_cur_t cursor = pl_cur_init(&info->procs);
 	pl_cur_next(&cursor);
-	
-	// FIXME: something gets messed up here where the col_offset gets flipped to be way more
-	// which causes an infinite loop
+
 	for (size_t i = 0; i < info->col_offset; i++) {
 		pl_cur_next(&cursor);
 	} 
@@ -490,7 +488,7 @@ int cmtop(int argc, char** argv) {
 
 	opt_default();
 	parse_args(argc - 1, argv + 1);
-	opt_print();
+	if (get_opt(logging) >= OPT_LOG_DEBUG) opt_print();
 
 	signal(SIGWINCH, &sigwinch_handler);
 	signal(SIGSEGV, &segfault);
@@ -593,6 +591,7 @@ int cmtop(int argc, char** argv) {
 
 			draw_fillbuffer(&dbuf, &info, ssz.rows);
 			dbuf_flush(&dbuf);
+
 
 			if (update) procs_foreachnode(&info, &advance_offset);
 		}

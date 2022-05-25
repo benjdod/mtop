@@ -24,8 +24,19 @@
 #include "display/dcolor.h"
 #include "common.h"
 
+// option flags
+
 #define OPT_YES 0x1
 #define OPT_NO  0x0
+
+#define OPT_DRAWCOLOR_NONE     0x0
+#define OPT_DRAWCOLOR_ANSI     0x1
+#define OPT_DRAWCOLOR_8BIT     0x2
+#define OPT_DRAWCOLOR_24BIT    0x3
+
+#define OPT_LOG_NONE            0x0
+#define OPT_LOG_VERBOSE         0x1
+#define OPT_LOG_DEBUG           0x2
 
 typedef struct color_opt_t_ {
     u8 mode;
@@ -38,14 +49,11 @@ typedef struct color_opt_t_ {
 } color_opt_t;
 
 typedef struct mtop_opt_t_ {
-#define OPT_DRAWCOLOR_NONE     0x0
-#define OPT_DRAWCOLOR_ANSI     0x1
-#define OPT_DRAWCOLOR_8BIT     0x2
-#define OPT_DRAWCOLOR_24BIT    0x3
     u8 draw_static;
     u32 refresh_rate;
     color_opt_t color;  
     double falloff;
+    u8 logging;
 } mtop_opt_t;
 
 extern mtop_opt_t opt;

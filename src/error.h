@@ -27,5 +27,7 @@ void fatal(int, const char *, ...);
 void error(int, const char *, ...);
 void warn(char *);
 void notify(char *);
+void verbose(const char* fmt, ...);
+void debug(const char* fmt, ...);
 
 #endif

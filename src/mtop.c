@@ -188,20 +188,6 @@ void segfault() {
 
 // DRAWING
 
-
-static char randchar() {
-    char r_chars[] = {
-        '\'',
-        '`',
-        '.',
-        ','
-    };
-
-    u8 rselect = (rand() % (sizeof(r_chars) * 3));
-
-    return (rselect < sizeof(r_chars)) ? r_chars[rselect] : ' ';
-}
-
 static size_t draw_system_info(drawbuffer_t* dbuf, procs_info_t* info, size_t r_size, size_t rows) {
 
 #define CHECK_RETURN() {if (rows > 0 && rows_printed >= rows ) return rows;}
@@ -579,6 +565,10 @@ int cmtop(int argc, char** argv) {
 				case 'G':
 				case '$':
 					procs_select(&info, PROCS_SELECT_LAST);
+					redraw = 1;
+					break;
+				case 's':
+					set_opt(draw_static, ! get_opt(draw_static));
 					redraw = 1;
 					break;
 				case 'q':

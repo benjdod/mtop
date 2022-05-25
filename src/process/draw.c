@@ -25,12 +25,21 @@
 
 #define DRAWCACHE_PADDING 1
 
-static const dcolor_t bright_white = (dcolor_t) {
-	{255,255,255},
-	DCOLOR_WHITE,
-	DCOLOR_FG,
-	DCOLOR_NORMAL
-};
+char randchar() {
+    char r_chars[] = {
+        '\'',
+        '`',
+        '.',
+        ','
+    };
+
+	// we have 1/8th probability of getting a static character
+	// instead of a space
+
+    u8 rselect = (rand() % (sizeof(r_chars) * 8));
+
+    return (rselect < sizeof(r_chars)) ? r_chars[rselect] : ' ';
+}
 
 size_t pd_drawto(procinfo_t* p, char* buf, size_t n) {
 //    printf("pd drawing to %p\n", buf);
@@ -254,9 +263,14 @@ inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
 
     /* If the final index is within the bounds of the draw cache and is visible according to 
      * the masking algorithm, return it. Otherwise return a space */
-	char final_char = ( final_idx < p->dd.length && randd_visible(p->dd.ctx, screen_offset))
+
+	u8 printable = ( final_idx < p->dd.length && randd_visible(p->dd.ctx, screen_offset));
+
+	char final_char = (printable)
         ? p->dd.cache[final_idx]
-        : ' ';
+        : (get_opt(draw_static)) 
+			? randchar()
+			: ' ';
 
 	cchar_t out;
 	out.c = final_char;
@@ -266,7 +280,7 @@ inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
 	if (final_char == ' ') {
 		out.color = DCOLOR_SAMPLE_UNSET;
 	} else if (ctx.offset == ctx.rand - 1) {
-		out.color = bright_white;
+		out.color = get_opt(color.head);
 	} else {
 		out.color = get_opt(color.stops)[randd_stop(ctx, screen_offset, get_opt(color.num_stops))];
 	}

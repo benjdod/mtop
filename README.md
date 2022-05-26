@@ -6,6 +6,17 @@ Because why can't your system be fun and functional at the same time?
 
 ### Building
 
-When you first clone this repository, run the initialization script with `sh init-cmake.sh`. This will create a build directory with two subdirectories for debug and release. Then run `cmake --build build/[debug|release]` depending on which target you'd like to compile. The executable is called mtop and will be in its respective build folder.
+On first cloning the repository:
+
+```
+sh init-cmake.sh
+cmake --build build/release
+```
+
+Running the program:
+
+```
+./build/release/mtop
+```
 
 🚨 *This program is still under development and thus is not guaranteed to be stable or even functional. Use at your own risk.*

@@ -10,6 +10,7 @@ add_compile_definitions(
 
 add_compile_options(
 	$<$<CONFIG:DEBUG>:-pg>
+	$<$<CONFIG:DEBUG>:-g>
 	$<$<CONFIG:DEBUG>:-Og>
 	$<$<CONFIG:RELEASE>:-O3>
 	-Wall
@@ -36,6 +37,4 @@ target_link_libraries(mtop
 target_include_directories(mtop PUBLIC
 	"src"
 	"src/**"
-	# "process"
-	# "display"
 )

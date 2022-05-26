@@ -14,6 +14,9 @@ _deps
 # editor files
 .vscode/**
 
+# build dir
+build/*
+
 # executables and library files
 mtop
 src/**/*.a

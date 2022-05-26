@@ -39,7 +39,7 @@
 
 // compile flags
 
-#define MTOP_MULTITHREAD 
+// #define MTOP_MULTITHREAD 
 
 // integer typedefs for sanity :)
 

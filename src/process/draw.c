@@ -149,6 +149,7 @@ void pd_updatecache(procnode_t* p) {
 
 int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 
+	// TODO: make these responsive (aka a function of of screen's height)
 	#define PSEUDORAND_MIN 30
 	#define PSEUDORAND_MAX 65
 	#define PSEUDORAND_WIDTH (PSEUDORAND_MAX - PSEUDORAND_MIN)

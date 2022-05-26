@@ -15,7 +15,7 @@ target_include_directories(display
 )
 
 
-SET(GCC_COMPILE_FLAGS "-g -O2 -Wall")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
+#SET(GCC_COMPILE_FLAGS "-g -O2 -Wall")
+#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
 
-add_compile_options(-g)
+#add_compile_options(-g)

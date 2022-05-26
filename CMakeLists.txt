@@ -2,6 +2,19 @@ cmake_minimum_required(VERSION 3.10)
 
 project(mtop)
 
+SET(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+add_compile_definitions(
+	MTOP_MULTITHREAD
+)
+
+add_compile_options(
+	$<$<CONFIG:DEBUG>:-pg>
+	$<$<CONFIG:DEBUG>:-Og>
+	$<$<CONFIG:RELEASE>:-O3>
+	-Wall
+)
+
 add_subdirectory(src/display)
 add_subdirectory(src/process)
 
@@ -11,10 +24,6 @@ add_executable(mtop
 	src/error.c
 	src/xutil.c
 )
-
-SET(GCC_COMPILE_FLAGS "-g -Og -Wall")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
-SET(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 target_link_libraries(mtop
 	PUBLIC display

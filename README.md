@@ -6,6 +6,6 @@ Because why can't your system be fun and functional at the same time?
 
 ### Building
 
-Build with CMake: `cmake . && make` The target executable is called `mtop` and will be placed in the root folder. 
+When you first clone this repository, run the initialization script with `sh init-cmake.sh`. This will create a build directory with two subdirectories for debug and release. Then run `cmake --build build/[debug|release]` depending on which target you'd like to compile. The executable is called mtop and will be in its respective build folder.
 
 🚨 *This program is still under development and thus is not guaranteed to be stable or even functional. Use at your own risk.*

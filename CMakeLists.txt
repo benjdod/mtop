@@ -16,8 +16,6 @@ SET(GCC_COMPILE_FLAGS "-g -Og -Wall")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COMPILE_FLAGS}")
 SET(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-add_compile_options(-g -Og)
-
 target_link_libraries(mtop
 	PUBLIC display
 	PUBLIC process

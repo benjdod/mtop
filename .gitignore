@@ -17,3 +17,7 @@ _deps
 # executables and library files
 mtop
 src/**/*.a
+
+# gprof
+gmon.out
+prof_output

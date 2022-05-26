@@ -149,8 +149,8 @@ void pd_updatecache(procnode_t* p) {
 
 int pd_get_interval(rand_hashdata_t hashdata, size_t index) {
 
-	#define PSEUDORAND_MIN 25
-	#define PSEUDORAND_MAX 60
+	#define PSEUDORAND_MIN 30
+	#define PSEUDORAND_MAX 65
 	#define PSEUDORAND_WIDTH (PSEUDORAND_MAX - PSEUDORAND_MIN)
 	#define FNV_OFFSET_BASIS 0xcbf29ce484222325
 	#define FNV_PRIME 0x100000001b3
@@ -221,7 +221,6 @@ void pd_random_drawctx(rand_drawctx_t* ctx) {
 	ctx->offset = (rand() + ctx->hashdata.base) % ctx->rand;
 }
 
-
 inline int randd_visible(rand_drawctx_t ctx, size_t screen_offset) {
     int width = ctx.rand - ctx.offset;
 	int visible = ctx.visible;
@@ -275,7 +274,15 @@ inline cchar_t pd_ccharat(procnode_t* p, size_t screen_offset) {
 	cchar_t out;
 	out.c = final_char;
 
-	rand_drawctx_t ctx = advance_ctx_by(p->dd.ctx, screen_offset);
+	rand_drawctx_t ctx;
+
+	if (screen_offset > p->dd.ctx_cache.screen_offset) {
+		ctx = advance_ctx_by(p->dd.ctx_cache.ctx, screen_offset - p->dd.ctx_cache.screen_offset);
+	} else {
+		ctx = advance_ctx_by(p->dd.ctx, screen_offset);
+		p->dd.ctx_cache.ctx = p->dd.ctx;
+		p->dd.ctx_cache.screen_offset = 0;
+	}
 
 	if (final_char == ' ') {
 		out.color = DCOLOR_SAMPLE_UNSET;

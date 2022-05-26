@@ -57,10 +57,17 @@ typedef struct rand_drawctx_t_ {
 	int visible;
 } rand_drawctx_t;
 
+typedef struct ctx_cache_t_ {
+	rand_drawctx_t ctx;
+	size_t screen_offset;
+} ctx_cache_t;
+
 typedef struct drawdata_t_ {
 	size_t offset;
 	size_t length;
 	rand_drawctx_t ctx;
+	ctx_cache_t ctx_cache;
+	size_t last_screen_offset;
 	char cache[DRAWDATA_CACHE_LENGTH];
 } drawdata_t;
 

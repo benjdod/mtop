@@ -148,11 +148,22 @@ static procnode_t* pl_findnode(proclist_t* list, pid_t pid) {
 
     procnode_t* current = list->head;
 
+	pid_t current_pid;
+
+	while ((current_pid = current->value.pid) != pid) {
+		current = (current_pid > pid) 
+			? current->prev
+			: current->next;
+		if (current == NULL) return NULL;
+	}
+
+	/*
     while (current != NULL) {
         if (current->value.pid == pid) break;
         current = current->next;
-    }
+    } */
 
+	list->search = current;
     return current;
 }
 

@@ -6,7 +6,6 @@ run: ./build/release/mtop
 release: ./build/release/mtop
 
 debug: ./build/debug/mtop
-	$<
 
 ./build/release/mtop:
 	cmake --build build/release

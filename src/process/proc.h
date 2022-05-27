@@ -98,8 +98,9 @@ typedef enum {
 
 struct proclist_t_ {
     procnode_t
-        *head,
-        *tail;
+        *head, 		// list head 
+        *tail, 		// list tail
+		*search; 	// the most recently found node (pl_findnode)
     size_t size;
 };
 

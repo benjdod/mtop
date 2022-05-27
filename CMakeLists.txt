@@ -17,7 +17,16 @@ add_compile_options(
 	$<$<CONFIG:DEBUG>:-Og>
 	$<$<CONFIG:RELEASE>:-O3>
 	-Wall
+	-Wextra
 )
+
+add_link_options(
+	-pg
+	-g
+	)
+
+add_subdirectory(src/display)
+add_subdirectory(src/process)
 
 add_executable(mtop 	
 	src/opt.c
@@ -26,8 +35,6 @@ add_executable(mtop
 	src/xutil.c
 )
 
-add_subdirectory(src/display)
-add_subdirectory(src/process)
 
 target_link_libraries(mtop
 	PUBLIC display

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 #project(display)
 
-add_library(display STATIC 
+add_library(display OBJECT 
     drawbuffer.c
     dcolor.c
     screen.c 

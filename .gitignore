@@ -11,6 +11,9 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+# except the top-level convenience makefile 
+!/Makefile
+
 # editor files
 .vscode/**
 

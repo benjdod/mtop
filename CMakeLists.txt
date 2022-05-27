@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+SET(CMAKE_DISABLE_SOURCE_CHANGES ON)
+SET(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
 project(mtop)
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -16,15 +19,15 @@ add_compile_options(
 	-Wall
 )
 
-add_subdirectory(src/display)
-add_subdirectory(src/process)
-
 add_executable(mtop 	
 	src/opt.c
 	src/mtop.c
 	src/error.c
 	src/xutil.c
 )
+
+add_subdirectory(src/display)
+add_subdirectory(src/process)
 
 target_link_libraries(mtop
 	PUBLIC display
